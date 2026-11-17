@@ -1,6 +1,7 @@
 import { revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { enrichMissing } from "@/lib/spotify/enrich";
+import { warmCaches } from "@/lib/spotify/warm";
 import { z } from "zod";
 import { isAuthorizedJob, serverError, unauthorized } from "@/lib/cron";
 import { db, hasDb } from "@/db";
@@ -53,11 +54,13 @@ export async function POST(req: Request) {
     await logRun("export", { rowsSeen: rows.length, rowsWritten: written, ok: true, batchId });
     if (final) {
       revalidateTag("spotify", { expire: 0 });
-      // Art and genres for the newly imported top items, after the response.
+      revalidateTag("insights", { expire: 0 }); // older history changes the long-range stats
+      // Art and genres for the newly imported top items, then warm the slow views.
       after(() =>
         enrichMissing()
           .then(() => revalidateTag("spotify", { expire: 0 }))
           .catch((err) => console.error("[spotify-enrich]", err))
+          .then(warmCaches)
       );
     }
     return Response.json({ written });

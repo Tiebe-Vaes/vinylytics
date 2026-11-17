@@ -9,8 +9,11 @@ vi.mock("@/lib/spotify/sync", async (orig) => ({
 }));
 vi.mock("@/lib/spotify/write", () => ({ logRun: vi.fn(async () => {}) }));
 vi.mock("@/lib/spotify/enrich", () => ({ enrichMissing: vi.fn(async () => ({ tracks: 0, artists: 0 })) }));
-vi.mock("next/server", async (orig) => ({ ...(await orig<typeof import("next/server")>()), after: vi.fn() }));
+const after = vi.hoisted(() => vi.fn());
+const warm = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock("next/server", async (orig) => ({ ...(await orig<typeof import("next/server")>()), after }));
 vi.mock("next/cache", () => ({ revalidateTag: vi.fn() }));
+vi.mock("@/lib/spotify/warm", () => ({ warmCaches: warm }));
 
 const { POST } = await import("./route");
 
@@ -38,5 +41,14 @@ describe("POST /api/cron/sync", () => {
     const res = await call("Bearer right");
     expect(res.status).toBe(200);
     expect(sync).toHaveBeenCalledTimes(1);
+  });
+
+  it("warms the slow cached views after responding", async () => {
+    after.mockClear();
+    warm.mockClear();
+    await call("Bearer right");
+    expect(warm).not.toHaveBeenCalled(); // not before the response
+    await after.mock.calls[0][0]();
+    expect(warm).toHaveBeenCalledTimes(1);
   });
 });

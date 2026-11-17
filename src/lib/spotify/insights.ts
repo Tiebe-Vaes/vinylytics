@@ -153,8 +153,13 @@ export async function getInsights(today: string = localDateKey()): Promise<Insig
   };
 }
 
-/** getInsights for pages: cached until the next sync or import, per TIMEZONE and day. */
+/**
+ * getInsights for pages, once per day per TIMEZONE. It scans the whole history
+ * (~8 s at 300k plays on one connection), and these stats move over months, so
+ * a 30-min sync doesn't clear it; an import does (tag "insights"), and
+ * warmCaches() recomputes it in the background so pages read the cache.
+ */
 export function cachedInsights(): Promise<Insights> {
   const today = localDateKey();
-  return unstable_cache(() => getInsights(today), ["insights", timezone(), today], { tags: ["spotify"] })();
+  return unstable_cache(() => getInsights(today), ["insights", timezone(), today], { tags: ["insights"] })();
 }

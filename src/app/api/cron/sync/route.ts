@@ -5,6 +5,7 @@ import { isAuthorizedJob, serverError, unauthorized } from "@/lib/cron";
 import { syncRecentlyPlayed, syncStatus } from "@/lib/spotify/sync";
 import { logRun } from "@/lib/spotify/write";
 import { enrichMissing } from "@/lib/spotify/enrich";
+import { warmCaches } from "@/lib/spotify/warm";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -42,4 +43,5 @@ async function enrichAfter() {
   } catch (err) {
     console.error("[spotify-enrich]", err);
   }
+  await warmCaches();
 }
