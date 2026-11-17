@@ -2,8 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { db, hasDb, schema } from "@/db";
 import { exchangeCode } from "@/lib/spotify/auth";
-import { isProd } from "@/lib/env";
-import { appUrl } from "@/lib/app-url";
+import { appUrl, secureCookies } from "@/lib/app-url";
 import { decideOwner, storedOwner } from "@/lib/owner";
 import { SESSION_COOKIE, SESSION_DAYS, signSession } from "@/lib/session";
 
@@ -72,7 +71,7 @@ export async function GET(req: NextRequest) {
   res.cookies.set(SESSION_COOKIE, signSession(userId, new Date(), secret), {
     httpOnly: true,
     sameSite: "lax",
-    secure: isProd(),
+    secure: secureCookies(process.env.SPOTIFY_REDIRECT_URI),
     maxAge: SESSION_DAYS * 86_400,
     path: "/",
   });

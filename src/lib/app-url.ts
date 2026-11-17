@@ -12,3 +12,16 @@ export function appUrl(path: string, redirectUri: string | undefined, fallback: 
   }
   return new URL(path, fallback);
 }
+
+/**
+ * Secure cookies only when the app is served over https. Keyed to the
+ * redirect URI, not NODE_ENV: a Docker copy on http://127.0.0.1 runs in
+ * production mode, and some browsers drop Secure cookies over plain http.
+ */
+export function secureCookies(redirectUri: string | undefined): boolean {
+  try {
+    return redirectUri ? new URL(redirectUri).protocol === "https:" : false;
+  } catch {
+    return false;
+  }
+}
