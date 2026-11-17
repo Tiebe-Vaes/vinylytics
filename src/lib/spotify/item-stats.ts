@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { sql, type SQL } from "drizzle-orm";
+import { timezone } from "@/lib/tz";
 import { db } from "@/db";
 import { rowsOf } from "@/db/rows";
 import { local } from "./queries";
@@ -78,4 +80,10 @@ export async function getItemStats(ref: ItemRef): Promise<ItemStats> {
     rankByMonth: rowsOf<{ month: string; rank: number }>(monthly),
     allTimeRank: rowsOf<{ rank: number }>(allTime)[0]?.rank ?? null,
   };
+}
+
+/** getItemStats for pages: four scans of the history (~1 s at 300k plays), so cached until the next sync. */
+export function cachedItemStats(ref: ItemRef): Promise<ItemStats> {
+  const id = ref.kind === "artist" ? ref.name : ref.kind === "track" ? ref.uri : ref.albumId;
+  return unstable_cache(() => getItemStats(ref), ["item", ref.kind, id, timezone()], { tags: ["spotify"] })();
 }

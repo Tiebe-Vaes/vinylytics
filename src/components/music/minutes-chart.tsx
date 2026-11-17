@@ -24,7 +24,7 @@ export function MinutesChart({ byMonth }: { byMonth: { month: string; minutes: n
       {data.length === 0 ? (
         <Empty>No listening stored yet.</Empty>
       ) : (
-        <div className="p-5">
+        <div className="py-4">
           <ChartContainer config={CONFIG} className="aspect-auto h-56 w-full">
             <BarChart data={data} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
               <CartesianGrid stroke="var(--grid)" vertical={false} />
@@ -40,7 +40,7 @@ export function MinutesChart({ byMonth }: { byMonth: { month: string; minutes: n
                   />
                 }
               />
-              <Bar dataKey="minutes" fill="var(--color-minutes)" radius={[4, 4, 0, 0]} maxBarSize={10} isAnimationActive={false} />
+              <Bar dataKey="minutes" fill="var(--color-minutes)" radius={[1, 1, 0, 0]} maxBarSize={10} isAnimationActive={false} />
             </BarChart>
           </ChartContainer>
         </div>
