@@ -50,3 +50,8 @@ AGENTS.md
 .claude/
 .superpowers/
 docs/superpowers/
+
+# Design tooling (kept out of the public repo)
+PRODUCT.md
+DESIGN.md
+.impeccable/
