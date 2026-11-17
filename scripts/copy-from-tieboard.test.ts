@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
@@ -74,6 +75,19 @@ describe("copyAll", () => {
     await copyAll(read, dest.db);
     expect(await copyAll(read, dest.db)).toEqual({ plays: 0, tracks: 0, artists: 0 });
     expect(await dest.db.select().from(schema.plays)).toHaveLength(3);
+  });
+
+  it("replaces the api twin the live sync stored instead of counting the play twice", async () => {
+    await dest.db.insert(schema.plays).values({
+      playedAt: new Date("2024-01-01T10:00:02.345Z"), msPlayed: 210000, kind: "track", uri: "spotify:track:a",
+      trackName: "A", artistName: "Artist", albumName: "Album", reasonStart: null, reasonEnd: null,
+      skipped: null, shuffle: null, source: "api",
+    });
+    const n = await copyAll(read, dest.db);
+    expect(n.plays).toBe(2); // 3 copied, 1 replaced its twin
+    const a = await dest.db.select().from(schema.plays).where(eq(schema.plays.uri, "spotify:track:a"));
+    expect(a).toHaveLength(1);
+    expect(a[0].source).toBe("export");
   });
 
   it("never copies tokens", async () => {

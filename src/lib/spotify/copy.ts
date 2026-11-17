@@ -1,11 +1,13 @@
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import * as schema from "@/db/schema";
+import { mergePlays } from "./merge";
 import type { PlayRow } from "./types";
 
 /**
  * One-off copy of the owner's history out of Tieboard's database. Reads
  * spotify_plays, spotify_tracks and spotify_artists only; never spotify_auth,
- * and never writes to the source. Conflict keys make re-runs add nothing.
+ * and never writes to the source. Conflict keys make re-runs add nothing, and
+ * mergePlays folds plays the live sync already stored into their export twin.
  */
 
 /** Runs a read-only query on the source database and returns its rows. */
@@ -62,9 +64,7 @@ export async function copyAll(read: SourceQuery, dest: Dest): Promise<{ plays: n
   const n = { plays: 0, tracks: 0, artists: 0 };
 
   await pages(read, "spotify_plays", "played_at, id", async (rows) => {
-    const values = rows.map((r) => mapTieboardPlay(r as TieboardPlay));
-    const inserted = await dest.insert(schema.plays).values(values).onConflictDoNothing().returning({ id: schema.plays.id });
-    n.plays += inserted.length;
+    n.plays += await mergePlays(dest, rows.map((r) => mapTieboardPlay(r as TieboardPlay)));
   });
 
   await pages(read, "spotify_tracks", "uri", async (rows) => {

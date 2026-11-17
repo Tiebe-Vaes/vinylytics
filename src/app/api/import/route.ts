@@ -2,9 +2,10 @@ import { revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { enrichMissing } from "@/lib/spotify/enrich";
 import { z } from "zod";
-import { hasDb } from "@/db";
 import { isAuthorizedJob, serverError, unauthorized } from "@/lib/cron";
-import { insertPlays, logRun } from "@/lib/spotify/write";
+import { db, hasDb } from "@/db";
+import { mergePlays } from "@/lib/spotify/merge";
+import { logRun } from "@/lib/spotify/write";
 import type { PlayRow } from "@/lib/spotify/types";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +48,8 @@ export async function POST(req: Request) {
   const rows: PlayRow[] = plays.map((p) => ({ ...p, playedAt: new Date(p.playedAt) }));
 
   try {
-    const written = await insertPlays(rows);
+    // Folds plays the live sync already stored into their export twin.
+    const written = await mergePlays(db(), rows);
     await logRun("export", { rowsSeen: rows.length, rowsWritten: written, ok: true, batchId });
     if (final) {
       revalidateTag("spotify", { expire: 0 });
