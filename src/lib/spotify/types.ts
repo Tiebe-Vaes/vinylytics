@@ -49,7 +49,7 @@ export type NowPlaying = {
   isPlaying: boolean;
 };
 
-/** One play as stored in `spotify_plays`, from the export or the API. */
+/** One play as stored in `plays`, from the export or the API. */
 export type PlayRow = {
   playedAt: Date;
   msPlayed: number;
