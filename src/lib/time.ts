@@ -1,13 +1,16 @@
+import { timezone } from "./tz";
+
 /**
  * All timestamps are stored UTC. Every day-bucketing decision happens here,
  * in the user's zone, so DST never shifts a night's sleep onto the wrong date.
  */
-export const TZ = "Europe/Brussels";
+/** The configured TIMEZONE; read per call so tests and env changes apply. */
+export const tz = timezone;
 
 /** "2026-08-06" for the given instant, in TZ. */
 export function localDateKey(d: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: TZ,
+    timeZone: tz(),
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -17,7 +20,7 @@ export function localDateKey(d: Date = new Date()): string {
 /** "Thursday 6 August" — header line. */
 export function longDate(d: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-GB", {
-    timeZone: TZ,
+    timeZone: tz(),
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -28,7 +31,7 @@ export function longDate(d: Date = new Date()): string {
 export function localHour(d: Date = new Date()): number {
   const h = Number(
     new Intl.DateTimeFormat("en-GB", {
-      timeZone: TZ,
+      timeZone: tz(),
       hour: "2-digit",
       hour12: false,
     }).format(d)
@@ -40,7 +43,7 @@ export function localHour(d: Date = new Date()): number {
 /** Minutes since local midnight (0–1439) for the given instant, in TZ. */
 export function localMinutes(d: Date = new Date()): number {
   const [h, m] = new Intl.DateTimeFormat("en-GB", {
-    timeZone: TZ,
+    timeZone: tz(),
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -55,7 +58,7 @@ export function localMinutes(d: Date = new Date()): number {
 function tzOffsetMs(d: Date): number {
   const p = Object.fromEntries(
     new Intl.DateTimeFormat("en-GB", {
-      timeZone: TZ,
+      timeZone: tz(),
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -70,7 +73,7 @@ function tzOffsetMs(d: Date): number {
   return wall - Math.floor(d.getTime() / 60_000) * 60_000;
 }
 
-/** A Brussels wall-clock time (month 1–12) as the matching UTC instant. */
+/** A local wall-clock time (month 1–12) as the matching UTC instant. */
 export function brusselsToUtc(y: number, m: number, d: number, h = 0, min = 0): Date {
   const guess = Date.UTC(y, m - 1, d, h, min);
   const first = guess - tzOffsetMs(new Date(guess));
@@ -81,7 +84,7 @@ export function brusselsToUtc(y: number, m: number, d: number, h = 0, min = 0): 
 /** "08:45" in TZ. */
 export function clock(d: Date): string {
   return new Intl.DateTimeFormat("en-GB", {
-    timeZone: TZ,
+    timeZone: tz(),
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
