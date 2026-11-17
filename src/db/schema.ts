@@ -126,3 +126,16 @@ export const eraOverrides = pgTable("era_overrides", {
   toDay: text("to_day"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Owner settings: one row, `id = 'owner'`. The public page is off until the
+ * owner switches it on, and then shows only the sections ticked here.
+ */
+export const settings = pgTable("settings", {
+  id: text("id").primaryKey().default("owner"),
+  publicEnabled: boolean("public_enabled").notNull().default(false),
+  publicSections: jsonb("public_sections")
+    .$type<{ eras: boolean; top: boolean; insights: boolean; nowPlaying: boolean }>()
+    .notNull()
+    .default({ eras: true, top: true, insights: false, nowPlaying: false }),
+});

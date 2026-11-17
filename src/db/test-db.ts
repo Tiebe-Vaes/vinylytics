@@ -22,5 +22,5 @@ export async function useTestDb() {
 }
 
 export async function resetDb() {
-  await db().execute(sql`TRUNCATE plays, tracks, artists, albums, era_overrides, sync_runs, auth`);
+  await db().execute(sql`TRUNCATE plays, tracks, artists, albums, era_overrides, sync_runs, auth, settings`);
 }

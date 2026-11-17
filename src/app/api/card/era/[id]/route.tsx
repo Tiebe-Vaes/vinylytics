@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData } from "@/lib/card";
 import { inkHex } from "@/lib/ink";
 import { isOwner } from "@/lib/owner";
+import { publicAllows } from "@/lib/public";
 import { getEraDetail } from "@/lib/spotify/era-detail";
 
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ const monthYear = (key: string) =>
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   // Not yours (and not public): same answer as missing, so ids don't leak.
-  if (!(await isOwner())) return new Response("Not found", { status: 404 });
+  if (!(await isOwner()) && !(await publicAllows("eras"))) return new Response("Not found", { status: 404 });
   const detail = await getEraDetail(id);
   if (!detail) return new Response("Not found", { status: 404 });
 

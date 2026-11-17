@@ -1,44 +1,101 @@
-import { PageHeader, Card } from "@/components/panel";
+import Link from "next/link";
+import { Badge, Empty, PageHeader, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
+import { getPublicSettings, type PublicSections } from "@/lib/public";
 import { getSpotifyStatus } from "@/lib/spotify/client";
-import { shortDate } from "@/lib/format";
+import { getEras } from "@/lib/spotify/eras-data";
 import { clock, localDateKey } from "@/lib/time";
-import { syncNow } from "./actions";
+import { deleteOverride } from "../eras/actions";
+import { savePublicSettings, syncNow } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-const LABEL = { connected: "Connected", broken: "Needs reconnect", "not-connected": "Not connected" } as const;
+const LABEL = { connected: "Connected", broken: "Needs a reconnect", "not-connected": "Not connected" } as const;
+const SECTIONS: { key: keyof PublicSections; label: string }[] = [
+  { key: "eras", label: "Shelf of eras" },
+  { key: "top", label: "Top artists and tracks, 4 weeks" },
+  { key: "insights", label: "B-sides and streaks" },
+  { key: "nowPlaying", label: "Last song played" },
+];
+const monthYear = (key: string) =>
+  new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const dayLabel = (d: Date) =>
+  new Date(`${localDateKey(d)}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 
 export default async function SettingsPage() {
-  const spotify = await getSpotifyStatus().catch(() => ({ state: "not-connected" as const, lastSyncAt: null }));
+  const [spotify, pub, { overrides }] = await Promise.all([
+    getSpotifyStatus().catch(() => ({ state: "not-connected" as const, lastSyncAt: null })),
+    getPublicSettings(),
+    getEras(),
+  ]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-12">
       <PageHeader title="Settings" />
-      <Card className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-        <div>
-          <p className="text-sm font-semibold">Spotify · {LABEL[spotify.state]}</p>
-          {spotify.lastSyncAt && (
-            <p className="text-sm text-muted-foreground">
-              Last sync {shortDate(localDateKey(spotify.lastSyncAt))} · {clock(spotify.lastSyncAt)}
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
+
+      <Panel title="Spotify" subtitle={LABEL[spotify.state] + (spotify.lastSyncAt ? ` · last sync ${dayLabel(spotify.lastSyncAt)}, ${clock(spotify.lastSyncAt)}` : "")}>
+        <div className="flex flex-wrap gap-2">
           {spotify.state === "connected" ? (
             <form action={syncNow}>
-              <Button size="sm" variant="outline" type="submit">Sync now</Button>
+              <Button size="sm" type="submit">Sync now</Button>
             </form>
           ) : (
-            <Button size="sm" variant="outline" render={<a href="/api/auth/login" />} nativeButton={false}>
-              Reconnect
-            </Button>
+            <Button size="sm" render={<a href="/api/auth/login" />} nativeButton={false}>Reconnect</Button>
           )}
-          <form action="/api/auth/logout" method="post">
-            <Button size="sm" variant="ghost" type="submit">Sign out</Button>
-          </form>
+          <Button size="sm" variant="outline" render={<Link href="/settings/import" />} nativeButton={false}>Import history</Button>
         </div>
-      </Card>
+      </Panel>
+
+      <Panel title="Public page" subtitle="A read-only page at /u for friends. Off until you switch it on; your history log is never shown.">
+        <form action={savePublicSettings} className="flex flex-col gap-3">
+          <label className="flex items-center gap-3 text-sm font-semibold">
+            <input type="checkbox" name="enabled" defaultChecked={pub.enabled} className="size-4 accent-[var(--text)]" />
+            Show my public page
+          </label>
+          <fieldset className="ml-7 flex flex-col gap-2 text-sm">
+            <legend className="sr-only">Sections on the public page</legend>
+            {SECTIONS.map((s) => (
+              <label key={s.key} className="flex items-center gap-3">
+                <input type="checkbox" name={s.key} defaultChecked={pub.sections[s.key]} className="size-4 accent-[var(--text)]" />
+                {s.label}
+              </label>
+            ))}
+          </fieldset>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm" type="submit">Save</Button>
+            {pub.enabled && (
+              <Link href="/u" className="text-sm font-semibold underline">View public page</Link>
+            )}
+          </div>
+        </form>
+      </Panel>
+
+      <Panel title="Your era edits" subtitle="Names and merges you made. They're re-applied whenever your eras are recalculated.">
+        {overrides.length === 0 ? (
+          <Empty>No edits. Rename or merge eras from an era&apos;s page.</Empty>
+        ) : (
+          <ul>
+            {overrides.map((o) => (
+              <li key={o.id} className="flex items-center justify-between gap-3 border-t border-rule py-2.5 text-sm first:border-t-0">
+                <span className="min-w-0 truncate">
+                  {o.kind === "rename" ? `Named “${o.name}”` : `Merged ${monthYear(o.from)} – ${monthYear(o.to)}`}
+                  {o.unused && <Badge tone="warn" className="ml-2">no longer matches</Badge>}
+                </span>
+                <form action={deleteOverride}>
+                  <input type="hidden" name="id" value={o.id} />
+                  <Button size="sm" variant="ghost" type="submit">Remove</Button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Account">
+        <form action="/api/auth/logout" method="post">
+          <Button size="sm" variant="outline" type="submit">Sign out</Button>
+        </form>
+      </Panel>
     </div>
   );
 }

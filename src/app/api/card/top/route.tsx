@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData } from "@/lib/card";
 import { inkHex } from "@/lib/ink";
 import { isOwner } from "@/lib/owner";
+import { publicAllows } from "@/lib/public";
 import { topItems } from "@/lib/spotify/charts";
 import { chartRange } from "@/lib/spotify/data";
 
@@ -13,7 +14,7 @@ type CardRange = keyof typeof RANGES;
 
 /** Your top 5 artists or tracks as the back of a sleeve: the card people post instead of a stats.fm screenshot. */
 export async function GET(req: Request) {
-  if (!(await isOwner())) return new Response("Not found", { status: 404 });
+  if (!(await isOwner()) && !(await publicAllows("top"))) return new Response("Not found", { status: 404 });
   const q = new URL(req.url).searchParams;
   const kind = q.get("kind") === "track" ? "track" : "artist";
   const range: CardRange = (["4w", "6m", "all"] as const).find((r) => r === q.get("range")) ?? "4w";
