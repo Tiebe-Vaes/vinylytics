@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { demoAllowed } from "@/lib/env";
 import { inkText } from "@/lib/ink";
 
 /**
@@ -57,25 +58,32 @@ export const cardFormat = (v: string | null): CardFormat => (v === "story" ? "st
 /** The shared sleeve frame of every card: ink field, wordmark, attribution, optional cover sticker. */
 export function CardFrame({
   ink,
-  topLeft,
+  period,
+  catalogue,
   cover,
   children,
 }: {
   ink: string;
-  topLeft: string;
+  /** When this covers, printed in the credits at the foot like a sleeve's small print. */
+  period: string;
+  /** A sleeve's catalogue line, e.g. "VNL 2605 · SIDE A". */
+  catalogue: string;
   cover: string | null;
   children: React.ReactNode;
 }) {
   const fg = inkText(ink);
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: ink, color: fg, padding: 80, fontFamily: "Archivo" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 34, fontWeight: 600 }}>
-        <span>{topLeft}</span>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <span style={{ fontFamily: "Big Shoulders", fontWeight: 900, fontSize: 44, letterSpacing: -0.5 }}>VINYLYTICS</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>{children}</div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <span style={{ fontSize: 26, fontWeight: 600 }}>Data from Spotify</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 26, fontWeight: 600 }}>
+          <span style={{ fontFamily: "Big Shoulders", fontWeight: 900, fontSize: 34 }}>{catalogue}</span>
+          <span>{period}</span>
+          <span>{demoAllowed() ? "Demo data, synthetic history" : "Data from Spotify"}</span>
+        </div>
         {cover ? (
           // Unaltered cover, framed like a sticker: Spotify's guidelines allow no crop or filter.
           // eslint-disable-next-line @next/next/no-img-element

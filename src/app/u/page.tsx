@@ -4,6 +4,7 @@ import { SpotifyAttribution } from "@/components/music/attribution";
 import { Empty, Panel } from "@/components/panel";
 import { Cover } from "@/components/sleeve/cover";
 import { Shelf } from "@/components/sleeve/shelf";
+import { DemoBanner } from "@/components/shell/demo-banner";
 import type { ChartItem } from "@/lib/spotify/charts";
 import { publicPayload } from "@/lib/public";
 
@@ -40,8 +41,9 @@ export default async function PublicPage() {
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-8">
-      <header className="flex items-end justify-between gap-4 border-b border-rule pb-4">
-        <h1 className="display text-5xl">A discography</h1>
+      <DemoBanner />
+      <header className="flex flex-col gap-2 border-b border-rule pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="display text-5xl whitespace-nowrap">A discography</h1>
         <SpotifyAttribution />
       </header>
 

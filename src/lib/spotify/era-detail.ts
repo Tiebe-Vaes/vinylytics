@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { db, hasDb } from "@/db";
 import { rowsOf } from "@/db/rows";
 import { timezone } from "@/lib/tz";
+import { eraInstants } from "./era-covers";
 import { getEras, type EraView } from "./eras-data";
 import { local } from "./queries";
 
@@ -28,7 +29,11 @@ export async function eraDetail(id: string): Promise<EraDetail | null> {
   const i = eras.findIndex((e) => e.id === id);
   if (i === -1) return null;
   const era = eras[i];
-  const inEra = sql`(${local()})::date BETWEEN ${era.start}::date AND ${era.end}::date`;
+  const { from, to } = eraInstants(era);
+  const [s, e] = [from.toISOString(), to.toISOString()];
+  // Range on the indexed played_at, not a per-row timezone conversion.
+  const inEra = sql`played_at >= ${s}::timestamptz AND played_at < ${e}::timestamptz`;
+  const firstIn = sql`min(played_at) >= ${s}::timestamptz AND min(played_at) < ${e}::timestamptz`;
   const d = db();
 
   const [tracks, firsts, days] = await Promise.all([
@@ -42,9 +47,9 @@ export async function eraDetail(id: string): Promise<EraDetail | null> {
     d.execute(sql`
       SELECT
         (SELECT count(*)::int FROM (SELECT uri FROM plays WHERE kind = 'track' AND uri IS NOT NULL AND ${STREAM}
-           GROUP BY uri HAVING (min(${local()}))::date BETWEEN ${era.start}::date AND ${era.end}::date) f) AS tracks,
+           GROUP BY uri HAVING ${firstIn}) f) AS tracks,
         (SELECT count(*)::int FROM (SELECT artist_name FROM plays WHERE kind = 'track' AND artist_name IS NOT NULL AND ${STREAM}
-           GROUP BY artist_name HAVING (min(${local()}))::date BETWEEN ${era.start}::date AND ${era.end}::date) a) AS artists`),
+           GROUP BY artist_name HAVING ${firstIn}) a) AS artists`),
     d.execute(sql`
       SELECT to_char((${local()})::date, 'YYYY-MM-DD') AS day, (sum(ms_played) / 60000.0)::float AS minutes
       FROM plays WHERE kind = 'track' AND ${inEra}

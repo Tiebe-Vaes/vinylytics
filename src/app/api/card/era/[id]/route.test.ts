@@ -49,4 +49,19 @@ describe("GET /api/card/era/[id]", () => {
     owner.yes = false;
     expect((await call("2026-01-05")).status).toBe(404);
   });
+
+  it("serves a visitor once the public page shows eras, and stops when it's off", async () => {
+    owner.yes = false;
+    const d = await useTestDb();
+    await d.insert(schema.settings).values({ publicEnabled: true, publicSections: { eras: true, top: false, insights: false, nowPlaying: false } });
+    expect((await call("2026-01-05")).status).toBe(200);
+    await d.update(schema.settings).set({ publicEnabled: false });
+    expect((await call("2026-01-05")).status).toBe(404);
+    await d.delete(schema.settings);
+  });
+
+  it("404s a malformed era id without looking it up", async () => {
+    expect((await call("not-a-date")).status).toBe(404);
+    expect((await call("2026-01-05x")).status).toBe(404);
+  });
 });

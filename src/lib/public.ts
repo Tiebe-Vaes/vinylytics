@@ -1,9 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import { db, hasDb, schema } from "@/db";
-import { chartRange } from "@/lib/spotify/data";
-import { topItems, type ChartItem } from "@/lib/spotify/charts";
+import { cachedTop, type ChartItem } from "@/lib/spotify/charts";
 import { getEras, type EraView } from "@/lib/spotify/eras-data";
-import { getInsights, type Insights } from "@/lib/spotify/insights";
+import { cachedInsights, type Insights } from "@/lib/spotify/insights";
 
 export type PublicSections = { eras: boolean; top: boolean; insights: boolean; nowPlaying: boolean };
 export const DEFAULT_SECTIONS: PublicSections = { eras: true, top: true, insights: false, nowPlaying: false };
@@ -36,17 +35,13 @@ export async function publicPayload(): Promise<PublicPayload | null> {
   const { enabled, sections } = await getPublicSettings();
   if (!enabled) return null;
   const out: PublicPayload = { sections };
-  const window = chartRange("4w");
 
   await Promise.all([
     sections.eras && getEras().then((e) => (out.eras = e.eras)),
     sections.top &&
-      Promise.all([
-        topItems({ kind: "artist", from: window?.from ?? null, to: window?.to ?? null, sort: "time", limit: 10 }),
-        topItems({ kind: "track", from: window?.from ?? null, to: window?.to ?? null, sort: "time", limit: 10 }),
-      ]).then(([artists, tracks]) => (out.top = { artists, tracks })),
+      Promise.all([cachedTop("artist", "4w", 10), cachedTop("track", "4w", 10)]).then(([artists, tracks]) => (out.top = { artists, tracks })),
     sections.insights &&
-      getInsights().then((i) => (out.insights = { bSides: i.bSides, artistStreaks: i.artistStreaks, albumCompletion: i.albumCompletion })),
+      cachedInsights().then((i) => (out.insights = { bSides: i.bSides, artistStreaks: i.artistStreaks, albumCompletion: i.albumCompletion })),
     sections.nowPlaying &&
       db()
         .select({ name: schema.plays.trackName, artist: schema.plays.artistName, playedAt: schema.plays.playedAt })

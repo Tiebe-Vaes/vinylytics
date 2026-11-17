@@ -1,4 +1,8 @@
+import { unstable_cache } from "next/cache";
 import { sql, type SQL } from "drizzle-orm";
+import { localDateKey } from "@/lib/time";
+import { timezone } from "@/lib/tz";
+import { chartRange, type ChartRange } from "./data";
 import { db, hasDb } from "@/db";
 import { rowsOf } from "@/db/rows";
 
@@ -58,4 +62,20 @@ export async function topItems(q: {
           ? `/track/${r.key.split(":").at(-1)}`
           : `/album/${r.key}`,
   }));
+}
+
+/**
+ * Top list over a preset range, cached per day and TIMEZONE until the next
+ * sync: anonymous readers (the public page, share cards) must not trigger a
+ * full-history scan on every request.
+ */
+export function cachedTop(kind: "artist" | "track", range: ChartRange, limit: number): Promise<ChartItem[]> {
+  return unstable_cache(
+    () => {
+      const w = chartRange(range);
+      return topItems({ kind, from: w?.from ?? null, to: w?.to ?? null, sort: "time", limit });
+    },
+    ["top", kind, range, String(limit), timezone(), localDateKey()],
+    { tags: ["spotify"] }
+  )();
 }

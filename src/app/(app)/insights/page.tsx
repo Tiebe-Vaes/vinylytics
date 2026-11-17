@@ -71,7 +71,12 @@ export default async function InsightsPage() {
         </Panel>
 
         <Panel title="New vs familiar" subtitle="Share of minutes on tracks you first heard that month.">
-          {recent.length === 0 ? <Empty>No months yet.</Empty> : (
+          {recent.length === 0 ? <Empty>No months yet.</Empty> : recent.every((m) => m.newMinutes === 0) ? (
+            <p className="text-sm">
+              0% new in each of the last {recent.length} months. Same tracks, on loop.{" "}
+              <span className="text-muted-text">Comfort listening is valid. Mostly.</span>
+            </p>
+          ) : (
             <ol className="flex h-40 items-end gap-1.5" aria-label="Share of new music per month">
               {recent.map((m) => {
                 const total = m.newMinutes + m.familiarMinutes;

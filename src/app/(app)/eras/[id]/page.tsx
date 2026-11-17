@@ -47,6 +47,7 @@ function Side({ label, tracks, offset }: { label: "A" | "B"; tracks: EraTrack[];
 
 export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
   const { id } = await params;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) notFound();
   const detail = await getEraDetail(id);
   if (!detail) notFound();
   const { era, next, tracks, firstHeard, newArtists, topDay } = detail;

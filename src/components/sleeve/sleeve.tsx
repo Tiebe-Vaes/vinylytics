@@ -36,9 +36,10 @@ export function Sleeve({
       className={cn("relative flex aspect-square w-full flex-col justify-between overflow-hidden rounded-[2px]", hero ? "p-6 md:p-8" : "p-4")}
       style={{ background: bg, color: fg }}
     >
-      <div className="flex items-start justify-between gap-3 text-xs font-semibold">
-        <span>{eraSpan(era)}</span>
-        <span className="nums">{era.weeks} wk</span>
+      {/* Catalogue number, as printed in a sleeve's corner: VNL + year and month pressed. */}
+      <div className="flex items-start justify-between gap-3">
+        <span className="display text-lg">VNL {era.start.slice(2, 4)}{era.start.slice(5, 7)}</span>
+        <span className="nums text-xs font-semibold">{era.weeks} wk</span>
       </div>
       <div className="min-w-0">
         <div className={cn("display", hero ? "text-[clamp(56px,16vw,120px)]" : "text-[56px]")}>
@@ -48,7 +49,10 @@ export function Sleeve({
         <h2 className={cn("display mt-2 line-clamp-3", hero ? "text-[clamp(36px,9vw,72px)]" : "text-[32px]")}>{era.name}</h2>
       </div>
       <div className="flex items-end justify-between gap-3">
-        <span className="min-w-0 truncate text-xs font-semibold">{era.artists.map((a) => a.name).join(" · ")}</span>
+        <div className="min-w-0 text-xs font-semibold">
+          <span className="block truncate">{era.artists.map((a) => a.name).join(" · ")}</span>
+          <span className="block">{eraSpan(era)}</span>
+        </div>
         <Cover url={era.cover} size={hero ? 72 : 44} alt={`Cover from ${era.name}`} />
       </div>
     </div>

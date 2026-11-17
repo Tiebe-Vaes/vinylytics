@@ -3,8 +3,7 @@ import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData } from "@/lib/c
 import { inkHex } from "@/lib/ink";
 import { isOwner } from "@/lib/owner";
 import { publicAllows } from "@/lib/public";
-import { topItems } from "@/lib/spotify/charts";
-import { chartRange } from "@/lib/spotify/data";
+import { cachedTop } from "@/lib/spotify/charts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,21 +13,22 @@ type CardRange = keyof typeof RANGES;
 
 /** Your top 5 artists or tracks as the back of a sleeve: the card people post instead of a stats.fm screenshot. */
 export async function GET(req: Request) {
-  if (!(await isOwner()) && !(await publicAllows("top"))) return new Response("Not found", { status: 404 });
+  const owner = await isOwner();
+  if (!owner && !(await publicAllows("top"))) return new Response("Not found", { status: 404 });
   const q = new URL(req.url).searchParams;
   const kind = q.get("kind") === "track" ? "track" : "artist";
-  const range: CardRange = (["4w", "6m", "all"] as const).find((r) => r === q.get("range")) ?? "4w";
+  // A visitor sees exactly what the public page shows (4 weeks), whatever range they ask for.
+  const asked: CardRange = (["4w", "6m", "all"] as const).find((r) => r === q.get("range")) ?? "4w";
+  const range: CardRange = owner ? asked : "4w";
   const format = cardFormat(q.get("format"));
-  const window = chartRange(range);
-
-  const items = await topItems({ kind, from: window?.from ?? null, to: window?.to ?? null, sort: "time", limit: 5 });
+  const items = await cachedTop(kind, range, 5);
   if (items.length === 0) return new Response("Nothing to share yet", { status: 404 });
   const [fonts, cover] = await Promise.all([cardFonts(), coverData(items[0].cover)]);
   const story = format === "story";
 
   return new ImageResponse(
     (
-      <CardFrame ink={inkHex("cobalt")} topLeft={RANGES[range]} cover={cover}>
+      <CardFrame ink={inkHex("cobalt")} period={RANGES[range]} catalogue={`VNL TOP ${range.toUpperCase()} · SIDE B`} cover={cover}>
         <div style={{ display: "flex", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: story ? 170 : 140, lineHeight: 0.85 }}>
           {kind === "artist" ? "TOP ARTISTS" : "TOP TRACKS"}
         </div>

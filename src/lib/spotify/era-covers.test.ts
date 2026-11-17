@@ -1,8 +1,41 @@
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import sharp from "sharp";
 import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
+import { hashInk } from "@/lib/ink";
 import type { Era } from "./eras";
-import { eraCovers } from "./era-covers";
+import { eraCovers, eraInstants, inkForCover } from "./era-covers";
+
+describe("eraInstants", () => {
+  afterEach(() => {
+    delete process.env.TIMEZONE;
+  });
+
+  it("turns an era's local days into a UTC range, end day included", () => {
+    process.env.TIMEZONE = "Europe/Brussels";
+    const r = eraInstants({ start: "2026-03-02", end: "2026-03-08" });
+    expect(r.from.toISOString()).toBe("2026-03-01T23:00:00.000Z");
+    expect(r.to.toISOString()).toBe("2026-03-08T23:00:00.000Z");
+  });
+});
+
+describe("inkForCover", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("doesn't remember a failed fetch: the next call samples the cover", async () => {
+    const blue = await sharp({ create: { width: 4, height: 4, channels: 3, background: { r: 30, g: 80, b: 220 } } }).png().toBuffer();
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("CDN hiccup"))
+      .mockResolvedValue(new Response(new Uint8Array(blue)));
+    vi.stubGlobal("fetch", fetchMock);
+    const url = "https://i.scdn.co/image/flaky";
+    expect(await inkForCover(url, "Lead")).toBe(hashInk("Lead"));
+    expect(await inkForCover(url, "Lead")).toBe("cobalt");
+    expect(await inkForCover(url, "Lead")).toBe("cobalt");
+    expect(fetchMock).toHaveBeenCalledTimes(2); // success is remembered
+  });
+});
 
 let d: Awaited<ReturnType<typeof useTestDb>>;
 const era = (id: string, start: string, end: string): Era => ({

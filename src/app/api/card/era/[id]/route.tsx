@@ -14,6 +14,8 @@ const monthYear = (key: string) =>
 /** An era pressed as a share card: the sleeve front with side A on it. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // Era ids are Monday dates; anything else would only fill the cache with misses.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) return new Response("Not found", { status: 404 });
   // Not yours (and not public): same answer as missing, so ids don't leak.
   if (!(await isOwner()) && !(await publicAllows("eras"))) return new Response("Not found", { status: 404 });
   const detail = await getEraDetail(id);
@@ -27,7 +29,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   return new ImageResponse(
     (
-      <CardFrame ink={inkHex(era.ink)} topLeft={`${monthYear(era.start)} – ${monthYear(era.end)}`} cover={cover}>
+      <CardFrame ink={inkHex(era.ink)} period={`${monthYear(era.start)} – ${monthYear(era.end)}`} catalogue={`VNL ${era.start.slice(2, 4)}${era.start.slice(5, 7)} · SIDE A`} cover={cover}>
         <div style={{ display: "flex", alignItems: "flex-start", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: (story ? 360 : 300) * (era.name.length > 28 ? 0.7 : 1), lineHeight: 0.85 }}>
           {hours}
           <span style={{ fontSize: 110, marginLeft: 8 }}>H</span>

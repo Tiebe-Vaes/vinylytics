@@ -28,15 +28,20 @@ export default async function ShelfPage() {
     <div className="flex flex-col gap-8">
       <h1 className="sr-only">Your shelf</h1>
 
-      {view.status === "connected" ? (
-        <div className="border-b border-rule pb-4">
-          <NowPlayingCard initial={view.nowPlaying} fallback={view.lastPlayed} poll={!view.demo} />
-        </div>
-      ) : (
-        <Link href="/api/auth/login" className="border-b border-rule pb-4 text-sm font-semibold underline">
-          {view.status === "broken" ? "Spotify needs a reconnect" : "Connect Spotify to start the live sync"}
-        </Link>
-      )}
+      {/* The turntable strip always holds its place; disconnected, it says how to put a record on. */}
+      <div className="flex items-center justify-between gap-4 border-b border-rule pb-4">
+        <NowPlayingCard
+          initial={view.status === "connected" ? view.nowPlaying : null}
+          fallback={view.status === "connected" ? view.lastPlayed : null}
+          poll={view.status === "connected" && !view.demo}
+        />
+        {view.status !== "connected" && (
+          // A plain <a>: Link would prefetch the route and start the OAuth dance early.
+          <a href="/api/auth/login" className="shrink-0 text-sm font-semibold underline">
+            {view.status === "broken" ? "Reconnect" : "Connect Spotify"}
+          </a>
+        )}
+      </div>
 
       <Shelf eras={eras} />
 
