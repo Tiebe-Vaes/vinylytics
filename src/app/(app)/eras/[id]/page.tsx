@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Panel } from "@/components/panel";
 import { Cover } from "@/components/sleeve/cover";
+import { ShareButton } from "@/components/sleeve/share-button";
 import { eraHours, eraSpan, Sleeve } from "@/components/sleeve/sleeve";
 import { Button } from "@/components/ui/button";
 import { roastEra } from "@/lib/roast";
@@ -64,7 +65,13 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
         <Sleeve era={era} size="hero" href={null} />
       </div>
 
-      <p className="mx-auto max-w-prose text-center text-lg leading-snug text-balance">{roastEra(era)}</p>
+      <div className="mx-auto flex max-w-prose flex-col items-center gap-4">
+        <p className="text-center text-lg leading-snug text-balance">{roastEra(era)}</p>
+        <div className="flex gap-2">
+          <ShareButton href={`/api/card/era/${era.id}`} filename={`vinylytics-${era.id}.png`} label="Share sleeve" />
+          <ShareButton href={`/api/card/era/${era.id}?format=story`} filename={`vinylytics-${era.id}-story.png`} label="Story" />
+        </div>
+      </div>
 
       <div className="grid gap-10 md:grid-cols-2">
         <div className="flex flex-col gap-6">

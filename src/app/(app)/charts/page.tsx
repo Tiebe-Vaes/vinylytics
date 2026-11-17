@@ -17,6 +17,7 @@ import { Discovery } from "@/components/music/discovery";
 import { SkipRate } from "@/components/music/skip-rate";
 import { KindSplit } from "@/components/music/kind-split";
 import { Cover } from "@/components/sleeve/cover";
+import { ShareButton } from "@/components/sleeve/share-button";
 import { roastEmpty } from "@/lib/roast";
 import { topItems, type ChartKind, type ChartSort } from "@/lib/spotify/charts";
 import { CHART_RANGES, chartRange, getChartData, getMusicData, type ChartRange } from "@/lib/spotify/data";
@@ -69,7 +70,17 @@ export default async function ChartsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader title="Charts" actions={<SpotifyAttribution />} />
+      <PageHeader
+        title="Charts"
+        actions={
+          <>
+            {kind !== "album" && range !== "custom" && range !== "1y" && items.length > 0 && (
+              <ShareButton href={`/api/card/top?kind=${kind}&range=${range}`} filename={`vinylytics-top-${kind}s-${range}.png`} />
+            )}
+            <SpotifyAttribution />
+          </>
+        }
+      />
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
