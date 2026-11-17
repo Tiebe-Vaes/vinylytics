@@ -15,6 +15,11 @@ Your Spotify listening history, on your own server. Each copy serves one person:
 
 **Never add other people to your Spotify app's user list.** In development mode only listed accounts can sign in to your app. You are listed automatically, so that list is what keeps your copy yours.
 
+**Pin yourself as the owner.** Set `OWNER_SPOTIFY_ID` to your Spotify user id before the first deploy. Without it, the first account to sign in claims the copy. To find your id:
+1. Open your profile in the Spotify app or at open.spotify.com.
+2. Choose **Share → Copy link to profile**.
+3. The id is the part after `/user/` and before any `?`.
+
 ## 2. Deploy
 
 ### Vercel and Neon
@@ -22,10 +27,12 @@ Your Spotify listening history, on your own server. Each copy serves one person:
 1. Fork this repo.
 2. Import the fork in Vercel.
 3. Add a Neon Postgres database from the Vercel marketplace. It sets `DATABASE_URL`.
-4. Set the environment variables from the table below.
-5. Set the build command to `npm run vercel-build`. It applies the database migrations, then builds.
-6. Deploy, open the app and sign in with Spotify. The first account to sign in becomes the owner.
-7. In your fork, go to **Settings → Secrets and variables → Actions** and add two secrets:
+4. Set the environment variables from the table below, including `OWNER_SPOTIFY_ID`.
+5. Set the build command to `npm run vercel-build`. It applies the database migrations, then builds. Preview deployments run it too, against whatever `DATABASE_URL` they have.
+6. Deploy once to learn your app's address (for example `https://discography-you.vercel.app`).
+7. Set `SPOTIFY_REDIRECT_URI` to `<that address>/api/auth/callback`, add the same URI to your Spotify app, and redeploy.
+8. Open the app and sign in with Spotify.
+9. In your fork, go to **Settings → Secrets and variables → Actions** and add two secrets:
    - `APP_URL`: your app's address, for example `https://discography-you.vercel.app`.
    - `CRON_SECRET`: the same value as in Vercel.
 
@@ -44,6 +51,12 @@ docker compose up -d --build
 ```
 
 This starts the app on port 3000 with Postgres 17 and a small job that syncs every 30 minutes. The first start applies the migrations.
+
+Open the app at the host in your `SPOTIFY_REDIRECT_URI`, for example `http://127.0.0.1:3000`. A visit on another host such as `localhost` is redirected there before sign-in.
+
+## Signing out
+
+Sign out clears the session cookie in your browser. Sessions are signed, not stored, so a copied cookie stays valid for up to 30 days. To end every session at once, change `AUTH_SECRET` and redeploy.
 
 ## 3. Import your full history
 
@@ -65,7 +78,7 @@ The file is read in your browser. Only the plays are uploaded, never your IP, co
 | `SPOTIFY_REDIRECT_URI` | yes | Must match the app's redirect URI exactly |
 | `AUTH_SECRET` | yes | Signs your session. Generate with `openssl rand -base64 32` |
 | `CRON_SECRET` | yes | Bearer token the sync job sends. Generate the same way |
-| `OWNER_SPOTIFY_ID` | no | Your Spotify user id. When set, only this account can ever sign in |
+| `OWNER_SPOTIFY_ID` | recommended | Your Spotify user id. When set, only this account can ever sign in |
 | `TIMEZONE` | no | IANA name for day and hour stats, for example `Europe/Brussels`. Default `UTC` |
 | `LASTFM_API_KEY` | no | Adds genre tags from Last.fm |
 
