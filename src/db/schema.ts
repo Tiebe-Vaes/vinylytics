@@ -108,3 +108,21 @@ export const syncRuns = pgTable("sync_runs", {
   ok: boolean("ok").notNull().default(false),
   error: text("error"),
 });
+
+/**
+ * Your edits to the detected eras. Eras themselves are derived on read; these
+ * rows are re-applied every time (see lib/spotify/eras.ts).
+ * rename: `anchor` day + `name`. merge: `fromDay`..`toDay`, inclusive.
+ */
+export const eraOverrides = pgTable("era_overrides", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  /** rename | merge */
+  kind: text("kind").notNull(),
+  anchor: text("anchor"),
+  name: text("name"),
+  fromDay: text("from_day"),
+  toDay: text("to_day"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
