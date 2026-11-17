@@ -48,5 +48,14 @@
     "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^4.1.10"
-  }
+  },
+  "description": "Your Spotify history, pressed as records. Self-hosted listening stats with eras, share cards and the stats nobody else shows.",
+  "keywords": [
+    "spotify",
+    "listening-history",
+    "stats",
+    "self-hosted",
+    "nextjs"
+  ],
+  "license": "MIT"
 }
