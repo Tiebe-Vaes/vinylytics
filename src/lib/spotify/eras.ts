@@ -60,11 +60,13 @@ function group(weeks: Week[]): Run[] {
 
 /** Folds runs shorter than MIN_ERA_WEEKS into their heavier neighbour until none are left. */
 function smooth(segment: Week[]): Run[] {
+  // Length counts active weeks only: quiet weeks tagged onto a run must not make a blip look like an era.
+  const len = (r: Run) => r.weeks.filter((w) => w.active).length;
   let runs = group(segment);
   for (;;) {
     let i = -1;
     for (let k = 0; k < runs.length; k++) {
-      if (runs[k].weeks.length < MIN_ERA_WEEKS && (i === -1 || runs[k].weeks.length < runs[i].weeks.length)) i = k;
+      if (len(runs[k]) < MIN_ERA_WEEKS && (i === -1 || len(runs[k]) < len(runs[i]))) i = k;
     }
     if (i === -1 || runs.length === 1) return runs;
 

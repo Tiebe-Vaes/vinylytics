@@ -59,6 +59,12 @@ describe("detectEras", () => {
     expect(detectEras([], []).eras).toHaveLength(0);
   });
 
+  it("quiet weeks don't make a 1-week blip count as an era", () => {
+    const { eras } = detectEras(weeks([["A", 6], ["B", 1], [null, 2], ["C", 6]]), []);
+    expect(eras.map((e) => e.lead)).not.toContain("B");
+    expect(eras.every((e) => e.weeks >= 3)).toBe(true);
+  });
+
   it("merge override joins two eras", () => {
     const merge: EraOverride = { id: "m1", kind: "merge", from: START, to: addDaysKey(weekAt(9), 6) };
     const { eras } = detectEras(weeks([["A", 5], ["B", 5]]), [merge]);
