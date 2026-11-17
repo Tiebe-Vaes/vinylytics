@@ -4,6 +4,8 @@ import { isOwner } from "@/lib/owner";
 
 const NAV = [
   { href: "/", label: "Stats" },
+  { href: "/eras", label: "Eras" },
+  { href: "/insights", label: "Insights" },
   { href: "/import", label: "Import" },
   { href: "/settings", label: "Settings" },
 ] as const;
