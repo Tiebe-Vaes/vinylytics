@@ -79,11 +79,13 @@ describe("getInsights", () => {
       { id: "full", name: "Full", artistName: "A", totalTracks: 4 },
       { id: "part", name: "Part", artistName: "A", totalTracks: 10 },
       { id: "unknown", name: "Unknown", artistName: "A", totalTracks: null },
+      { id: "zero", name: "Zero", artistName: "A", totalTracks: 0 },
     ]);
     const tracks = [
       ...["f1", "f2", "f3", "f4"].map((uri) => ({ uri, albumId: "full" })),
       ...["p1", "p2", "p3"].map((uri) => ({ uri, albumId: "part" })),
       ...["u1", "u2", "u3"].map((uri) => ({ uri, albumId: "unknown" })),
+      ...["z1", "z2", "z3"].map((uri) => ({ uri, albumId: "zero" })), // total_tracks 0 must not crash the page
     ];
     await d.insert(schema.tracks).values(tracks);
     await d.insert(schema.plays).values(tracks.map((t) => play("2026-05-01", "A", t.uri)));

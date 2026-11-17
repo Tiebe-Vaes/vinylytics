@@ -107,7 +107,7 @@ export async function getInsights(today: string = localDateKey()): Promise<Insig
       SELECT a.id AS "albumId", a.name, a.artist_name AS artist,
              least(count(DISTINCT p.uri), a.total_tracks)::int AS played, a.total_tracks AS total
       FROM plays p JOIN tracks tr ON tr.uri = p.uri JOIN albums a ON a.id = tr.album_id
-      WHERE p.kind = 'track' AND p.ms_played >= 30000 AND a.total_tracks IS NOT NULL
+      WHERE p.kind = 'track' AND p.ms_played >= 30000 AND a.total_tracks > 0
       GROUP BY a.id HAVING count(DISTINCT p.uri) >= ${COMPLETION_MIN_TRACKS}
       ORDER BY least(count(DISTINCT p.uri), a.total_tracks)::float / a.total_tracks DESC, played DESC, a.id
       LIMIT ${TOP}`),
