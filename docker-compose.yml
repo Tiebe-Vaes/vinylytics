@@ -4,13 +4,13 @@ services:
   db:
     image: postgres:17
     environment:
-      POSTGRES_USER: discography
-      POSTGRES_PASSWORD: discography
-      POSTGRES_DB: discography
+      POSTGRES_USER: vinylytics
+      POSTGRES_PASSWORD: vinylytics
+      POSTGRES_DB: vinylytics
     volumes:
       - db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U discography"]
+      test: ["CMD-SHELL", "pg_isready -U vinylytics"]
       interval: 5s
       retries: 10
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
     build: .
     env_file: .env
     environment:
-      DATABASE_URL: postgres://discography:discography@db:5432/discography
+      DATABASE_URL: postgres://vinylytics:vinylytics@db:5432/vinylytics
     ports:
       - "3000:3000"
     depends_on:

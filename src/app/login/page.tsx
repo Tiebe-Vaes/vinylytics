@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Discography</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Vinylytics</h1>
       {message && (
         <p role="alert" className="text-sm text-bad">
           {message}

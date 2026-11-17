@@ -1,4 +1,4 @@
-# Discography
+# Vinylytics
 
 Your Spotify listening history, on your own server. Each copy serves one person: you deploy it, you sign in with Spotify, and nobody else can.
 
@@ -29,11 +29,11 @@ Your Spotify listening history, on your own server. Each copy serves one person:
 3. Add a Neon Postgres database from the Vercel marketplace. It sets `DATABASE_URL`.
 4. Set the environment variables from the table below, including `OWNER_SPOTIFY_ID`.
 5. Set the build command to `npm run vercel-build`. It applies the database migrations, then builds. Preview deployments run it too, against whatever `DATABASE_URL` they have.
-6. Deploy once to learn your app's address (for example `https://discography-you.vercel.app`).
+6. Deploy once to learn your app's address (for example `https://vinylytics-you.vercel.app`).
 7. Set `SPOTIFY_REDIRECT_URI` to `<that address>/api/auth/callback`, add the same URI to your Spotify app, and redeploy.
 8. Open the app and sign in with Spotify.
 9. In your fork, go to **Settings → Secrets and variables → Actions** and add two secrets:
-   - `APP_URL`: your app's address, for example `https://discography-you.vercel.app`.
+   - `APP_URL`: your app's address, for example `https://vinylytics-you.vercel.app`.
    - `CRON_SECRET`: the same value as in Vercel.
 
    The `Spotify sync` workflow then pulls new plays every 30 minutes. GitHub pauses scheduled workflows after 60 days without commits. Re-enable it in the Actions tab if that happens.
