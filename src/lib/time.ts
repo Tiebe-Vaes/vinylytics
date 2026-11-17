@@ -74,7 +74,7 @@ function tzOffsetMs(d: Date): number {
 }
 
 /** A local wall-clock time (month 1–12) as the matching UTC instant. */
-export function brusselsToUtc(y: number, m: number, d: number, h = 0, min = 0): Date {
+export function localToUtc(y: number, m: number, d: number, h = 0, min = 0): Date {
   const guess = Date.UTC(y, m - 1, d, h, min);
   const first = guess - tzOffsetMs(new Date(guess));
   // Near a DST switch the offset at the guess can differ from the answer's.

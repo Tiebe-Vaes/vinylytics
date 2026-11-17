@@ -30,7 +30,7 @@ export function Discovery({ data }: { data: Row[] }) {
             const row = active ? (payload?.[0]?.payload as Row | undefined) : undefined;
             if (!row) return null;
             return (
-              <div className="max-w-56 rounded-lg border border-border bg-background px-3 py-2 text-xs">
+              <div className="max-w-56 rounded-[2px] border border-border bg-background px-3 py-2 text-xs">
                 <div className="font-medium">{monthLabel(row.month, true)}</div>
                 <div className="nums mt-0.5 text-muted-foreground">{row.count} new artists</div>
                 {row.names.length > 0 && <div className="mt-1 text-muted-foreground">{row.names.join(", ")}</div>}

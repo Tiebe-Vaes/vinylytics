@@ -6,7 +6,7 @@ export function Obsessions({ items }: { items: Obsession[] }) {
   return (
     <ol>
       {items.map((o) => (
-        <li key={o.uri} className="flex items-baseline gap-4 border-t border-border px-5 py-3 first:border-t-0">
+        <li key={o.uri} className="flex items-baseline gap-4 border-t border-border px-0 py-3 first:border-t-0">
           <span className="nums w-12 shrink-0 text-2xl leading-none font-semibold tracking-tight">{o.streams}</span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-medium">{o.name}</div>

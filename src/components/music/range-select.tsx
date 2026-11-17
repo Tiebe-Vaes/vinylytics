@@ -14,7 +14,7 @@ export function RangeSelect<T extends string>({
   label: string;
 }) {
   return (
-    <nav aria-label={label} className="inline-flex overflow-hidden rounded-md border border-border">
+    <nav aria-label={label} className="inline-flex overflow-hidden rounded-[2px] border border-strong">
       {options.map((o, i) => (
         <Link
           key={o.value}
@@ -22,9 +22,9 @@ export function RangeSelect<T extends string>({
           scroll={false}
           aria-current={o.value === value ? "true" : undefined}
           className={cn(
-            "px-2.5 py-1 text-xs transition-colors",
-            i > 0 && "border-l border-border",
-            o.value === value ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:bg-muted"
+            "px-3 py-1.5 text-xs font-semibold transition-colors",
+            i > 0 && "border-l border-strong",
+            o.value === value ? "bg-text text-ground" : "text-muted-text hover:text-text"
           )}
         >
           {o.label}

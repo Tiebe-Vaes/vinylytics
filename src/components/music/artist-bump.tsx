@@ -46,7 +46,7 @@ export function ArtistBump({ bump }: { bump: ChartData["bump"] }) {
                 .filter((p) => p.value != null)
                 .sort((a, b) => Number(a.value) - Number(b.value));
               return (
-                <div className="rounded-lg border border-border bg-background px-3 py-2 text-xs">
+                <div className="rounded-[2px] border border-border bg-background px-3 py-2 text-xs">
                   <div className="mb-1 font-medium">{monthLabel(String(label))}</div>
                   {ranked.map((p) => (
                     <div key={String(p.dataKey)} className={cn("nums flex gap-2", p.dataKey === focused ? "text-foreground" : "text-muted-foreground")}>
@@ -85,7 +85,7 @@ export function ArtistBump({ bump }: { bump: ChartData["bump"] }) {
               onMouseEnter={() => setFocus(a)}
               aria-pressed={a === focused}
               className={cn(
-                "flex w-full items-center gap-2 rounded-md px-2 py-1 text-left transition-colors hover:bg-muted",
+                "flex w-full items-center gap-2 rounded-[2px] px-2 py-1 text-left transition-colors hover:bg-muted",
                 a === focused ? "text-foreground" : "text-muted-foreground"
               )}
             >

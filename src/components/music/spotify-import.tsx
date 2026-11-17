@@ -43,7 +43,7 @@ export function SpotifyImport() {
       <Card
         className={cn(
           "flex flex-col items-center justify-center rounded-xl border-dashed border-strong px-6 py-14 text-center transition-colors",
-          dragging && "border-brand bg-brand-wash"
+          dragging && "border-brand bg-text-wash"
         )}
         onDragOver={(e) => {
           e.preventDefault();
@@ -87,7 +87,7 @@ export function SpotifyImport() {
       </Card>
 
       {error && (
-        <Card role="alert" className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:gap-4">
+        <Card role="alert" className="flex flex-col gap-2 px-0 py-4 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2.5">
             <Badge variant="outline" className="border-transparent bg-bad/10 text-bad">
               Failed
@@ -100,7 +100,7 @@ export function SpotifyImport() {
 
       {result && (
         <Card className="overflow-hidden">
-          <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-4">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-0 py-4">
             <Badge variant="outline" className="border-transparent bg-good/10 text-good">
               Success
             </Badge>
@@ -108,7 +108,7 @@ export function SpotifyImport() {
               {fmt(result.plays)} plays, {fmt(result.written)} new
             </h2>
           </div>
-          <p className="bg-muted/40 px-5 py-3 text-sm text-muted-foreground">
+          <p className="bg-muted/40 px-0 py-3 text-sm text-muted-foreground">
             Read {result.files} file{result.files === 1 ? "" : "s"}. Re-importing is safe: plays already stored are
             skipped.
           </p>
