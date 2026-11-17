@@ -1,10 +1,8 @@
-import { readdirSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
+import { resetDb, useTestDb } from "@/db/test-db";
 import { copyAll, mapTieboardPlay, type SourceQuery } from "@/lib/spotify/copy";
 
 const TIEBOARD_TABLES = `
@@ -27,14 +25,9 @@ INSERT INTO spotify_artists (name, tags) VALUES ('Artist', '["indie"]');
 `;
 
 async function destination() {
-  const client = new PGlite();
-  const dir = path.resolve(__dirname, "../drizzle");
-  for (const file of readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()) {
-    for (const stmt of readFileSync(path.join(dir, file), "utf8").split("--> statement-breakpoint")) {
-      if (stmt.trim()) await client.exec(stmt);
-    }
-  }
-  return { client, db: drizzle(client, { schema }) };
+  const db = await useTestDb();
+  await resetDb();
+  return { db };
 }
 
 describe("mapTieboardPlay", () => {

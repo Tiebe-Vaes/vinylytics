@@ -12,7 +12,7 @@ const item: RecentlyPlayedItem = {
     uri: "spotify:track:t1",
     external_urls: {},
     artists: [{ name: "First", id: "a1" }, { name: "Second", id: "a2" }],
-    album: { name: "Album", images: [] },
+    album: { id: "al1", name: "Album", images: [], total_tracks: 10, release_date: "2020", artists: [] },
   },
 };
 

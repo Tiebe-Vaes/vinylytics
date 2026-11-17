@@ -64,6 +64,20 @@ export const tracks = pgTable("tracks", {
   durationMs: integer("duration_ms"),
   /** First artist's Spotify id, used to look the artist up. */
   artistId: text("artist_id"),
+  /** Spotify album id; null until enriched (or backfilled for older rows). */
+  albumId: text("album_id"),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("tracks_album_idx").on(t.albumId)]);
+
+/** Albums seen on enriched tracks: cover and track count for album completion. */
+export const albums = pgTable("albums", {
+  /** Spotify album id. */
+  id: text("id").primaryKey(),
+  name: text("name"),
+  artistName: text("artist_name"),
+  imageUrl: text("image_url"),
+  totalTracks: integer("total_tracks"),
+  releaseDate: text("release_date"),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -14,6 +14,10 @@ const track: CurrentlyPlayingResponse = {
     external_urls: { spotify: "https://open.spotify.com/track/abc" },
     artists: [{ name: "M83", id: "a1" }, { name: "Guest", id: "a2" }],
     album: {
+      id: "al1",
+      total_tracks: 22,
+      release_date: "2011-10-18",
+      artists: [{ name: "M83", id: "a1" }],
       name: "Hurry Up, We're Dreaming",
       images: [
         { url: "small.jpg", width: 64, height: 64 },
@@ -69,7 +73,7 @@ describe("toNowPlaying", () => {
   it("gives a null image when the album has none", () => {
     const np = toNowPlaying({
       ...track,
-      item: { ...track.item!, album: { name: "x", images: [] } } as CurrentlyPlayingResponse["item"],
+      item: { ...track.item!, album: { id: "x", name: "x", images: [], total_tracks: 1, release_date: "2020", artists: [] } } as CurrentlyPlayingResponse["item"],
     });
     expect(np?.imageUrl).toBeNull();
   });

@@ -8,6 +8,13 @@
       "when": 1794912921272,
       "tag": "0000_many_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794916101578,
+      "tag": "0001_thick_cloak",
+      "breakpoints": true
     }
   ]
 }

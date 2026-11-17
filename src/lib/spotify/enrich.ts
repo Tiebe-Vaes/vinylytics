@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { spotifyFetch } from "./client";
 import { getTopTags, pickGenres } from "./lastfm";
+import { albumFromTrack } from "./album";
 import { largestImage } from "./now-playing";
 import type { SpotifyArtist, SpotifyTrack } from "./types";
 
@@ -13,7 +14,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * row yet. Single-item endpoints only: dev mode removed the batch ones. Capped
  * per run; each 30-min sync chips away at the backlog.
  */
-export async function enrichMissing(limit = 50): Promise<{ tracks: number; artists: number }> {
+export async function enrichMissing(limit = 50): Promise<{ tracks: number; artists: number; albums: number }> {
   const d = db();
 
   const tracks = await d.execute(sql`
@@ -28,6 +29,7 @@ export async function enrichMissing(limit = 50): Promise<{ tracks: number; artis
     const t = await spotifyFetch<SpotifyTrack & { artists: { id: string; name: string }[] }>(`/tracks/${id}`).catch(
       () => null
     );
+    if (t) await d.insert(schema.albums).values(albumFromTrack(t)).onConflictDoNothing();
     await d
       .insert(schema.tracks)
       .values({
@@ -38,6 +40,7 @@ export async function enrichMissing(limit = 50): Promise<{ tracks: number; artis
         imageUrl: t ? largestImage(t.album.images) : null,
         durationMs: t?.duration_ms ?? null,
         artistId: t?.artists[0]?.id ?? null,
+        albumId: t?.album.id ?? null,
       })
       .onConflictDoNothing();
     trackCount++;
@@ -69,6 +72,19 @@ export async function enrichMissing(limit = 50): Promise<{ tracks: number; artis
     artistCount++;
   }
 
-  return { tracks: trackCount, artists: artistCount };
+  // Tracks enriched before albums existed: fetch them again for their album.
+  // A failed lookup (name null) is skipped, so it isn't retried every run.
+  const stale = await d.execute(sql`
+    SELECT uri FROM tracks WHERE album_id IS NULL AND name IS NOT NULL LIMIT ${limit}`);
+  let albumCount = 0;
+  for (const { uri } of rowsOf<{ uri: string }>(stale)) {
+    const t = await spotifyFetch<SpotifyTrack>(`/tracks/${uri.split(":")[2]}`).catch(() => null);
+    if (!t) continue;
+    await d.insert(schema.albums).values(albumFromTrack(t)).onConflictDoNothing();
+    await d.update(schema.tracks).set({ albumId: t.album.id }).where(sql`${schema.tracks.uri} = ${uri}`);
+    albumCount++;
+  }
+
+  return { tracks: trackCount, artists: artistCount, albums: albumCount };
 }
 
