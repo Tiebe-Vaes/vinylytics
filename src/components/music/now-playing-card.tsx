@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { AudioLines, Podcast } from "lucide-react";
+import { Cover } from "@/components/sleeve/cover";
 import type { NowPlaying } from "@/lib/spotify/types";
 import type { NowPlayingPayload } from "@/app/api/now-playing/route";
 import { cn } from "@/lib/utils";
@@ -72,7 +71,7 @@ export function NowPlayingCard({
       <div className={cn("flex items-center gap-4", hero ? "p-5" : "")}>
         <ArtTile item={null} hero={hero} />
         <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">Now playing</div>
+          <div className="text-xs text-muted-text">Turntable</div>
           <div className={cn("mt-1 font-semibold tracking-tight", hero ? "text-2xl" : "text-base")}>
             Nothing playing
           </div>
@@ -81,14 +80,14 @@ export function NowPlayingCard({
     );
   }
 
-  const label = live ? (np!.isPlaying ? "Now playing" : "Paused") : "Last played";
+  const label = live ? (np!.isPlaying ? "On the turntable" : "Paused") : "Last spin";
   const pct = live && shown.durationMs > 0 ? (progress / shown.durationMs) * 100 : 0;
 
   return (
     <div className={cn("flex items-center", hero ? "gap-5 p-5 sm:gap-7 sm:p-6" : "gap-4")}>
       <ArtTile item={shown} hero={hero} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-text">
           {live && np!.isPlaying && <Equalizer />}
           {label}
         </div>
@@ -103,14 +102,14 @@ export function NowPlayingCard({
         >
           {shown.title}
         </a>
-        <div className={cn("truncate text-muted-foreground", hero ? "mt-1.5 text-base sm:text-lg" : "text-sm")}>
+        <div className={cn("truncate text-muted-text", hero ? "mt-1.5 text-base sm:text-lg" : "text-sm")}>
           {shown.subtitle}
         </div>
         {live && hero && (
           <div className="mt-5 flex items-center gap-3">
             <span className="nums w-10 text-xs text-faint">{mmss(progress)}</span>
             <div
-              className="h-1 flex-1 overflow-hidden rounded-full bg-muted"
+              className="h-1 flex-1 overflow-hidden bg-rule"
               role="progressbar"
               aria-label="Track progress"
               aria-valuemin={0}
@@ -118,7 +117,7 @@ export function NowPlayingCard({
               aria-valuenow={Math.round(pct)}
             >
               <div
-                className="h-full rounded-full bg-brand transition-[width] duration-1000 ease-linear motion-reduce:transition-none"
+                className="h-full bg-text transition-[width] duration-1000 ease-linear motion-reduce:transition-none"
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -131,27 +130,7 @@ export function NowPlayingCard({
 }
 
 function ArtTile({ item, hero }: { item: NowPlaying | null; hero: boolean }) {
-  const box = hero ? "size-20 sm:size-40" : "size-12";
-  if (item?.imageUrl) {
-    return (
-      <Image
-        src={item.imageUrl}
-        alt=""
-        width={hero ? 320 : 96}
-        height={hero ? 320 : 96}
-        className={cn(box, "shrink-0 rounded-lg border border-border object-cover")}
-      />
-    );
-  }
-  const Icon = item?.kind === "episode" ? Podcast : AudioLines;
-  return (
-    <div
-      className={cn(box, "flex shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-faint")}
-      aria-hidden
-    >
-      <Icon className={hero ? "size-8 sm:size-12" : "size-5"} strokeWidth={1.5} />
-    </div>
-  );
+  return <Cover url={item?.imageUrl} size={hero ? 96 : 48} alt={item ? `Cover of ${item.title}` : "Nothing playing"} />;
 }
 
 /** Three bars that bounce while playing; static under reduced motion. */
@@ -161,7 +140,7 @@ function Equalizer() {
       {[0, 150, 300].map((delay) => (
         <span
           key={delay}
-          className="eq-bar w-[3px] rounded-full bg-good"
+          className="eq-bar w-[3px] bg-text"
           style={{ animationDelay: `${delay}ms` }}
         />
       ))}
