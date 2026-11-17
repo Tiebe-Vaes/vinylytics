@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+!.env.example
+
+# local database
+.data/
+
+# AI tooling and working docs (kept out of the public repo)
+CLAUDE.md
+AGENTS.md
+.claude/
+.superpowers/
+docs/superpowers/
