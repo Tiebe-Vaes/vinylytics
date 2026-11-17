@@ -1,6 +1,6 @@
 import { PGlite } from "@electric-sql/pglite";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
 import { copyAll, mapTieboardPlay, type SourceQuery } from "@/lib/spotify/copy";
@@ -50,10 +50,14 @@ describe("copyAll", () => {
   let read: SourceQuery;
   let dest: Awaited<ReturnType<typeof destination>>;
 
-  beforeEach(async () => {
+  // The source is read-only for every test, so one instance per file: booting
+  // PGlite per test timed out when many test files boot theirs in parallel.
+  beforeAll(async () => {
     const src = new PGlite();
     await src.exec(TIEBOARD_TABLES);
     read = async (text, params) => (await src.query<Record<string, unknown>>(text, params)).rows;
+  });
+  beforeEach(async () => {
     dest = await destination();
   });
 
