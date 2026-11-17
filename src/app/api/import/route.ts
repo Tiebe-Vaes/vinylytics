@@ -58,7 +58,10 @@ export async function POST(req: Request) {
       // Art and genres for the newly imported top items, then warm the slow views.
       after(() =>
         enrichMissing()
-          .then(() => revalidateTag("spotify", { expire: 0 }))
+          .then(() => {
+            revalidateTag("spotify", { expire: 0 });
+            revalidateTag("insights", { expire: 0 });
+          })
           .catch((err) => console.error("[spotify-enrich]", err))
           .then(warmCaches)
       );

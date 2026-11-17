@@ -8,11 +8,13 @@ vi.mock("@/lib/spotify/sync", async (orig) => ({
   syncRecentlyPlayed: sync,
 }));
 vi.mock("@/lib/spotify/write", () => ({ logRun: vi.fn(async () => {}) }));
-vi.mock("@/lib/spotify/enrich", () => ({ enrichMissing: vi.fn(async () => ({ tracks: 0, artists: 0 })) }));
+const enrich = vi.hoisted(() => vi.fn(async () => ({ tracks: 0, artists: 0, albums: 0 })));
+vi.mock("@/lib/spotify/enrich", () => ({ enrichMissing: enrich }));
 const after = vi.hoisted(() => vi.fn());
 const warm = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock("next/server", async (orig) => ({ ...(await orig<typeof import("next/server")>()), after }));
-vi.mock("next/cache", () => ({ revalidateTag: vi.fn() }));
+const revalidate = vi.hoisted(() => vi.fn());
+vi.mock("next/cache", () => ({ revalidateTag: revalidate }));
 vi.mock("@/lib/spotify/warm", () => ({ warmCaches: warm }));
 
 const { POST } = await import("./route");
@@ -23,8 +25,19 @@ const call = (auth?: string) =>
 describe("POST /api/cron/sync", () => {
   beforeEach(() => {
     sync.mockClear();
+    enrich.mockResolvedValue({ tracks: 0, artists: 0, albums: 0 });
+    revalidate.mockClear();
+    after.mockClear();
     process.env.CRON_SECRET = "right";
     process.env.DATABASE_URL = "postgres://unused";
+  });
+
+  it("invalidates the charts and insights after an album-only backfill", async () => {
+    enrich.mockResolvedValueOnce({ tracks: 0, artists: 0, albums: 1 });
+    await call("Bearer right");
+    await after.mock.calls[0][0]();
+    expect(revalidate).toHaveBeenCalledWith("spotify", { expire: 0 });
+    expect(revalidate).toHaveBeenCalledWith("insights", { expire: 0 });
   });
 
   it("refuses a call with no bearer and no session", async () => {

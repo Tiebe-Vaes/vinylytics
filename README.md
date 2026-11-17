@@ -13,7 +13,7 @@ Vinylytics cuts your listening history into eras and presses each one as a recor
 
 <sub>Screenshots show the built-in demo data: a synthetic listening history, not a real person's.</sub>
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOWNER%2Fvinylytics&env=SPOTIFY_CLIENT_ID,SPOTIFY_CLIENT_SECRET,SPOTIFY_REDIRECT_URI,AUTH_SECRET,CRON_SECRET,OWNER_SPOTIFY_ID&envDescription=Keys%20from%20your%20own%20Spotify%20app%20and%20two%20random%20secrets&envLink=https%3A%2F%2Fgithub.com%2FOWNER%2Fvinylytics%23environment-variables&project-name=vinylytics&repository-name=vinylytics&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FTiebe-Vaes%2Fvinylytics&env=SPOTIFY_CLIENT_ID,SPOTIFY_CLIENT_SECRET,SPOTIFY_REDIRECT_URI,AUTH_SECRET,CRON_SECRET,OWNER_SPOTIFY_ID&envDescription=Keys%20from%20your%20own%20Spotify%20app%20and%20two%20random%20secrets&envLink=https%3A%2F%2Fgithub.com%2FTiebe-Vaes%2Fvinylytics%23environment-variables&project-name=vinylytics&repository-name=vinylytics&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%7D%5D)
 
 ## What it does
 
@@ -43,7 +43,7 @@ All of it is written in a voice that teases you about your habits. The numbers s
 
 ## Why self-hosted
 
-Spotify only lets a hobby app sign in 25 hand-picked users, so a shared site would fill up fast. Instead, everyone runs their own copy, with their own Spotify app and their own database. Your history stays yours, and nothing is behind a paywall.
+Spotify development-mode apps are limited to [5 allowlisted users](https://developer.spotify.com/documentation/web-api/concepts/quota-modes), so a shared site would fill up fast. Instead, everyone runs their own copy, with their own Spotify app and their own database. Your history stays yours, and nothing is behind a paywall.
 
 ## Set it up
 
@@ -76,7 +76,7 @@ About 15 minutes. You need a Spotify account with Premium, plus either Vercel (f
    The `Spotify sync` workflow then pulls new plays every 30 minutes. GitHub pauses scheduled workflows after 60 days without commits. Re-enable it in the Actions tab if that happens.
 5. Open the app and sign in with Spotify.
 
-The build command is `npm run vercel-build`, which applies the database migrations before building. Preview deployments run it too, against whatever `DATABASE_URL` they have.
+The repository's `vercel.json` sets the build command to `npm run vercel-build`, which applies the database migrations before building. Preview deployments run it too: give previews a separate Neon branch/database, or disable previews until one is configured. Do not point preview builds at your production database.
 
 ### 2b. Or run it with Docker
 

@@ -4,6 +4,7 @@ import { rowsOf } from "@/db/rows";
 import { hashInk, nearestInk, type InkId } from "@/lib/ink";
 import { addDaysKey, localToUtc } from "@/lib/time";
 import type { Era } from "./eras";
+import { fetchCover } from "./cover-image";
 
 const dayStart = (key: string) => {
   const [y, m, d] = key.split("-").map(Number);
@@ -48,10 +49,10 @@ export async function eraCovers(eras: Era[]): Promise<Map<string, string | null>
  */
 async function dominantColour(url: string): Promise<[number, number, number] | null> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return null;
+    const cover = await fetchCover(url);
+    if (!cover) return null;
     const { default: sharp } = await import("sharp");
-    const { dominant } = await sharp(Buffer.from(await res.arrayBuffer())).stats();
+    const { dominant } = await sharp(cover.data, { limitInputPixels: 16_777_216 }).stats();
     return [dominant.r, dominant.g, dominant.b];
   } catch {
     return null;

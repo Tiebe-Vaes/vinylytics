@@ -26,4 +26,13 @@ describe("weekSummary", () => {
   it("gives zeros on an empty db", async () => {
     expect(await weekSummary("2026-11-17")).toEqual({ minutes: 0, plays: 0, topArtist: null, topArtistShare: 0 });
   });
+
+  it("keeps the exact share below the majority threshold", async () => {
+    await d.insert(schema.plays).values([
+      play("2026-11-17", "A", 49.6), play("2026-11-17", "B", 30), play("2026-11-17", "C", 20.4),
+    ]);
+    const w = await weekSummary("2026-11-17");
+    expect(w.topArtistShare).toBeCloseTo(0.496, 6);
+    expect(w.topArtistShare).toBeLessThan(0.5);
+  });
 });

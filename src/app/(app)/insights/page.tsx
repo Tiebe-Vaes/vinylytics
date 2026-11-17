@@ -83,9 +83,9 @@ export default async function InsightsPage() {
                 const pct = total ? Math.round((m.newMinutes / total) * 100) : 0;
                 return (
                   <li key={m.month} className="flex h-full flex-1 flex-col justify-end gap-1 text-center">
-                    <span className="nums text-[10px] text-muted-text">{pct}%</span>
+                    <span className="nums text-xs text-muted-text">{pct}%</span>
                     <span className="block w-full bg-ink-cobalt" style={{ height: `${Math.max(pct, 2)}%` }} aria-hidden />
-                    <span className="text-[10px] text-muted-text">{monthLabel(m.month)}</span>
+                    <span className="text-xs text-muted-text">{monthLabel(m.month)}</span>
                   </li>
                 );
               })}

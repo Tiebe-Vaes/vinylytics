@@ -39,7 +39,10 @@ export async function POST(req: Request) {
 async function enrichAfter() {
   try {
     const n = await enrichMissing();
-    if (n.tracks + n.artists > 0) revalidateTag("spotify", { expire: 0 });
+    if (n.tracks + n.artists + n.albums > 0) {
+      revalidateTag("spotify", { expire: 0 });
+      revalidateTag("insights", { expire: 0 });
+    }
   } catch (err) {
     console.error("[spotify-enrich]", err);
   }

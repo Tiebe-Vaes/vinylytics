@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { sql } from "drizzle-orm";
-import { db } from "@/db";
+import { db, hasDb } from "@/db";
 import { rowsOf } from "@/db/rows";
 import { localDateKey } from "@/lib/time";
 import { timezone } from "@/lib/tz";
@@ -50,6 +50,10 @@ async function all<T>(query: ReturnType<typeof sql>): Promise<T[]> {
 }
 
 export async function getInsights(today: string = localDateKey()): Promise<Insights> {
+  if (!hasDb()) return {
+    bSides: [], reissues: [], newVsFamiliar: [], loyalty: { stayers: [], oneAndDone: [] },
+    onThisDay: [], albumCompletion: [], artistStreaks: [],
+  };
   const t = sql`${today}::date`;
 
   const [bSides, reissues, newVsFamiliar, loyal, firstHeard, topTracks, albumCompletion, artistStreaks] = await Promise.all([

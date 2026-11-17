@@ -28,7 +28,9 @@ describe("GET /api/card/top", () => {
   });
 
   it("lets the owner share any range", async () => {
-    expect((await call("kind=artist&range=all")).status).toBe(200);
+    const res = await call("kind=artist&range=all");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
   });
 
   it("404s an anonymous visitor while the public top lists are off", async () => {

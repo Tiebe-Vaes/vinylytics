@@ -34,6 +34,7 @@ describe("GET /api/card/era/[id]", () => {
     const res = await call("2026-01-05");
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/png");
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
     expect((await res.arrayBuffer()).byteLength).toBeGreaterThan(10_000);
   });
 

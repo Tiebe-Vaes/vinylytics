@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       )}
       <a
         href="/api/auth/login"
-        className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+        className="inline-flex h-10 items-center justify-center rounded-[2px] bg-primary px-4 text-sm font-medium text-primary-foreground"
       >
         Sign in with Spotify
       </a>

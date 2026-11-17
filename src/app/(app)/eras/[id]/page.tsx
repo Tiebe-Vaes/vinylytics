@@ -100,6 +100,8 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
                 defaultValue={era.renamedBy ? era.name : ""}
                 placeholder="Name this era"
                 maxLength={80}
+                pattern={".*\\S.*"}
+                title="Use at least one non-space character."
                 aria-label="Era name"
                 className="h-9 min-w-0 flex-1 rounded-[2px] border border-input bg-ground px-2 text-sm"
               />
@@ -108,6 +110,7 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
             {next && (
               <form action={mergeWithNext} className="mt-3">
                 <input type="hidden" name="eraId" value={era.id} />
+                <input type="hidden" name="nextEraId" value={next.id} />
                 <Button size="sm" variant="outline" type="submit">
                   Merge with {next.name}
                 </Button>

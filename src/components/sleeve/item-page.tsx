@@ -8,9 +8,10 @@ import { hashInk, inkHex, inkText } from "@/lib/ink";
 import { roastItem } from "@/lib/roast";
 import { itemMeta } from "@/lib/spotify/item-meta";
 import { cachedItemStats, type ItemRef } from "@/lib/spotify/item-stats";
+import { timezone } from "@/lib/tz";
 
 const longDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: timezone() });
 const weekOf = (key: string) =>
   new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const monthName = (key: string) =>

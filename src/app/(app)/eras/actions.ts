@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { and, eq, gte, lte } from "drizzle-orm";
 import { z } from "zod";
@@ -43,10 +44,18 @@ export async function renameEra(form: FormData) {
 /** Joins an era with the one after it. */
 export async function mergeWithNext(form: FormData) {
   await guard();
-  const { eraId } = z.object({ eraId: day }).parse({ eraId: form.get("eraId") });
+  const { eraId, nextEraId } = z.object({ eraId: day, nextEraId: day }).parse({ eraId: form.get("eraId"), nextEraId: form.get("nextEraId") });
   const { era, next } = await findEra(eraId);
-  if (!next) throw new Error("no next era");
-  await db().insert(schema.eraOverrides).values({ kind: "merge", fromDay: era.start, toDay: next.end });
+  // A replay must never merge a different neighbour after the first request succeeds.
+  if (!next || next.id !== nextEraId) return;
+  const o = schema.eraOverrides;
+  const [existing] = await db().select({ id: o.id }).from(o)
+    .where(and(eq(o.kind, "merge"), eq(o.fromDay, era.start), eq(o.toDay, next.end))).limit(1);
+  if (existing) return;
+  // A stable UUIDv8 makes concurrent requests for this range conflict on the primary key.
+  const h = createHash("sha256").update(`merge:${era.start}:${next.end}`).digest("hex");
+  const id = `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+  await db().insert(o).values({ id, kind: "merge", fromDay: era.start, toDay: next.end }).onConflictDoNothing();
   revalidateTag("spotify", { expire: 0 });
 }
 

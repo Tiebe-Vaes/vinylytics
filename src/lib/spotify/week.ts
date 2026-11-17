@@ -23,6 +23,6 @@ export async function weekSummary(today: string = localDateKey()): Promise<WeekS
     minutes: Math.round(minutes * 10) / 10,
     plays,
     topArtist: rows[0]?.artist ?? null,
-    topArtistShare: minutes ? Math.round((rows[0].minutes / minutes) * 100) / 100 : 0,
+    topArtistShare: minutes ? rows[0].minutes / minutes : 0,
   };
 }

@@ -16,6 +16,27 @@ describe("eraTitleSize", () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("coverData", () => {
+  it("refuses non-Spotify hosts, insecure URLs and credentials without fetching", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    for (const url of ["http://i.scdn.co/image/x", "https://127.0.0.1/x", "https://i.scdn.co.evil.test/x", "https://user:pass@i.scdn.co/image/x", "https://i.scdn.co:8443/image/x"]) {
+      expect(await coverData(url)).toBeNull();
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses an oversized streamed image even without a content length", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(2 * 1024 * 1024 + 1))));
+    expect(await coverData("https://i.scdn.co/image/large")).toBeNull();
+  });
+
+  it("refuses non-image responses and never follows redirects", async () => {
+    const fetchMock = vi.fn(async () => new Response("<html>", { headers: { "content-type": "text/html" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await coverData("https://i.scdn.co/image/html")).toBeNull();
+    expect(fetchMock).toHaveBeenCalledWith("https://i.scdn.co/image/html", expect.objectContaining({ redirect: "error" }));
+  });
+
   it("returns null when the cover 404s", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("no", { status: 404 })));
     expect(await coverData("https://i.scdn.co/image/gone")).toBeNull();

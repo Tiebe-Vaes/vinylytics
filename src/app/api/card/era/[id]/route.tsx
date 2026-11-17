@@ -49,6 +49,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         </div>
       </CardFrame>
     ),
-    { ...CARD_SIZES[format], fonts, headers: { "Cache-Control": "private, max-age=300" } }
+    { ...CARD_SIZES[format], fonts, headers: { "Cache-Control": "private, no-store" } }
   );
 }

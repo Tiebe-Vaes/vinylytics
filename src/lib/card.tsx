@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { demoAllowed } from "@/lib/env";
 import { inkText } from "@/lib/ink";
+import { fetchCover } from "@/lib/spotify/cover-image";
 
 /**
  * Share cards: PNGs drawn by next/og (Satori). Satori reads TTF/OTF/WOFF, not
@@ -24,21 +25,18 @@ export function cardFonts(): Promise<CardFont[]> {
       const buf = await readFile(path.join(process.cwd(), "node_modules", file));
       return { name, weight, style: "normal" as const, data: buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer };
     })
-  );
+  ).catch((error) => {
+    fonts = null;
+    throw error;
+  });
   return fonts;
 }
 
 /** A cover as a data URI for the card, or null when it can't be fetched within 3 s (the card then goes without). */
 export async function coverData(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return null;
-    const type = res.headers.get("content-type") ?? "image/jpeg";
-    return `data:${type};base64,${Buffer.from(await res.arrayBuffer()).toString("base64")}`;
-  } catch {
-    return null;
-  }
+  const cover = await fetchCover(url);
+  return cover ? `data:${cover.type};base64,${cover.data.toString("base64")}` : null;
 }
 
 /**
