@@ -2,147 +2,95 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* next-themes sets class="dark" on <html>; Tailwind v4 needs to be told. */
+/* Always dark: the record-shop-at-night ground. shadcn's dark: variants follow. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Neutral workspace in the Vercel-dashboard register: true grays, 1px borders,
- * no shadows. Colour only does jobs: blue for links, focus and selection;
- * green / amber / red for state; the chart series below for data.
- *
- * shadcn's slots (background, muted, accent, ...) keep shadcn's meaning.
- * App-only slots: `faint` (tertiary text), `strong` (emphasised border),
- * `brand` (links and the race progress), and the four state colours.
+ * Sleeve world. A matte ink-black ground, off-white type, hairline rules and
+ * eight flat spot inks. An era owns one ink and fills whole regions with it;
+ * nothing glows, nothing floats. shadcn's slot names are kept so registry
+ * components pick the world up without edits.
  */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  /* Arc-style "space": the page is tinted with one accent, tiles sit on it in
-     white. Change --space / --space-tile (and the dark pair) to re-theme. */
-  --page: #ecebf5;
-  --space: #6e5bd6;
-  --space-tile: #dcd7f7;
-  /* Tile surface (spec §2): card at this share of its alpha, lit edge, shadow. */
-  --tile-bg-mix: 72%;
-  --tile-highlight: rgb(255 255 255 / 0.6);
-  --tile-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px -16px rgb(0 0 0 / 0.12);
-  --hero-text-shadow: 0 1px 2px rgb(255 255 255 / 0.5);
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #171717;
-  --primary-foreground: #ffffff;
-  --secondary: #f2f2f2;
-  --secondary-foreground: #171717;
-  --muted: #f2f2f2;
-  --muted-foreground: #5c5c5c;
-  --accent: #f2f2f2;
-  --accent-foreground: #171717;
-  --destructive: #cb2a2f;
-  --border: #ebebeb;
-  --input: #e0e0e0;
-  --ring: #0062d1;
-  --radius: 0.5rem;
+  --ground: #0f0f10;
+  --text: #eeebe4;
+  --muted-text: #a8a39a;
+  --rule: #2a2826;
+  --raised: #171615;
 
-  --faint: #737373;
-  --strong: #d4d4d4;
-  --brand: #0062d1;
-  --brand-wash: #eaf3ff;
-  --good: #1f7a3a;
-  --warn: #a35200;
-  --bad: #cb2a2f;
-  --info: #0062d1;
+  --ink-cobalt: #1f4fd8;
+  --ink-vermilion: #d9412b;
+  --ink-mustard: #d9a21b;
+  --ink-green: #16835b;
+  --ink-plum: #6e3a8c;
+  --ink-teal: #0e7c8a;
+  --ink-orange: #e0701f;
+  --ink-redviolet: #b0306a;
 
-  /* Chart series: the dataviz reference order, validated on #ffffff
-     (worst adjacent CVD dE 9.1, normal-vision 22.9; slots 3-4 below 3:1, so
-     charts keep legends and tooltips). Do not reorder. */
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
-  --chart-3: #1baf7a;
-  --chart-4: #eda100;
-  --chart-5: #a3a3a3;
-  --grid: #f0f0f0;
+  /* shadcn slots, mapped onto the world */
+  --background: var(--ground);
+  --foreground: var(--text);
+  --page: var(--ground);
+  --card: var(--ground);
+  --card-foreground: var(--text);
+  --popover: var(--raised);
+  --popover-foreground: var(--text);
+  --primary: var(--text);
+  --primary-foreground: var(--ground);
+  --secondary: var(--raised);
+  --secondary-foreground: var(--text);
+  --muted: var(--raised);
+  --muted-foreground: var(--muted-text);
+  --accent: var(--raised);
+  --accent-foreground: var(--text);
+  --destructive: #ff6b57;
+  --border: var(--rule);
+  --input: #3a3734;
+  --ring: var(--text);
+  --radius: 0.125rem;
 
-  --sidebar: #fafafa;
-  --sidebar-foreground: #171717;
-  --sidebar-primary: #171717;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2f2f2;
-  --sidebar-accent-foreground: #171717;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #0062d1;
+  --faint: #8a857c;
+  --strong: #4a4642;
+  --brand: var(--text);
+  --good: #4fbf8a;
+  --warn: #e3b341;
+  --bad: #ff6b57;
+
+  --chart-1: var(--ink-cobalt);
+  --chart-2: var(--ink-vermilion);
+  --chart-3: var(--ink-green);
+  --chart-4: var(--ink-mustard);
+  --chart-5: var(--muted-text);
+  --grid: #222120;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 120ms;
-  --dur: 200ms;
-}
-
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --page: #0f0e14;
-  --space: #a597f5;
-  --space-tile: #2a2550;
-  --tile-bg-mix: 72%;
-  --tile-highlight: rgb(255 255 255 / 0.06);
-  --tile-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 12px 32px -16px rgb(0 0 0 / 0.35);
-  --hero-text-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
-  --card: #18171f;
-  --card-foreground: #ededed;
-  --popover: #111111;
-  --popover-foreground: #ededed;
-  --primary: #ededed;
-  --primary-foreground: #0a0a0a;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ededed;
-  --muted: #1a1a1a;
-  --muted-foreground: #a1a1a1;
-  --accent: #1f1f1f;
-  --accent-foreground: #ededed;
-  --destructive: #ff6166;
-  --border: #26252e;
-  --input: #2e2d38;
-  --ring: #52a8ff;
-
-  --faint: #8f8f8f;
-  --strong: #3d3d3d;
-  --brand: #52a8ff;
-  --brand-wash: #0d1f33;
-  --good: #62c073;
-  --warn: #f5a524;
-  --bad: #ff6166;
-  --info: #52a8ff;
-
-  /* Same hues stepped for the dark surface, validated on #0a0a0a
-     (worst adjacent CVD dE 8.4, normal-vision 19.8, all >= 3:1). */
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
-  --chart-3: #199e70;
-  --chart-4: #c98500;
-  --chart-5: #5c5c5c;
-  --grid: #1a1a1a;
-
-  --sidebar: #000000;
-  --sidebar-foreground: #ededed;
-  --sidebar-primary: #ededed;
-  --sidebar-primary-foreground: #0a0a0a;
-  --sidebar-accent: #1f1f1f;
-  --sidebar-accent-foreground: #ededed;
-  --sidebar-border: #242424;
-  --sidebar-ring: #52a8ff;
+  --dur: 150ms;
+  --dur-slow: 360ms;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-big-shoulders), var(--font-ui), sans-serif;
+  --font-heading: var(--font-display);
+
+  --color-ground: var(--ground);
+  --color-text: var(--text);
+  --color-muted-text: var(--muted-text);
+  --color-rule: var(--rule);
+  --color-raised: var(--raised);
+  --color-ink-cobalt: var(--ink-cobalt);
+  --color-ink-vermilion: var(--ink-vermilion);
+  --color-ink-mustard: var(--ink-mustard);
+  --color-ink-green: var(--ink-green);
+  --color-ink-plum: var(--ink-plum);
+  --color-ink-teal: var(--ink-teal);
+  --color-ink-orange: var(--ink-orange);
+  --color-ink-redviolet: var(--ink-redviolet);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-page: var(--page);
-  --color-space: var(--space);
-  --color-space-tile: var(--space-tile);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -159,16 +107,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
   --color-faint: var(--faint);
   --color-strong: var(--strong);
   --color-brand: var(--brand);
-  --color-brand-wash: var(--brand-wash);
   --color-good: var(--good);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
-  --color-info: var(--info);
-
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -176,55 +120,63 @@
   --color-chart-5: var(--chart-5);
   --color-grid: var(--grid);
 
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-xl: var(--radius);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   html {
-    color-scheme: light;
+    color-scheme: dark;
     @apply font-sans;
   }
-  html.dark {
-    color-scheme: dark;
-  }
   body {
-    @apply bg-page text-foreground antialiased;
+    @apply bg-ground text-text antialiased;
+    /* Every number lines up: stats, times, ranks. */
+    font-variant-numeric: tabular-nums;
+  }
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
   }
   ::selection {
-    background: var(--brand-wash);
-    color: var(--foreground);
+    background: var(--text);
+    color: var(--ground);
+  }
+  input,
+  textarea {
+    caret-color: var(--text);
   }
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--strong) transparent;
   }
   :focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 2px solid var(--text);
     outline-offset: 2px;
   }
 }
 
-/* Columns that must align (tables, axis ticks, times). */
+/* The sleeve voice: stacked condensed capitals. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
 .nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Now-playing equalizer. Reduced motion freezes it at 60% via the rule below. */
+/* Now-playing level meter. Reduced motion freezes it at 60%. */
 .eq-bar {
   height: 60%;
   animation: eq 900ms ease-in-out infinite alternate;
@@ -234,8 +186,7 @@
   to { height: 100%; }
 }
 
-/* Route changes: a Today tile morphs into the header of the page it opens
-   (React <ViewTransition>); everything else crossfades quickly. */
+/* The one authored move: a sleeve pulled off the shelf into its era page. */
 ::view-transition-group(*) {
   animation-duration: var(--dur-slow);
   animation-timing-function: var(--ease);
