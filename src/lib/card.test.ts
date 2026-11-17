@@ -1,5 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cardFonts, coverData } from "./card";
+import { cardFonts, coverData, eraTitleSize } from "./card";
+
+describe("eraTitleSize", () => {
+  it("keeps short names huge and shrinks long ones so they fit above the tracklist", () => {
+    expect(eraTitleSize("Mira Vale era", false)).toBe(120);
+    const long = eraTitleSize("The extraordinarily long winter where I only listened to Low Orbit Club on repea", false);
+    expect(long.toString()).toBe("56");
+  });
+
+  it("gives the story format more room", () => {
+    expect(eraTitleSize("Mira Vale era", true)).toBeGreaterThan(eraTitleSize("Mira Vale era", false));
+  });
+});
 
 afterEach(() => vi.unstubAllGlobals());
 

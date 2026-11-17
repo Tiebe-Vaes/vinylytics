@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <rect width="1024" height="512" fill="#0F0F10"/>
+  <g id="icon" transform="translate(40 96) scale(0.625)">
+    <circle cx="256" cy="256" r="210" fill="#1F4FD8"/>
+    <circle cx="256" cy="256" r="110" fill="#EEEBE4"/>
+    <rect x="196" y="250" width="30" height="60" fill="#0F0F10"/>
+    <rect x="241" y="210" width="30" height="100" fill="#0F0F10"/>
+    <rect x="286" y="180" width="30" height="130" fill="#0F0F10"/>
+  </g>
+  <g id="wordmark">
+    <text x="380" y="300" font-family="'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif" font-weight="900" font-size="132" letter-spacing="-2" fill="#EEEBE4">VINYLYTICS</text>
+  </g>
+</svg>

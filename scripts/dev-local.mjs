@@ -4,6 +4,7 @@
 //
 //   npm run dev:local            start (applies the schema, seeds an empty db)
 //   npm run dev:local -- --reset wipe the local db first
+//   npm run dev:local -- --empty a separate db with no plays, to check empty states
 //   npm run dev:local -- 3300    other port
 //
 // DEMO_MODE=1 turns sign-in off; src/lib/env.ts ignores it in production.
@@ -18,8 +19,9 @@ import * as schema from "../src/db/schema.ts";
 import { seedPlays } from "./seed.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const dir = path.join(root, ".data", "pglite");
-const snapshotFile = path.join(root, ".data", "schema.json");
+const empty = process.argv.includes("--empty");
+const dir = path.join(root, ".data", empty ? "pglite-empty" : "pglite");
+const snapshotFile = path.join(root, ".data", empty ? "schema-empty.json" : "schema.json");
 const args = process.argv.slice(2);
 const port = args.find((a) => /^\d+$/.test(a)) || "3000";
 if (args.includes("--reset")) rmSync(path.join(root, ".data"), { recursive: true, force: true });
@@ -43,7 +45,7 @@ for (const sql of statements) await client.exec(sql);
 writeFileSync(snapshotFile, JSON.stringify(next));
 if (statements.length) console.log(`local db: ${statements.length} schema statement(s) applied`);
 
-const seeded = await seedPlays(db, schema);
+const seeded = empty ? 0 : await seedPlays(db, schema);
 if (seeded) console.log(`local db: seeded ${seeded} plays`);
 await client.close();
 

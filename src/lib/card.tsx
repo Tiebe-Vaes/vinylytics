@@ -40,7 +40,17 @@ export async function coverData(url: string | null | undefined): Promise<string 
   }
 }
 
-export const CARD_SIZES = { post: { width: 1080, height: 1350 }, story: { width: 1080, height: 1920 } } as const;
+/**
+ * Font size for an era name on a card. Names run up to 80 characters and
+ * Satori doesn't shrink-to-fit, so step the size down by length.
+ */
+export function eraTitleSize(name: string, story: boolean): number {
+  const n = name.length;
+  const base = n <= 16 ? 120 : n <= 28 ? 96 : n <= 44 ? 72 : 56;
+  return story ? Math.round(base * 1.25) : base;
+}
+
+export const CARD_SIZES ={ post: { width: 1080, height: 1350 }, story: { width: 1080, height: 1920 } } as const;
 export type CardFormat = keyof typeof CARD_SIZES;
 export const cardFormat = (v: string | null): CardFormat => (v === "story" ? "story" : "post");
 

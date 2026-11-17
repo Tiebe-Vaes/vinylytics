@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData } from "@/lib/card";
+import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData, eraTitleSize } from "@/lib/card";
 import { inkHex } from "@/lib/ink";
 import { isOwner } from "@/lib/owner";
 import { publicAllows } from "@/lib/public";
@@ -28,11 +28,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   return new ImageResponse(
     (
       <CardFrame ink={inkHex(era.ink)} topLeft={`${monthYear(era.start)} – ${monthYear(era.end)}`} cover={cover}>
-        <div style={{ display: "flex", alignItems: "flex-start", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: story ? 360 : 300, lineHeight: 0.85 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: (story ? 360 : 300) * (era.name.length > 28 ? 0.7 : 1), lineHeight: 0.85 }}>
           {hours}
           <span style={{ fontSize: 110, marginLeft: 8 }}>H</span>
         </div>
-        <div style={{ display: "flex", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: story ? 150 : 120, lineHeight: 0.88, textTransform: "uppercase", marginTop: 20 }}>
+        <div style={{ display: "flex", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: eraTitleSize(era.name, story), lineHeight: 0.88, textTransform: "uppercase", marginTop: 20 }}>
           {era.name}
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: story ? 80 : 50, gap: 10 }}>
