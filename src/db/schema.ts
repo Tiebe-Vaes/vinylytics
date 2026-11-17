@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 
 /**
  * The owner's Spotify tokens: one row, `id = 'owner'`. `spotifyUserId` is the
@@ -18,7 +18,8 @@ export const auth = pgTable("auth", {
 
 /**
  * Every play, from the extended-history export or the recently-played poller.
- * The unique (played_at, uri) key makes re-imports and repeated syncs no-ops.
+ * The unique (played_at, uri) key makes re-imports and repeated syncs no-ops;
+ * NULLS NOT DISTINCT so plays without a uri (local files) de-duplicate too.
  * Export privacy fields (IP, country, platform, incognito) are never stored.
  */
 export const plays = pgTable(
@@ -46,7 +47,7 @@ export const plays = pgTable(
     source: text("source").notNull(),
   },
   (t) => [
-    uniqueIndex("plays_at_uri_idx").on(t.playedAt, t.uri),
+    unique("plays_at_uri_key").on(t.playedAt, t.uri).nullsNotDistinct(),
     index("plays_at_idx").on(t.playedAt),
     index("plays_artist_idx").on(t.artistName),
     index("plays_uri_idx").on(t.uri),

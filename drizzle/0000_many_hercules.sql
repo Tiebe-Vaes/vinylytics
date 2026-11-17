@@ -30,7 +30,8 @@ CREATE TABLE "plays" (
 	"reason_end" text,
 	"skipped" boolean,
 	"shuffle" boolean,
-	"source" text NOT NULL
+	"source" text NOT NULL,
+	CONSTRAINT "plays_at_uri_key" UNIQUE NULLS NOT DISTINCT("played_at","uri")
 );
 --> statement-breakpoint
 CREATE TABLE "sync_runs" (
@@ -55,7 +56,6 @@ CREATE TABLE "tracks" (
 	"fetched_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX "plays_at_uri_idx" ON "plays" USING btree ("played_at","uri");--> statement-breakpoint
 CREATE INDEX "plays_at_idx" ON "plays" USING btree ("played_at");--> statement-breakpoint
 CREATE INDEX "plays_artist_idx" ON "plays" USING btree ("artist_name");--> statement-breakpoint
 CREATE INDEX "plays_uri_idx" ON "plays" USING btree ("uri");

@@ -1,5 +1,5 @@
 {
-  "id": "5c69069a-45d0-4d8d-a10e-e8872ed7b418",
+  "id": "a73c6c5b-d3f2-44a1-9fe2-e363c313049d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -196,27 +196,6 @@
         }
       },
       "indexes": {
-        "plays_at_uri_idx": {
-          "name": "plays_at_uri_idx",
-          "columns": [
-            {
-              "expression": "played_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "uri",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "plays_at_idx": {
           "name": "plays_at_idx",
           "columns": [
@@ -265,7 +244,16 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "plays_at_uri_key": {
+          "name": "plays_at_uri_key",
+          "nullsNotDistinct": true,
+          "columns": [
+            "played_at",
+            "uri"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
