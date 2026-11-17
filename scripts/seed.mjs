@@ -15,7 +15,10 @@ function seeded(seed) {
   return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
 }
 
-/** @param {Date} now @returns {Array<object>} plays, oldest first */
+/**
+ * @param {Date} now
+ * @returns {Array<{ playedAt: Date; msPlayed: number; kind: string; uri: string; trackName: string; artistName: string; albumName: string; reasonStart: string; reasonEnd: string; skipped: boolean; shuffle: boolean; source: string }>} plays, oldest first
+ */
 export function seedRows(now) {
   const rnd = seeded(42);
   const rows = [];
