@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "dev:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev-local.mjs"
+    "dev:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev-local.mjs",
+    "vercel-build": "node scripts/migrate.mjs && next build",
+    "start:docker": "node scripts/migrate.mjs && next start",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

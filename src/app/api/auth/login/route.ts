@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { buildAuthorizeUrl, createPkcePair } from "@/lib/spotify/auth";
 import { isProd } from "@/lib/env";
+import { appUrl } from "@/lib/app-url";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
   if (!clientId || !redirectUri) {
-    return NextResponse.redirect(new URL("/login?error=config", req.url));
+    return NextResponse.redirect(appUrl("/login?error=config", process.env.SPOTIFY_REDIRECT_URI, req.url));
   }
 
   const { verifier, challenge } = await createPkcePair();

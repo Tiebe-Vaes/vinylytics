@@ -1,0 +1,42 @@
+# Self-host without Vercel: `cp .env.example .env`, fill it in, then `docker compose up -d`.
+# DATABASE_URL is set here; leave it empty in .env.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: discography
+      POSTGRES_PASSWORD: discography
+      POSTGRES_DB: discography
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U discography"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://discography:discography@db:5432/discography
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Spotify's recently-played keeps only 50 plays, so poll every 30 minutes.
+  cron:
+    image: curlimages/curl:8.11.1
+    env_file: .env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'while true; do sleep 1800; curl -fsS -X POST -H "Authorization: Bearer $$CRON_SECRET" http://app:3000/api/cron/sync || true; echo; done'
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  db:

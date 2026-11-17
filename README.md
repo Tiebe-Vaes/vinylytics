@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Discography
 
-## Getting Started
+Your Spotify listening history, on your own server. Each copy serves one person: you deploy it, you sign in with Spotify, and nobody else can.
 
-First, run the development server:
+> This is the setup guide. Screenshots and the full tour come later.
+
+## 1. Create a Spotify app
+
+1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and create an app. The account that owns the app needs Spotify Premium.
+2. Add a redirect URI:
+   - Deployed: `https://<your-app>/api/auth/callback`
+   - Local: `http://127.0.0.1:3000/api/auth/callback`. Spotify rejects `localhost`.
+3. Tick **Web API**.
+4. Copy the client ID and client secret.
+
+**Never add other people to your Spotify app's user list.** In development mode only listed accounts can sign in to your app. You are listed automatically, so that list is what keeps your copy yours.
+
+## 2. Deploy
+
+### Vercel and Neon
+
+1. Fork this repo.
+2. Import the fork in Vercel.
+3. Add a Neon Postgres database from the Vercel marketplace. It sets `DATABASE_URL`.
+4. Set the environment variables from the table below.
+5. Set the build command to `npm run vercel-build`. It applies the database migrations, then builds.
+6. Deploy, open the app and sign in with Spotify. The first account to sign in becomes the owner.
+7. In your fork, go to **Settings → Secrets and variables → Actions** and add two secrets:
+   - `APP_URL`: your app's address, for example `https://discography-you.vercel.app`.
+   - `CRON_SECRET`: the same value as in Vercel.
+
+   The `Spotify sync` workflow then pulls new plays every 30 minutes. GitHub pauses scheduled workflows after 60 days without commits. Re-enable it in the Actions tab if that happens.
+
+### Docker
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fill in `.env`, leaving `DATABASE_URL` empty because compose sets it. Then:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+docker compose up -d --build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This starts the app on port 3000 with Postgres 17 and a small job that syncs every 30 minutes. The first start applies the migrations.
 
-## Learn More
+## 3. Import your full history
 
-To learn more about Next.js, take a look at the following resources:
+The live sync only sees plays from the moment you connect. For everything before that:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Go to spotify.com → **Account → Privacy**.
+2. Request **Extended streaming history**. It can take up to 30 days to arrive.
+3. Drop the zip on the **Import** page.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The file is read in your browser. Only the plays are uploaded, never your IP, country or device.
 
-## Deploy on Vercel
+## Environment variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable | Required | What it is |
+|---|---|---|
+| `DATABASE_URL` | yes | Postgres connection string (Postgres 15 or newer) |
+| `SPOTIFY_CLIENT_ID` | yes | From your Spotify app |
+| `SPOTIFY_CLIENT_SECRET` | yes | From your Spotify app |
+| `SPOTIFY_REDIRECT_URI` | yes | Must match the app's redirect URI exactly |
+| `AUTH_SECRET` | yes | Signs your session. Generate with `openssl rand -base64 32` |
+| `CRON_SECRET` | yes | Bearer token the sync job sends. Generate the same way |
+| `OWNER_SPOTIFY_ID` | no | Your Spotify user id. When set, only this account can ever sign in |
+| `TIMEZONE` | no | IANA name for day and hour stats, for example `Europe/Brussels`. Default `UTC` |
+| `LASTFM_API_KEY` | no | Adds genre tags from Last.fm |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Develop
+
+```bash
+npm install
+npm run dev:local
+```
+
+This runs on a local in-process database with about 6,000 seed plays and no sign-in. Nothing touches a real database. Add `-- --reset` to wipe it.
+
+Checks: `npx tsc --noEmit`, `npx eslint src`, `npx vitest run`, `npx next build`.
+
+## Licence
+
+MIT

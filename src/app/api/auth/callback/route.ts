@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db, hasDb, schema } from "@/db";
 import { exchangeCode } from "@/lib/spotify/auth";
 import { isProd } from "@/lib/env";
+import { appUrl } from "@/lib/app-url";
 import { decideOwner, storedOwner } from "@/lib/owner";
 import { SESSION_COOKIE, SESSION_DAYS, signSession } from "@/lib/session";
 
@@ -13,7 +14,7 @@ const me = z.object({ id: z.string().min(1) });
 
 export async function GET(req: NextRequest) {
   const done = (path: string) => {
-    const res = NextResponse.redirect(new URL(path, req.url));
+    const res = NextResponse.redirect(appUrl(path, process.env.SPOTIFY_REDIRECT_URI, req.url));
     res.cookies.delete({ name: "spotify_oauth", path: "/api/auth" });
     return res;
   };
