@@ -74,12 +74,17 @@ export async function enrichMissing(limit = 50): Promise<{ tracks: number; artis
 
   // Tracks enriched before albums existed: fetch them again for their album.
   // A failed lookup (name null) is skipped, so it isn't retried every run.
+  // Oldest attempt first, and a failed refetch bumps fetched_at, so tracks that
+  // keep failing rotate to the back instead of blocking the rest.
   const stale = await d.execute(sql`
-    SELECT uri FROM tracks WHERE album_id IS NULL AND name IS NOT NULL LIMIT ${limit}`);
+    SELECT uri FROM tracks WHERE album_id IS NULL AND name IS NOT NULL ORDER BY fetched_at, uri LIMIT ${limit}`);
   let albumCount = 0;
   for (const { uri } of rowsOf<{ uri: string }>(stale)) {
     const t = await spotifyFetch<SpotifyTrack>(`/tracks/${uri.split(":")[2]}`).catch(() => null);
-    if (!t) continue;
+    if (!t) {
+      await d.update(schema.tracks).set({ fetchedAt: new Date() }).where(sql`${schema.tracks.uri} = ${uri}`);
+      continue;
+    }
     await d.insert(schema.albums).values(albumFromTrack(t)).onConflictDoNothing();
     await d.update(schema.tracks).set({ albumId: t.album.id }).where(sql`${schema.tracks.uri} = ${uri}`);
     albumCount++;

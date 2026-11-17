@@ -10,9 +10,12 @@ const trackFor = (id: string) => ({
 });
 
 vi.mock("./client", () => ({
-  spotifyFetch: vi.fn(async (path: string) =>
-    path.startsWith("/tracks/") ? trackFor(path.split("/")[2]) : { id: "ar1", name: "A", images: [] }
-  ),
+  spotifyFetch: vi.fn(async (path: string) => {
+    if (!path.startsWith("/tracks/")) return { id: "ar1", name: "A", images: [] };
+    const id = path.split("/")[2];
+    if (id.startsWith("gone")) throw new Error("Spotify /tracks failed: 404");
+    return trackFor(id);
+  }),
 }));
 vi.mock("./lastfm", () => ({ getTopTags: vi.fn(async () => []), pickGenres: () => [] }));
 
@@ -42,6 +45,18 @@ describe("enrichMissing", () => {
     expect(n.albums).toBe(1);
     const [t] = await d.select().from(schema.tracks).where(eq(schema.tracks.uri, "spotify:track:old"));
     expect(t.albumId).toBe("al-old");
+  });
+
+  it("marks a failed album backfill so later runs reach the tracks behind it", async () => {
+    await d.insert(schema.tracks).values([
+      ...Array.from({ length: 3 }, (_, i) => ({ uri: `spotify:track:gone${i}`, name: `Gone ${i}` })),
+      { uri: "spotify:track:good", name: "Good" },
+    ]);
+    await enrichMissing(3); // only the 3 failing rows fit in this run
+    const second = await enrichMissing(3);
+    expect(second.albums).toBe(1);
+    const [good] = await d.select().from(schema.tracks).where(eq(schema.tracks.uri, "spotify:track:good"));
+    expect(good.albumId).toBe("al-good");
   });
 
   it("leaves failed lookups (no name) alone instead of retrying them forever", async () => {
