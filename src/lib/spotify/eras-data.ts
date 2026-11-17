@@ -3,6 +3,8 @@ import { asc, sql } from "drizzle-orm";
 import { db, hasDb, schema } from "@/db";
 import { rowsOf } from "@/db/rows";
 import { timezone } from "@/lib/tz";
+import type { InkId } from "@/lib/ink";
+import { eraCovers, inkForCover } from "./era-covers";
 import { detectEras, type Era, type EraOverride, type WeekArtist } from "./eras";
 import { local } from "./queries";
 
@@ -27,13 +29,22 @@ export async function listOverrides(): Promise<EraOverride[]> {
   });
 }
 
-export type ErasData = { eras: Era[]; overrides: (EraOverride & { unused: boolean })[] };
+/** An era as pages show it: pressed in an ink, with its lead cover as the sticker. */
+export type EraView = Era & { ink: InkId; cover: string | null };
+export type ErasData = { eras: EraView[]; overrides: (EraOverride & { unused: boolean })[] };
 
 async function computeEras(): Promise<ErasData> {
   if (!hasDb()) return { eras: [], overrides: [] };
   const [rows, overrides] = await Promise.all([weeklyArtistMinutes(), listOverrides()]);
   const { eras, unusedOverrideIds } = detectEras(rows, overrides);
-  return { eras, overrides: overrides.map((o) => ({ ...o, unused: unusedOverrideIds.includes(o.id) })) };
+  const covers = await eraCovers(eras);
+  const views = await Promise.all(
+    eras.map(async (e) => {
+      const cover = covers.get(e.id) ?? null;
+      return { ...e, cover, ink: await inkForCover(cover, e.lead) };
+    })
+  );
+  return { eras: views, overrides: overrides.map((o) => ({ ...o, unused: unusedOverrideIds.includes(o.id) })) };
 }
 
 /** Eras plus your overrides; cached until the next sync, import or override change. */
