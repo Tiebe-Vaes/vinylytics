@@ -3,10 +3,12 @@ import { cardOptions, DENSITIES, presetFields } from "./card-options";
 import { INKS } from "./ink";
 
 describe("share card settings", () => {
-  it("starts with the era's ink, its dates, lead and artwork", () => {
+  it("starts minimal: the era's ink and its artwork, every fact opt-in", () => {
     expect(cardOptions(new URLSearchParams(), "era", "orange")).toEqual({
-      visual: "sleeve", format: "post", ink: "orange", density: "balanced", fields: ["period", "lead", "cover"],
+      visual: "sleeve", format: "post", ink: "orange", density: "minimal", fields: ["cover"],
     });
+    expect(presetFields("era", "minimal")).toEqual(["cover"]);
+    expect(presetFields("top", "maximal")).toEqual(["cover", "period", "lead", "stat", "rows"]);
   });
 
   it("picks a visual per card kind and only accepts known visuals", () => {

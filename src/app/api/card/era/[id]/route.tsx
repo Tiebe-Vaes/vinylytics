@@ -20,7 +20,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!detail) return missing();
   const { era, tracks, weekly } = detail;
   return renderCard(req, {
-    kind: "era", ink: era.ink, edition: `ERA  /  VNL ${id.slice(2, 4)}${id.slice(5, 7)}`,
+    kind: "era", ink: era.ink, edition: `ERA  /  ${era.weeks} WEEKS`,
     title: era.name, period: `${date(era.start)} – ${date(era.end)}`, lead: era.lead, cover: era.cover,
     stat: `${Math.round(era.minutes).toLocaleString("en-GB")} minutes`, ranked: true,
     rows: owner ? tracks.map((t) => ({ label: t.name, value: t.artist })) : [],

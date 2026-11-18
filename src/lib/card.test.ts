@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import sharp from "sharp";
-import { cardFonts, coverData, eraTitleSize } from "./card";
+import { cardFonts, cardFooter, coverData, eraTitleSize } from "./card";
 
 describe("eraTitleSize", () => {
   it("keeps short names huge and shrinks long ones so they fit above the tracklist", () => {
@@ -71,5 +71,12 @@ describe("cardFonts", () => {
     const fonts = await cardFonts();
     expect(fonts.map((f) => `${f.name}-${f.weight}`)).toEqual(["Big Shoulders-900", "Archivo-400", "Archivo-600"]);
     for (const f of fonts) expect(f.data.byteLength).toBeGreaterThan(1000);
+  });
+});
+
+describe("cardFooter", () => {
+  it("links the project site and keeps a small Spotify credit", () => {
+    expect(cardFooter(false)).toEqual({ site: "vinylytics.vercel.app", attribution: "Data from Spotify" });
+    expect(cardFooter(true).attribution).toBe("Synthetic demo history");
   });
 });

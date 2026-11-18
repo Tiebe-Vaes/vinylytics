@@ -113,8 +113,6 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
         {svg(<>
           {record(62, 50, 36, rings, accent, bg)}
           <rect x={2} y={12} width={60} height={76} fill={shade(bg, 0.32)} />
-          <rect x={8} y={18} width={48} height={1.2} fill={fg} opacity={0.7} />
-          <rect x={8} y={80} width={48} height={0.6} fill={fg} opacity={0.7} />
         </>)}
         <LabelArt src={artwork} cx={62} cy={50} r={36 * 0.34} size={size} />
       </div>

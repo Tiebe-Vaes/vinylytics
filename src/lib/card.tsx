@@ -6,6 +6,7 @@ import { ImageResponse } from "next/og";
 import { inkHex, inkText, type InkId } from "@/lib/ink";
 import { CARD_SIZES, cardOptions, type CardKind } from "@/lib/card-options";
 import { fetchCover } from "@/lib/spotify/cover-image";
+import { SITE_URL } from "@/lib/site";
 import { CardVisualBox } from "@/lib/card-visual";
 
 /**
@@ -81,6 +82,11 @@ export type CardContent = {
   caption?: string;
 };
 
+/** The card's sign-off: where to get your own, plus the data credit Spotify's terms ask for. */
+export function cardFooter(demo: boolean) {
+  return { site: SITE_URL, attribution: demo ? "Synthetic demo history" : "Data from Spotify" };
+}
+
 const display = { fontFamily: "Big Shoulders", fontWeight: 900 as const, textTransform: "uppercase" as const };
 const singleLine = { overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" } as const;
 
@@ -97,12 +103,10 @@ export async function renderCard(req: Request, card: CardContent) {
   const hasVisual = visual !== "cover" || artwork !== null;
   const fontSize = Math.round(eraTitleSize(title, story) * (!hasVisual && !rows.length ? 1.45 : 1));
 
+  const footer = cardFooter(demoAllowed());
   return new ImageResponse(
     <div style={{ display: "flex", flexDirection: "column", padding: 64, width: "100%", height: "100%", background: bg, color: fg, fontFamily: "Archivo" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `10px solid ${fg}`, borderBottom: `2px solid ${fg}`, padding: "14px 0" }}>
-        <span style={{ ...display, fontSize: 38 }}>VINYLYTICS</span>
-        <span style={{ fontSize: 23, fontWeight: 600 }}>{card.edition}</span>
-      </div>
+      {fields.includes("period") && <span style={{ fontSize: 29, fontWeight: 600 }}>{card.period}</span>}
       <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18 }}>
         {hasVisual && (
           <CardVisualBox visual={visual} size={coverSize} ink={ink} series={card.series} artwork={artwork}
@@ -112,23 +116,34 @@ export async function renderCard(req: Request, card: CardContent) {
         {fields.includes("lead") && card.lead && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}
         {fields.includes("stat") && card.stat && <span style={{ ...display, fontSize: story ? 78 : 62 }}>{card.stat}</span>}
         {rows.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", borderTop: `3px solid ${fg}` }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: story ? 18 : 12, marginTop: 8 }}>
             {rows.map((row, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column", borderBottom: `1px solid ${fg}`, padding: story ? "12px 0" : "8px 0" }}>
+              <div key={i} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   {card.ranked && <span style={{ ...display, width: 42, fontSize: 39 }}>{i + 1}</span>}
                   <span style={{ ...singleLine, flex: 1, fontWeight: 600, fontSize: 34 }}>{row.label}</span>
                   {row.value && <span style={{ ...singleLine, maxWidth: 470, fontSize: 32 }}>{row.value}</span>}
                 </div>
-                {row.fraction != null && <div style={{ width: `${Math.max(0, Math.min(1, row.fraction)) * 100}%`, height: 5, background: fg }} />}
+                {row.fraction != null && <div style={{ width: `${Math.max(0, Math.min(1, row.fraction)) * 100}%`, height: 5, background: fg, opacity: 0.85 }} />}
               </div>
             ))}
           </div>
         )}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", borderTop: `3px solid ${fg}`, paddingTop: 18, fontSize: 29, fontWeight: 600 }}>
-        <span>{fields.includes("period") ? card.period : ""}</span>
-        <span>{demoAllowed() ? "Synthetic demo history" : "Data from Spotify"}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <svg width={44} height={44} viewBox="0 0 44 44">
+            <circle cx={22} cy={22} r={21} fill={fg} />
+            <circle cx={22} cy={22} r={14} fill="none" stroke={bg} strokeWidth={1.5} opacity={0.5} />
+            <circle cx={22} cy={22} r={7} fill={bg} />
+            <circle cx={22} cy={22} r={2} fill={fg} />
+          </svg>
+          <span style={{ ...display, fontSize: 38 }}>VINYLYTICS</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+          <span style={{ fontSize: 28, fontWeight: 600 }}>{footer.site}</span>
+          <span style={{ fontSize: 17, opacity: 0.7 }}>{footer.attribution}</span>
+        </div>
       </div>
     </div>,
     { ...CARD_SIZES[format], fonts, headers: { "Cache-Control": "private, no-store" } }
