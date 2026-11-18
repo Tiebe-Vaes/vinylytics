@@ -6,6 +6,7 @@ import { db, schema } from "@/db";
 import { isOwner } from "@/lib/owner";
 import { syncRecentlyPlayed } from "@/lib/spotify/sync";
 import { logRun } from "@/lib/spotify/write";
+import { geocodeCity } from "@/lib/weather";
 
 /** "Sync now": the same work as the cron route, triggered by hand. */
 export async function syncNow() {
@@ -36,4 +37,18 @@ export async function savePublicSettings(form: FormData) {
   await db().insert(schema.settings).values({ id: "owner", ...row }).onConflictDoUpdate({ target: schema.settings.id, set: row });
   revalidatePath("/settings");
   revalidatePath("/u");
+}
+
+/** "Weather you": find the city with Open-Meteo and store it; an empty field switches the stat off. */
+export async function saveWeatherCity(form: FormData) {
+  if (!(await isOwner())) throw new Error("unauthorized");
+  const name = String(form.get("city") ?? "").trim().slice(0, 80);
+  const place = name ? await geocodeCity(name) : null;
+  if (name && !place) throw new Error("city not found");
+  const row = { weatherCity: place?.name ?? null, weatherLat: place?.lat ?? null, weatherLon: place?.lon ?? null };
+  await db().insert(schema.settings).values({ id: "owner", ...row }).onConflictDoUpdate({ target: schema.settings.id, set: row });
+  // A new city means new weather: drop the old cache.
+  await db().delete(schema.weatherDays);
+  revalidatePath("/settings");
+  revalidatePath("/recap");
 }

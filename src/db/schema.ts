@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, real, text, timestamp, unique } from "drizzle-orm/pg-core";
 
 /**
  * The owner's Spotify tokens: one row, `id = 'owner'`. `spotifyUserId` is the
@@ -138,4 +138,17 @@ export const settings = pgTable("settings", {
     .$type<{ eras: boolean; top: boolean; insights: boolean; nowPlaying: boolean }>()
     .notNull()
     .default({ eras: true, top: true, insights: false, nowPlaying: false }),
+  /** Opt-in "Weather you": the city the owner picked; only its coordinates and dates go to Open-Meteo. */
+  weatherCity: text("weather_city"),
+  weatherLat: real("weather_lat"),
+  weatherLon: real("weather_lon"),
+});
+
+/** Daily weather for the owner's city, cached from Open-Meteo's archive. `day` is a local date key. */
+export const weatherDays = pgTable("weather_days", {
+  day: text("day").primaryKey(),
+  /** WMO weather code: 0 clear, 1 mainly clear, higher is cloudier or wetter. */
+  code: integer("code"),
+  precipMm: real("precip_mm"),
+  tempMaxC: real("temp_max_c"),
 });

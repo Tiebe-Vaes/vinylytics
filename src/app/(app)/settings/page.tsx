@@ -7,7 +7,9 @@ import { getSpotifyStatus } from "@/lib/spotify/client";
 import { getEras } from "@/lib/spotify/eras-data";
 import { clock, localDateKey } from "@/lib/time";
 import { deleteOverride } from "../eras/actions";
-import { savePublicSettings, syncNow } from "./actions";
+import { saveWeatherCity, savePublicSettings, syncNow } from "./actions";
+import { eq } from "drizzle-orm";
+import { db, hasDb, schema } from "@/db";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +26,11 @@ const dayLabel = (d: Date) =>
   new Date(`${localDateKey(d)}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 
 export default async function SettingsPage() {
-  const [spotify, pub, { overrides }] = await Promise.all([
+  const [spotify, pub, { overrides }, weather] = await Promise.all([
     getSpotifyStatus().catch(() => ({ state: "not-connected" as const, lastSyncAt: null })),
     getPublicSettings(),
     getEras(),
+    hasDb() ? db().select({ city: schema.settings.weatherCity }).from(schema.settings).where(eq(schema.settings.id, "owner")).then((r) => r[0]?.city ?? null) : null,
   ]);
 
   return (
@@ -72,6 +75,16 @@ export default async function SettingsPage() {
               <Link href="/u" className="text-sm font-semibold underline">View public page</Link>
             )}
           </div>
+        </ActionForm>
+      </Panel>
+
+      <Panel title="Weather you" subtitle="Compare your rainy-day and sunny-day listening in the recap. Only the city and dates are sent to Open-Meteo.">
+        <ActionForm action={saveWeatherCity} success="Weather city saved" className="flex flex-wrap items-end gap-3">
+          <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold">City
+            <input name="city" defaultValue={weather ?? ""} placeholder="e.g. Ghent" maxLength={80} className="h-11 border border-strong bg-ground px-3 font-normal" />
+          </label>
+          <Button size="sm" type="submit" className="min-h-11">{weather ? "Update" : "Find and save"}</Button>
+          <p className="w-full text-xs text-muted-text">{weather ? `Using ${weather}. Clear the field and save to switch it off.` : "Off. Nothing is sent until you save a city."}</p>
         </ActionForm>
       </Panel>
 
