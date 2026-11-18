@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Check, Download, Share, SlidersHorizontal, X } from "lucide-react";
+import { Download, Share, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CARD_SIZES, FIELDS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
-import { INKS, inkName, inkText } from "@/lib/ink";
 import { cn } from "@/lib/utils";
 import type { ShareButtonProps } from "./share-button";
 import { VisualTiles } from "./visual-tiles";
+import { InkPicker } from "./ink-picker";
 import { DensitySlider } from "./density-slider";
 import { FieldToggles } from "./field-toggles";
 
@@ -152,11 +152,8 @@ export default function CardComposer({ href, filename, title = "Share card", def
               {(["post", "story"] as CardFormat[]).map((format) => <button key={format} className={choice} aria-pressed={options.format === format}
                 onClick={() => setOptions(() => ({ format }))}>{format}</button>)}
             </div></fieldset>
-            <fieldset><legend className="mb-2 font-semibold">Ink · {inkName(options.ink)}</legend><div className="grid grid-cols-4 gap-2">
-              {INKS.map((ink) => <button key={ink.id} aria-label={inkName(ink.id)} title={inkName(ink.id)} aria-pressed={options.ink === ink.id}
-                onClick={() => setOptions(() => ({ ink: ink.id }))} className="grid min-h-11 place-items-center border border-white/25"
-                style={{ background: ink.hex, color: inkText(ink.hex) }}>{options.ink === ink.id && <Check size={20} aria-hidden="true" />}</button>)}
-            </div></fieldset>
+            <InkPicker value={options.ink} eraInk={defaultInk} eraLabel={kind === "era" ? "This era" : "Default"}
+              onChange={(ink) => setOptions(() => ({ ink }))} />
             <DensitySlider value={options.density} onChange={setDensity}
               custom={presetFields(kind, options.density).join(",") !== options.fields.join(",")} />
             <FieldToggles kind={kind} fields={options.fields} preview={preview} ink={options.ink}
