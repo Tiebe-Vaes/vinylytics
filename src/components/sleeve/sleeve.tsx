@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { inkHex, inkText } from "@/lib/ink";
 import type { EraView } from "@/lib/spotify/eras-data";
 import { cn } from "@/lib/utils";
+import { Tilt } from "@/components/motion/tilt";
 
 const monthYear = (key: string) =>
   new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -33,12 +34,12 @@ export function Sleeve({ era, size = "shelf", href, className }: {
         <h2 className={cn("display line-clamp-2", hero ? "text-[clamp(2.2rem,6vw,4.75rem)]" : "text-[clamp(2rem,5vw,2.75rem)]")}>{era.name}</h2>
         <div className="mt-3 flex items-end justify-between gap-3 border-t border-current pt-2 text-xs font-semibold">
           <div className="min-w-0"><span className="block truncate">{era.lead}</span><span>{eraSpan(era)}</span></div>
-          {href !== null && <ArrowUpRight className="size-6 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />}
+          {href !== null && <ArrowUpRight className="hover-reveal size-6 shrink-0 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />}
         </div>
       </div>
     </div>
   );
   return <ViewTransition name={`sleeve-${era.id}`}>{href === null ? <div className={className}>{face}</div> : (
-    <Link href={href ?? `/eras/${era.id}`} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}>{face}</Link>
+    <Link href={href ?? `/eras/${era.id}`} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}><Tilt>{face}</Tilt></Link>
   )}</ViewTransition>;
 }

@@ -10,6 +10,7 @@ import { MinutesChart } from "@/components/music/minutes-chart";
 import { RangeSelect } from "@/components/music/range-select";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Cover } from "@/components/sleeve/cover";
+import { Tilt } from "@/components/motion/tilt";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { CHART_RANGES } from "@/lib/spotify/data";
 import { topItems } from "@/lib/spotify/charts";
@@ -70,12 +71,12 @@ export default async function ChartsPage({searchParams}: {searchParams: Promise<
           const bg = inkHex(hashInk(item.key));
           const metric = sort === "time" ? `${Math.round(item.minutes).toLocaleString("en-GB")} min` : `${item.streams.toLocaleString("en-GB")} ${item.streams === 1 ? "play" : "plays"}`;
           return <li key={item.key} className="min-w-0"><Link href={item.href} className={`group ${view === "grid" ? "block h-full" : "flex items-center gap-3 border-t border-rule py-2 hover:bg-muted"}`}>
-            {view === "grid" ? <div className="relative grid aspect-square place-items-center overflow-hidden" style={{background:bg,color:inkText(bg)}}>
+            {view === "grid" ? <Tilt><div className="relative grid aspect-square place-items-center overflow-hidden" style={{background:bg,color:inkText(bg)}}>
               {item.cover ? <Cover url={item.cover} alt="" size={160} className="size-full! ring-0"/> : <span aria-hidden className="display text-7xl sm:text-8xl">{String(i+1).padStart(2,"0")}</span>}
               {item.cover && <span className="absolute bottom-0 left-0 bg-ground px-2 py-1 text-xs font-bold text-text">#{i+1}</span>}
-            </div> : <><span className="display w-8 shrink-0 text-2xl">{i+1}</span><Cover url={item.cover} alt="" size={42}/></>}
+            </div></Tilt> : <><span className="display w-8 shrink-0 text-2xl">{i+1}</span><Cover url={item.cover} alt="" size={42}/></>}
             <div className={view === "grid" ? "mt-2" : "min-w-0 flex-1"}>
-              <div className="flex items-start justify-between gap-1"><strong className="break-words leading-snug group-hover:underline">{item.name}</strong><ArrowUpRight className="size-4 shrink-0 text-muted-text" aria-hidden /></div>
+              <div className="flex items-start justify-between gap-1"><strong className="link-underline break-words leading-snug">{item.name}</strong><ArrowUpRight className="hover-reveal size-4 shrink-0 text-muted-text" aria-hidden /></div>
               {item.subtitle && <small className="block break-words text-muted-text">{item.subtitle}</small>}
               <small className="nums block text-muted-text">{metric}</small>
             </div>

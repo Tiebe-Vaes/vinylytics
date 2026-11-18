@@ -62,7 +62,7 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
     {recap.track && <Link href={recap.track.href} className="group mb-8 flex items-center gap-4 border-y border-rule py-4">
       <Cover url={recap.track.imageUrl} alt="" size={64}/>
       <div className="min-w-0 flex-1"><p className="text-xs text-muted-text">Most listened song · {number(recap.track.ms/60000)} min</p>
-        <p className="display break-words text-3xl group-hover:underline">{recap.track.name}</p><p className="text-sm text-muted-text">{recap.track.subtitle}</p></div><ArrowUpRight aria-hidden/>
+        <p className="display break-words text-3xl group-hover:underline">{recap.track.name}</p><p className="text-sm text-muted-text">{recap.track.subtitle}</p></div><ArrowUpRight className="hover-reveal" aria-hidden/>
     </Link>}
     <Panel title="Every day" subtitle="Choose a date for its favourites and plays. Arrow keys move through the calendar.">
       <YearCalendar key={year} days={recap.days} year={year} end={to}/>

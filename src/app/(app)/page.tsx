@@ -70,7 +70,7 @@ export default async function ShelfPage() {
 
       <Link href={`/recap?year=${year}`} className="group flex flex-wrap items-end justify-between gap-4 border-y border-current bg-text px-5 py-6 text-ground sm:px-7">
         <span className="display text-4xl sm:text-6xl">{year} in music</span>
-        <span className="flex items-center gap-2 font-semibold">Open your recap <ArrowUpRight className="size-5 transition-transform group-hover:-translate-y-0.5" /></span>
+        <span className="flex items-center gap-2 font-semibold">Open your recap <ArrowUpRight className="hover-reveal size-5 group-hover:-translate-y-0.5" aria-hidden /></span>
       </Link>
 
       <Panel title="This week" action={<SpotifyAttribution />}>

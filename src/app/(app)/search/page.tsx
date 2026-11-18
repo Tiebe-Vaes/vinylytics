@@ -16,10 +16,10 @@ export default async function SearchPage({searchParams}: {searchParams: Promise<
         const matches = results.filter(row => row.kind === kind);
         return matches.length > 0 && <Panel key={kind} title={{artist:"Artists",track:"Songs",album:"Albums"}[kind]}>
           <ul>{matches.map(row => <li key={row.key}>
-            <Link href={row.href} className="group flex items-center gap-3 border-b border-rule py-3 hover:bg-muted focus-visible:bg-muted">
+            <Link href={row.href} className="group flex items-center gap-3 border-b border-rule px-1 py-3 transition-colors duration-200 hover:bg-muted focus-visible:bg-muted">
               <Cover url={row.cover} alt="" size={42}/>
-              <span className="min-w-0 flex-1"><strong className="block break-words group-hover:underline">{row.name}</strong>{row.subtitle && <small className="text-muted-text">{row.subtitle}</small>}</span>
-              <ArrowUpRight className="size-4 shrink-0" aria-hidden />
+              <span className="min-w-0 flex-1"><strong className="link-underline break-words">{row.name}</strong>{row.subtitle && <small className="text-muted-text">{row.subtitle}</small>}</span>
+              <ArrowUpRight className="hover-reveal size-4 shrink-0" aria-hidden />
             </Link>
           </li>)}</ul>
         </Panel>;

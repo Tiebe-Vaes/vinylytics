@@ -42,10 +42,10 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
         <ol className="grid gap-x-10 sm:grid-cols-2">
           {days.map((day) => (
             <li key={day.day} className="border-t border-rule">
-              <Link href={`/history?day=${day.day}`} className="group block py-5 transition-colors hover:bg-raised">
+              <Link href={`/history?day=${day.day}`} className="group block px-2 py-5 transition-colors duration-200 hover:bg-raised">
                 <h2 className="display mb-3 flex items-start justify-between gap-3 text-3xl">
                   {dayTitle(day.day, today)}
-                  <ArrowUpRight className="size-5 shrink-0 text-muted-text transition-transform group-hover:-translate-y-0.5" aria-hidden />
+                  <ArrowUpRight className="hover-reveal size-5 shrink-0 text-muted-text group-hover:-translate-y-0.5" aria-hidden />
                 </h2>
                 <DayFacts day={day} />
               </Link>
