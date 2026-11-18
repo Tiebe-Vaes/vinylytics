@@ -35,3 +35,27 @@ describe("seedRows", () => {
     expect(keys.size).toBe(rows.length);
   });
 });
+
+describe("seed catalog", () => {
+  it("gives every seeded track uri an album", async () => {
+    const { seedCatalog } = await import("./seed.mjs");
+    const { tracks, albums } = seedCatalog();
+    const uris = new Set(seedRows(now).map((r) => r.uri));
+    const byUri = new Map(tracks.map((t: { uri: string; albumId: string }) => [t.uri, t.albumId]));
+    const albumIds = new Set(albums.map((a: { id: string }) => a.id));
+    for (const uri of uris) expect(albumIds.has(byUri.get(uri)!)).toBe(true);
+  });
+
+  it("makes album completion and album charts non-empty", async () => {
+    const { useTestDb, resetDb } = await import("@/db/test-db");
+    const schema = await import("@/db/schema");
+    const { seedPlays } = await import("./seed.mjs");
+    const { getInsights } = await import("@/lib/spotify/insights");
+    const { topItems } = await import("@/lib/spotify/charts");
+    const db = await useTestDb();
+    await resetDb();
+    await seedPlays(db, schema, now);
+    expect((await getInsights(null)).albumCompletion.length).toBeGreaterThan(0);
+    expect((await topItems({ kind: "album", sort: "time", from: null, to: null, limit: 5 })).length).toBeGreaterThan(0);
+  });
+});

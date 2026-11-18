@@ -54,10 +54,28 @@ export function seedRows(now) {
   return rows;
 }
 
+/**
+ * Albums and tracks behind the seeded plays, so album charts, album pages and
+ * album completion have data. No artwork: the demo stays offline.
+ */
+export function seedCatalog() {
+  const albums = ARTISTS.map((artist, a) => ({
+    id: `seed-album-${a}`, name: ALBUMS[a], artistName: artist, totalTracks: 12, releaseDate: String(1995 + ((a * 7) % 31)),
+  }));
+  const tracks = ARTISTS.flatMap((artist, a) => [0, 1, 2].map((k) => ({
+    uri: `spotify:track:seed${a}x${k}`, name: TRACKS[(a + k) % TRACKS.length], artistName: artist,
+    albumName: ALBUMS[a], albumId: `seed-album-${a}`, durationMs: 210_000,
+  })));
+  return { tracks, albums };
+}
+
 /** Inserts the seed when `plays` is empty. */
 export async function seedPlays(db, schema, now = new Date()) {
   const existing = await db.select({ id: schema.plays.id }).from(schema.plays).limit(1);
   if (existing.length) return 0;
+  const { tracks, albums } = seedCatalog();
+  await db.insert(schema.albums).values(albums).onConflictDoNothing();
+  await db.insert(schema.tracks).values(tracks).onConflictDoNothing();
   const rows = seedRows(now);
   for (let i = 0; i < rows.length; i += 1000) {
     await db.insert(schema.plays).values(rows.slice(i, i + 1000)).onConflictDoNothing();
