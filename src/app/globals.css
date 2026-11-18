@@ -196,6 +196,11 @@
   animation-duration: var(--dur);
 }
 
+@keyframes tonearm {
+  from { transform: rotate(-8deg); }
+  to { transform: rotate(22deg); }
+}
+
 /* Pointer-only extras: secondary affordances appear on hover or keyboard focus; touch always sees them. */
 @media (hover: hover) {
   .hover-reveal { opacity: 0; transition: opacity var(--dur, 160ms) ease-out, transform 160ms ease-out; }

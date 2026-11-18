@@ -5,6 +5,7 @@ import { Download, Share, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CARD_SIZES, FIELDS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
 import { cn } from "@/lib/utils";
+import { VinylLoader } from "@/components/vinyl-loader";
 import type { ShareButtonProps } from "./share-button";
 import { VisualTiles } from "./visual-tiles";
 import { InkPicker } from "./ink-picker";
@@ -135,6 +136,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
                 <img src={result.objectUrl} width={size.width} height={size.height} alt={`${title}, ${options.format} preview`}
                   className={cn("size-full object-contain transition-opacity duration-200", !ready && "opacity-40")} />
               )}
+              {!result && !error && <VinylLoader label="Pressing your card…" className="absolute" />}
               {error && <Button variant="outline" className="absolute" onClick={() => { setFailed(null); setAttempt((n) => n + 1); }}>Retry</Button>}
             </div>
           </div>
