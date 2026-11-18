@@ -2,7 +2,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import sharp from "sharp";
 import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
-import { hashInk } from "@/lib/ink";
+import { hashInk, INKS } from "@/lib/ink";
 import type { Era } from "./eras";
 import { eraCovers, eraInstants, inkForCover } from "./era-covers";
 
@@ -21,6 +21,13 @@ describe("eraInstants", () => {
 
 describe("inkForCover", () => {
   afterEach(() => vi.unstubAllGlobals());
+
+  it.each([INKS[5], INKS[20], INKS[40]])("presses an era in $id when its cover is that colour", async ({ id, hex }) => {
+    const n = parseInt(hex.slice(1), 16);
+    const solid = await sharp({ create: { width: 64, height: 64, channels: 3, background: { r: n >> 16, g: (n >> 8) & 255, b: n & 255 } } }).png().toBuffer();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(solid))));
+    expect(await inkForCover(`https://i.scdn.co/image/solid-${id}`, "Lead")).toBe(id);
+  });
 
   it("doesn't remember a failed fetch: the next call samples the cover", async () => {
     const blue = await sharp({ create: { width: 4, height: 4, channels: 3, background: { r: 30, g: 80, b: 220 } } }).png().toBuffer();

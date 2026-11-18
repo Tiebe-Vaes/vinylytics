@@ -49,5 +49,5 @@ async function computeEras(): Promise<ErasData> {
 
 /** Eras plus your overrides; cached until the next sync, import or override change. */
 export function getEras(): Promise<ErasData> {
-  return unstable_cache(computeEras, ["eras", timezone()], { tags: ["spotify"] })();
+  return unstable_cache(computeEras, ["eras-v2", timezone()], { tags: ["spotify"] })();
 }
