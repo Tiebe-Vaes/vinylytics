@@ -1,53 +1,36 @@
-import { ImageResponse } from "next/og";
-import { CARD_SIZES, CardFrame, cardFonts, cardFormat, coverData } from "@/lib/card";
-import { inkHex } from "@/lib/ink";
+import { renderCard } from "@/lib/card";
 import { isOwner } from "@/lib/owner";
 import { publicAllows } from "@/lib/public";
-import { cachedTop } from "@/lib/spotify/charts";
+import { parseChartFilters } from "@/lib/spotify/chart-filters";
+import { cachedTop, topItems } from "@/lib/spotify/charts";
+import { CHART_RANGES } from "@/lib/spotify/data";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const RANGES = { "4w": "Last 4 weeks", "6m": "Last 6 months", all: "All time" } as const;
-type CardRange = keyof typeof RANGES;
-
-/** Your top 5 artists or tracks as the back of a sleeve: the card people post instead of a stats.fm screenshot. */
 export async function GET(req: Request) {
   const owner = await isOwner();
   if (!owner && !(await publicAllows("top"))) return new Response("Not found", { status: 404 });
-  const q = new URL(req.url).searchParams;
-  const kind = q.get("kind") === "track" ? "track" : "artist";
-  // A visitor sees exactly what the public page shows (4 weeks), whatever range they ask for.
-  const asked: CardRange = (["4w", "6m", "all"] as const).find((r) => r === q.get("range")) ?? "4w";
-  const range: CardRange = owner ? asked : "4w";
-  const format = cardFormat(q.get("format"));
-  const items = await cachedTop(kind, range, 5);
-  if (items.length === 0) return new Response("Nothing to share yet", { status: 404 });
-  const [fonts, cover] = await Promise.all([cardFonts(), coverData(items[0].cover)]);
-  const story = format === "story";
-
-  return new ImageResponse(
-    (
-      <CardFrame ink={inkHex("cobalt")} period={RANGES[range]} catalogue={`VNL TOP ${range.toUpperCase()} · SIDE B`} cover={cover}>
-        <div style={{ display: "flex", fontFamily: "Big Shoulders", fontWeight: 900, fontSize: story ? 170 : 140, lineHeight: 0.85 }}>
-          {kind === "artist" ? "TOP ARTISTS" : "TOP TRACKS"}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", marginTop: story ? 90 : 60, gap: story ? 34 : 24 }}>
-          {items.map((item, i) => (
-            <div key={item.key} style={{ display: "flex", alignItems: "center", gap: 28 }}>
-              <span style={{ fontFamily: "Big Shoulders", fontWeight: 900, fontSize: 96, width: 70, lineHeight: 1 }}>{i + 1}</span>
-              <div style={{ display: "flex", flexDirection: "column", maxWidth: 820 }}>
-                <span style={{ fontSize: 50, fontWeight: 600, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{item.name}</span>
-                <span style={{ fontSize: 30 }}>
-                  {item.subtitle ? `${item.subtitle} · ` : ""}
-                  {Math.round(item.minutes / 60)} h
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardFrame>
-    ),
-    { ...CARD_SIZES[format], fonts, headers: { "Cache-Control": "private, no-store" } }
-  );
+  const params = new URL(req.url).searchParams;
+  if (!owner && params.get("kind") === "album") return new Response("Not found", { status: 404 });
+  const filters = parseChartFilters(owner ? params : new URLSearchParams({ kind: params.get("kind") === "track" ? "track" : "artist", range: "4w" }));
+  if (!filters.valid) return new Response("Invalid chart dates", { status: 400 });
+  const { kind, sort, range, window } = filters;
+  const items = owner
+    ? await topItems({ kind, sort, from: window?.from ?? null, to: window?.to ?? null, limit: 5 })
+    : await cachedTop(kind === "track" ? "track" : "artist", "4w", 5);
+  if (!items.length) return new Response("Nothing to share yet", { status: 404 });
+  const value = (item: typeof items[number]) => sort === "plays" ? item.streams : Math.round(item.minutes);
+  const units = sort === "plays" ? "plays" : "min";
+  // Same nouns as the Charts tabs; songs and albums carry their artist so equal titles stay distinct.
+  const noun = { artist: "artists", track: "songs", album: "albums" }[kind];
+  const named = (item: typeof items[number]) => item.subtitle ? `${item.name} · ${item.subtitle}` : item.name;
+  return renderCard(req, {
+    kind: "top", ink: "cobalt", edition: "RANKING  /  TOP FIVE",
+    title: `Top ${noun}`, period: range === "custom" ? `${filters.from} – ${filters.to}` : CHART_RANGES.find((r) => r.value === range)!.label,
+    lead: named(items[0]), cover: items[0].cover, stat: `${value(items[0])} ${units} at number one`,
+    ranked: true, rows: items.map((item) => ({
+      label: named(item), value: `${value(item)} ${units}`, fraction: value(item) / Math.max(1, value(items[0])),
+    })),
+  });
 }

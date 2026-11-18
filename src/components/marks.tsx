@@ -26,8 +26,12 @@ export function Heatmap({
   thresholds: fixed,
   legend = ["Less", "More"],
   className,
+  activeDay,
+  onDay,
 }: {
   data: HeatmapPoint[];
+  activeDay?: string;
+  onDay?: (key: string) => void;
   /** Inclusive "YYYY-MM-DD" bounds — a year, a month, whatever the caller wants. */
   start: string;
   end: string;
@@ -117,6 +121,24 @@ export function Heatmap({
                 const title = `${shortDate(cell.date)}: ${
                   cell.value != null ? format(cell.value) : "no data"
                 }`;
+                if (onDay) return (
+                  <button key={i} type="button" data-day={cell.date} title={title} aria-label={title}
+                    tabIndex={cell.date === activeDay ? 0 : -1} aria-pressed={cell.date === activeDay}
+                    onPointerEnter={e=>{if(e.pointerType === "mouse") onDay(cell.date);}}
+                    onFocus={()=>onDay(cell.date)} onClick={()=>onDay(cell.date)}
+                    onKeyDown={e=>{
+                      const shifts: Record<string,number> = {ArrowLeft:-7,ArrowRight:7,ArrowUp:-1,ArrowDown:1};
+                      const shift = shifts[e.key];
+                      if (!shift) return;
+                      e.preventDefault();
+                      const date = new Date(`${cell.date}T12:00:00Z`);
+                      date.setUTCDate(date.getUTCDate()+shift);
+                      const next = date.toISOString().slice(0,10);
+                      scroller.current?.querySelector<HTMLButtonElement>(`[data-day="${next}"]`)?.focus();
+                    }}
+                    className="size-[11px] rounded-[2px] aria-pressed:outline aria-pressed:outline-1 aria-pressed:outline-text"
+                    style={{background:colorFor(cell.value)}}/>
+                );
                 return (
                   <span
                     key={i}
@@ -143,4 +165,3 @@ export function Heatmap({
     </div>
   );
 }
-

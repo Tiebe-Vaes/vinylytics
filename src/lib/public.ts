@@ -23,7 +23,7 @@ export type PublicPayload = {
   sections: PublicSections;
   eras?: EraView[];
   top?: { artists: ChartItem[]; tracks: ChartItem[] };
-  insights?: Pick<Insights, "bSides" | "artistStreaks" | "albumCompletion">;
+  insights?: Pick<Insights, "artistStreaks">;
   lastSpin?: { name: string | null; artist: string | null; playedAt: string } | null;
 };
 
@@ -41,7 +41,7 @@ export async function publicPayload(): Promise<PublicPayload | null> {
     sections.top &&
       Promise.all([cachedTop("artist", "4w", 10), cachedTop("track", "4w", 10)]).then(([artists, tracks]) => (out.top = { artists, tracks })),
     sections.insights &&
-      cachedInsights().then((i) => (out.insights = { bSides: i.bSides, artistStreaks: i.artistStreaks, albumCompletion: i.albumCompletion })),
+      cachedInsights().then((i) => (out.insights = { artistStreaks: i.artistStreaks })),
     sections.nowPlaying &&
       db()
         .select({ name: schema.plays.trackName, artist: schema.plays.artistName, playedAt: schema.plays.playedAt })

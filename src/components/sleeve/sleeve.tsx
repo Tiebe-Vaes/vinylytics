@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { Cover } from "@/components/sleeve/cover";
+import { ArrowUpRight } from "lucide-react";
 import { inkHex, inkText } from "@/lib/ink";
 import type { EraView } from "@/lib/spotify/eras-data";
 import { cn } from "@/lib/utils";
@@ -11,60 +11,34 @@ const monthYear = (key: string) =>
 export const eraSpan = (era: Pick<EraView, "start" | "end">) => `${monthYear(era.start)} – ${monthYear(era.end)}`;
 export const eraHours = (era: Pick<EraView, "minutes">) => Math.round(era.minutes / 60);
 
-/**
- * A record sleeve: one flat ink, the era's name stacked in condensed capitals,
- * the hours as the big figure, and the lead cover as a sticker. On the shelf
- * it links to its era page and morphs into the page's sleeve on the way.
- */
-export function Sleeve({
-  era,
-  size = "shelf",
-  href,
-  className,
-}: {
-  era: EraView;
-  size?: "shelf" | "hero";
-  /** Defaults to the era page; pass null to render a sleeve that isn't a link. */
-  href?: string | null;
-  className?: string;
+export function Sleeve({ era, size = "shelf", href, className }: {
+  era: EraView; size?: "shelf" | "hero"; href?: string | null; className?: string;
 }) {
   const bg = inkHex(era.ink);
-  const fg = inkText(bg);
   const hero = size === "hero";
   const face = (
-    <div
-      className={cn("relative flex aspect-square w-full flex-col justify-between overflow-hidden rounded-[2px]", hero ? "p-6 md:p-8" : "p-4")}
-      style={{ background: bg, color: fg }}
-    >
-      {/* Catalogue number, as printed in a sleeve's corner: VNL + year and month pressed. */}
-      <div className="flex items-start justify-between gap-3">
-        <span className="display text-lg">VNL {era.start.slice(2, 4)}{era.start.slice(5, 7)}</span>
-        <span className="nums text-xs font-semibold">{era.weeks} wk</span>
+    <div className={cn("relative flex aspect-square w-full flex-col justify-between gap-2 overflow-hidden", hero ? "p-6 md:p-7" : "p-4")}
+      style={{ background: bg, color: inkText(bg) }}>
+      <div className="flex items-center justify-between border-t-[3px] border-b border-current py-1 text-xs font-semibold">
+        <span>VNL {era.start.slice(2, 4)}{era.start.slice(5, 7)}</span><span>{era.weeks} weeks</span>
       </div>
-      <div className="min-w-0">
-        <div className={cn("display", hero ? "text-[clamp(56px,16vw,120px)]" : "text-[56px]")}>
-          {eraHours(era)}
-          <span className={cn("ml-1 align-top", hero ? "text-[0.35em]" : "text-[0.4em]")}>h</span>
+      {era.cover ? (
+        // eslint-disable-next-line @next/next/no-img-element -- preserve the source artwork and its aspect ratio.
+        <img src={era.cover} alt={`Artwork from ${era.name}`} loading={hero ? "eager" : "lazy"}
+          className="min-h-0 w-[50%] flex-1 self-end object-contain object-right" />
+      ) : <div aria-hidden="true" className="flex min-h-0 flex-1 items-end">
+        <span className={cn("display", hero ? "text-[clamp(4rem,10vw,8rem)]" : "text-7xl")}>{eraHours(era)}<small className="align-top text-[0.4em]">h</small></span>
+      </div>}
+      <div className="shrink-0">
+        <h2 className={cn("display line-clamp-2", hero ? "text-[clamp(2.2rem,6vw,4.75rem)]" : "text-[clamp(2rem,5vw,2.75rem)]")}>{era.name}</h2>
+        <div className="mt-3 flex items-end justify-between gap-3 border-t border-current pt-2 text-xs font-semibold">
+          <div className="min-w-0"><span className="block truncate">{era.lead}</span><span>{eraSpan(era)}</span></div>
+          {href !== null && <ArrowUpRight className="size-6 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />}
         </div>
-        <h2 className={cn("display mt-2 line-clamp-3", hero ? "text-[clamp(36px,9vw,72px)]" : "text-[32px]")}>{era.name}</h2>
-      </div>
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0 text-xs font-semibold">
-          <span className="block truncate">{era.artists.map((a) => a.name).join(" · ")}</span>
-          <span className="block">{eraSpan(era)}</span>
-        </div>
-        <Cover url={era.cover} size={hero ? 72 : 44} alt={`Cover from ${era.name}`} />
       </div>
     </div>
   );
-
-  const link = href === null ? null : (href ?? `/eras/${era.id}`);
-  const body = link ? (
-    <Link href={link} className={cn("block outline-offset-4", className)} aria-label={`${era.name}, ${eraSpan(era)}`}>
-      {face}
-    </Link>
-  ) : (
-    <div className={className}>{face}</div>
-  );
-  return <ViewTransition name={`sleeve-${era.id}`}>{body}</ViewTransition>;
+  return <ViewTransition name={`sleeve-${era.id}`}>{href === null ? <div className={className}>{face}</div> : (
+    <Link href={href ?? `/eras/${era.id}`} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}>{face}</Link>
+  )}</ViewTransition>;
 }

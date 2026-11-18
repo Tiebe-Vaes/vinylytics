@@ -35,7 +35,7 @@ describe("getItemStats", () => {
     expect(s.lastPlay).toBe("2026-03-10T10:00:00.000Z");
     expect(s.peakWeek).toEqual({ week: "2026-03-09", minutes: 60 });
     expect(s.rankByMonth).toEqual([
-      { month: "2025-12", rank: 1 }, { month: "2026-01", rank: 1 }, { month: "2026-02", rank: 2 }, { month: "2026-03", rank: 1 },
+      { month: "2025-12", rank: 1, streams: 0 }, { month: "2026-01", rank: 1, streams: 3 }, { month: "2026-02", rank: 2, streams: 1 }, { month: "2026-03", rank: 1, streams: 1 },
     ]);
     expect(s.allTimeRank).toBe(1);
     expect(s.weekly.map((w) => w.week)).toEqual(["2025-12-29", "2026-01-05", "2026-01-19", "2026-02-09", "2026-03-09"]);

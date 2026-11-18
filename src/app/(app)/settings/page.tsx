@@ -13,8 +13,8 @@ export const dynamic = "force-dynamic";
 const LABEL = { connected: "Connected", broken: "Needs a reconnect", "not-connected": "Not connected" } as const;
 const SECTIONS: { key: keyof PublicSections; label: string }[] = [
   { key: "eras", label: "Shelf of eras" },
-  { key: "top", label: "Top artists and tracks, 4 weeks" },
-  { key: "insights", label: "B-sides and streaks" },
+  { key: "top", label: "Top artists and songs, 4 weeks" },
+  { key: "insights", label: "Artist streaks" },
   { key: "nowPlaying", label: "Last song played" },
 ];
 const monthYear = (key: string) =>
@@ -44,6 +44,10 @@ export default async function SettingsPage() {
           )}
           <Button size="sm" variant="outline" render={<Link href="/settings/import" />} nativeButton={false}>Import history</Button>
         </div>
+        <p className="mt-3 text-sm text-muted-text">
+          Artwork fills in during sync. Each run processes a limited number of items and retries older gaps.
+          Items without artwork on Spotify keep a placeholder and are checked again every six hours.
+        </p>
       </Panel>
 
       <Panel title="Public page" subtitle="A read-only page at /u for friends. Off until you switch it on; your history log is never shown.">

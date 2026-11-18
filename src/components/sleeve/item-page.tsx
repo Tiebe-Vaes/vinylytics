@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { MonthlyRanks } from "@/components/music/monthly-ranks";
+import { ShareButton } from "@/components/sleeve/share-button";
 import { ExternalLink } from "lucide-react";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Empty, Panel } from "@/components/panel";
@@ -14,9 +16,6 @@ const longDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: timezone() });
 const weekOf = (key: string) =>
   new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-const monthName = (key: string) =>
-  new Date(`${key}-15T12:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
-
 /** The deep dive shared by artist, track and album pages: a sleeve-coloured header, the numbers, the weeks, the rank. */
 export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: string }) {
   const [meta, stats] = await Promise.all([itemMeta(refOf), cachedItemStats(refOf)]);
@@ -26,8 +25,8 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
   const fg = inkText(bg);
   const facts: [string, string][] = [
     ["Total", `${Math.round(stats.minutes / 6) / 10} hours`],
-    ["Streams", stats.streams.toLocaleString("en-GB")],
-    ["First play", stats.firstPlay ? longDate(stats.firstPlay) : "Never streamed"],
+    ["Plays", stats.streams.toLocaleString("en-GB")],
+
     ["Peak week", stats.peakWeek ? `${weekOf(stats.peakWeek.week)}, ${Math.round(stats.peakWeek.minutes)} min` : "None yet"],
     ["All-time rank", stats.allTimeRank ? `#${stats.allTimeRank}` : "Unranked"],
   ];
@@ -36,7 +35,7 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
     <article className="flex flex-col gap-10">
       <header className="-mx-4 flex flex-col gap-5 px-4 pt-8 pb-6 md:mx-0 md:p-8" style={{ background: bg, color: fg }}>
         <div className="flex items-end justify-between gap-4">
-          <h1 className="display min-w-0 text-[clamp(44px,12vw,96px)]">{meta.title}</h1>
+          <h1 className="display min-w-0 break-words text-[clamp(44px,12vw,96px)]">{meta.title}</h1>
           <Cover url={meta.cover} size={88} alt={meta.title} />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm font-semibold">
@@ -48,6 +47,8 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
           )}
         </div>
       </header>
+
+      <div><ShareButton href={`/api/card/item?${new URLSearchParams({kind:refOf.kind,key:refOf.kind === "artist" ? refOf.name : refOf.kind === "track" ? refOf.uri : refOf.albumId})}`} filename={`vinylytics-${refOf.kind}.png`} title={meta.title} defaultInk={hashInk(inkSeed)}/></div>
 
       <p className="max-w-prose text-lg leading-snug text-balance">
         {roastItem({ name: meta.title, streams: stats.streams, peakWeekMinutes: stats.peakWeek?.minutes ?? 0, weeksPlayed: stats.weekly.length })}
@@ -63,6 +64,7 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
               </div>
             ))}
           </dl>
+          {stats.firstPlay && <details className="mt-2 text-xs text-muted-text"><summary className="cursor-pointer py-2">Listening dates</summary>First play · {longDate(stats.firstPlay)}{stats.lastPlay && <> · Latest play {longDate(stats.lastPlay)}</>}</details>}
         </Panel>
 
         <Panel title="Week by week">
@@ -74,14 +76,7 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
         {stats.rankByMonth.length === 0 ? (
           <Empty>No months to rank yet.</Empty>
         ) : (
-          <ol className="flex flex-wrap gap-x-6 gap-y-2">
-            {[...stats.rankByMonth].reverse().map((m) => (
-              <li key={m.month} className="flex items-baseline gap-2 text-sm">
-                <span className="display text-2xl">#{m.rank}</span>
-                <span className="text-muted-text">{monthName(m.month)}</span>
-              </li>
-            ))}
-          </ol>
+          <MonthlyRanks rows={stats.rankByMonth}/>
         )}
       </Panel>
     </article>

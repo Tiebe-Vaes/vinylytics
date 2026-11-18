@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import sharp from "sharp";
 import { cardFonts, coverData, eraTitleSize } from "./card";
 
 describe("eraTitleSize", () => {
@@ -52,8 +53,16 @@ describe("coverData", () => {
   });
 
   it("returns a data URI for a good image", async () => {
+    const jpeg = await sharp({ create: { width: 80, height: 120, channels: 3, background: "#ff00ff" } }).jpeg().toBuffer();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(jpeg), { headers: { "content-type": "image/jpeg" } })));
+    const uri = await coverData("https://i.scdn.co/image/ok");
+    expect(uri).toMatch(/^data:image\/png;base64,/);
+    expect(await sharp(Buffer.from(uri!.split(",")[1], "base64")).metadata()).toMatchObject({ width: 80, height: 120 });
+  });
+
+  it("leaves out a damaged cover even when the CDN reports success", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array([0xff, 0xd8, 0xff]), { headers: { "content-type": "image/jpeg" } })));
-    expect(await coverData("https://i.scdn.co/image/ok")).toBe("data:image/jpeg;base64,/9j/");
+    expect(await coverData("https://i.scdn.co/image/broken")).toBeNull();
   });
 });
 

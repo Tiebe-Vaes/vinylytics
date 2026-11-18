@@ -26,10 +26,10 @@ export function Shelf({ eras, linkable = true }: { eras: EraView[]; linkable?: b
   return (
     <ul
       aria-label="Your eras"
-      className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-2 [scrollbar-width:none]"
+      className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pt-1 pb-4"
     >
       {newestFirst.map((era) => (
-        <li key={era.id} className="w-[min(78vw,320px)] shrink-0 snap-start">
+        <li key={era.id} className="w-[min(79vw,320px)] shrink-0 snap-start">
           <Sleeve era={era} href={linkable ? undefined : null} />
         </li>
       ))}

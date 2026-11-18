@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { MonthControls, orderMonths } from "./monthly-ranks";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, Empty, SectionLabel } from "@/components/panel";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -15,12 +17,16 @@ function monthLabel(key: string): string {
 }
 
 /** Minutes per month, last 24 months. Single series, so no legend: the title names it. */
-export function MinutesChart({ byMonth }: { byMonth: { month: string; minutes: number }[] }) {
-  const data = byMonth.slice(-24).map((m) => ({ ...m, minutes: Math.round(m.minutes) }));
+export function MinutesChart({ byMonth }: { byMonth: { month: string; minutes: number; streams:number }[] }) {
+  const [order,setOrder] = useState("recent");
+  const [limit,setLimit] = useState(12);
+  const selected = orderMonths(byMonth,order,limit,m=>m.minutes);
+  const data = (order === "recent" ? selected.reverse() : selected).map((m) => ({ ...m, minutes: Math.round(m.minutes) }));
 
   return (
     <Card>
       <SectionLabel>Minutes per month</SectionLabel>
+      {byMonth.length > 0 && <MonthControls {...{order,setOrder,limit,setLimit}} most="Most minutes first"/>}
       {data.length === 0 ? (
         <Empty>No listening stored yet.</Empty>
       ) : (

@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
 import { addDaysKey } from "@/lib/time";
+import sharp from "sharp";
 
 const owner = vi.hoisted(() => ({ yes: true }));
 vi.mock("@/lib/owner", () => ({ isOwner: vi.fn(async () => owner.yes) }));
@@ -38,8 +39,19 @@ describe("GET /api/card/era/[id]", () => {
     expect((await res.arrayBuffer()).byteLength).toBeGreaterThan(10_000);
   });
 
-  it("renders the story format too", async () => {
-    expect((await call("2026-01-05", "story")).status).toBe(200);
+  it.each([["post", 1350], ["story", 1920]])("exports %s at the advertised size and selected ink", async (format, height) => {
+    const response = await call("2026-01-05", format + "&ink=mustard&density=maximal");
+    const png = sharp(Buffer.from(await response.arrayBuffer()));
+    expect(await png.metadata()).toMatchObject({ format: "png", width: 1080, height });
+    const corner = await png.extract({ left: 0, top: 0, width: 1, height: 1 }).removeAlpha().raw().toBuffer();
+    expect(corner.toString("hex")).toBe("d9a21b");
+  });
+
+  it("omits hidden facts consistently regardless of the preset", async () => {
+    const bytes = async (query: string) => Buffer.from(await (await call("2026-01-05", "post&" + query)).arrayBuffer());
+    const minimal = await bytes("density=minimal");
+    expect(await bytes("density=maximal&fields=period")).toEqual(minimal);
+    expect((await bytes("density=maximal&fields=period,stat,rows")).equals(minimal)).toBe(false);
   });
 
   it("404s for an unknown era", async () => {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { NowPlayingCard } from "@/components/music/now-playing-card";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Panel } from "@/components/panel";
@@ -10,40 +11,62 @@ import { topArtistsDb } from "@/lib/spotify/queries";
 import { getNowPlayingView } from "@/lib/spotify/view";
 import { weekSummary } from "@/lib/spotify/week";
 import { hasDb } from "@/db";
+import { ArrowUpRight } from "lucide-react";
+import { localDateKey } from "@/lib/time";
+import { ShareButton } from "@/components/sleeve/share-button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
 
 const WEEK_MS = 7 * 86_400_000;
 
+async function Turntable() {
+  const view = await getNowPlayingView();
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-rule pb-4">
+      <NowPlayingCard
+        initial={view.status === "connected" ? view.nowPlaying : null}
+        fallback={view.status === "connected" ? view.lastPlayed : null}
+        poll={view.status === "connected" && !view.demo}
+      />
+      {view.status !== "connected" && (
+        <a href="/api/auth/login" className="shrink-0 text-sm font-semibold underline">
+          {view.status === "broken" ? "Reconnect" : "Connect Spotify"}
+        </a>
+      )}
+    </div>
+  );
+}
+
 export default async function ShelfPage() {
   const now = new Date();
-  const [view, { eras }, week, top] = await Promise.all([
-    getNowPlayingView(),
+  const year = localDateKey(now).slice(0, 4);
+  const [{ eras }, week, top] = await Promise.all([
     getEras(),
     weekSummary(),
     hasDb() ? topArtistsDb({ from: new Date(now.getTime() - WEEK_MS), to: now }, 3) : Promise.resolve([]),
   ]);
 
+  const latestEra = eras.at(-1);
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="sr-only">Your shelf</h1>
+      <Suspense fallback={<Skeleton className="h-[65px] w-full" />}>
+        <Turntable />
+      </Suspense>
 
-      {/* The turntable strip always holds its place; disconnected, it says how to put a record on. */}
-      <div className="flex items-center justify-between gap-4 border-b border-rule pb-4">
-        <NowPlayingCard
-          initial={view.status === "connected" ? view.nowPlaying : null}
-          fallback={view.status === "connected" ? view.lastPlayed : null}
-          poll={view.status === "connected" && !view.demo}
-        />
-        {view.status !== "connected" && (
-          // A plain <a>: Link would prefetch the route and start the OAuth dance early.
-          <a href="/api/auth/login" className="shrink-0 text-sm font-semibold underline">
-            {view.status === "broken" ? "Reconnect" : "Connect Spotify"}
-          </a>
-        )}
-      </div>
+      <section aria-labelledby="shelf-title">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+          <h1 id="shelf-title" className="display text-6xl sm:text-8xl">Your shelf</h1>
+          {latestEra && <ShareButton href={`/api/card/era/${latestEra.id}`} filename={`vinylytics-${latestEra.id}.png`}
+            title={latestEra.name} defaultInk={latestEra.ink} label="Share latest era" />}
+        </div>
+        <Shelf eras={eras} />
+      </section>
 
-      <Shelf eras={eras} />
+      <Link href={`/recap?year=${year}`} className="group flex flex-wrap items-end justify-between gap-4 border-y border-current bg-text px-5 py-6 text-ground sm:px-7">
+        <span className="display text-4xl sm:text-6xl">{year} in music</span>
+        <span className="flex items-center gap-2 font-semibold">Open your recap <ArrowUpRight className="size-5 transition-transform group-hover:-translate-y-0.5" /></span>
+      </Link>
 
       <Panel title="This week" action={<SpotifyAttribution />}>
         <p className="max-w-prose text-lg leading-snug text-balance">{roastWeek(week)}</p>

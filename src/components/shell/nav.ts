@@ -4,7 +4,7 @@ import { BarChart3, Disc3, History, Sparkles } from "lucide-react";
 export const NAV = [
   { href: "/", label: "Shelf", icon: Disc3 },
   { href: "/charts", label: "Charts", icon: BarChart3 },
-  { href: "/insights", label: "Insights", icon: Sparkles },
+  { href: "/recap", label: "Recap", icon: Sparkles },
   { href: "/history", label: "History", icon: History },
 ] as const;
 

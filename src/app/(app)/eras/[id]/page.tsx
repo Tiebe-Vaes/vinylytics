@@ -1,123 +1,90 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Pencil } from "lucide-react";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Panel } from "@/components/panel";
 import { Cover } from "@/components/sleeve/cover";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { eraHours, eraSpan, Sleeve } from "@/components/sleeve/sleeve";
 import { Button } from "@/components/ui/button";
-import { roastEra } from "@/lib/roast";
-import { getEraDetail, type EraTrack } from "@/lib/spotify/era-detail";
+import { getEraDetail } from "@/lib/spotify/era-detail";
 import { mergeWithNext, renameEra } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-const trackId = (uri: string) => uri.split(":").at(-1)!;
 const longDate = (key: string) =>
   new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-
-function Side({ label, tracks, offset }: { label: "A" | "B"; tracks: EraTrack[]; offset: number }) {
-  if (tracks.length === 0) return null;
-  return (
-    <section aria-label={`Side ${label}`}>
-      <h3 className="display mb-2 text-xl text-muted-text">Side {label}</h3>
-      <ol>
-        {tracks.map((t, i) => (
-          <li key={t.uri} className="flex items-center gap-3 border-t border-rule py-2.5">
-            <span className="display w-8 shrink-0 text-xl text-muted-text">
-              {label}
-              {i + 1 + offset - (label === "B" ? 6 : 0)}
-            </span>
-            <Cover url={t.cover} size={40} alt={`Cover of ${t.name}`} />
-            <div className="min-w-0 flex-1">
-              <Link href={`/track/${trackId(t.uri)}`} className="block truncate font-semibold hover:underline">
-                {t.name}
-              </Link>
-              <Link href={`/artist/${encodeURIComponent(t.artist)}`} className="block truncate text-sm text-muted-text hover:underline">
-                {t.artist}
-              </Link>
-            </div>
-            <span className="nums shrink-0 text-sm text-muted-text">{t.streams}×</span>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
 
 export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
   const { id } = await params;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) notFound();
   const detail = await getEraDetail(id);
   if (!detail) notFound();
-  const { era, next, tracks, firstHeard, newArtists, topDay } = detail;
-
-  const credits: [string, string][] = [
+  const { era, next, tracks, topDay } = detail;
+  const credits = [
     ["Running time", `${eraHours(era)} hours over ${era.weeks} weeks`],
-    ["Pressed", eraSpan(era)],
     ["Featuring", era.artists.map((a) => a.name).join(", ")],
-    ["First heard here", `${firstHeard} tracks, ${newArtists} new artists`],
-    ["Biggest day", `${longDate(topDay.day)}, ${Math.round(topDay.minutes)} min`],
+    ["Biggest day", `${longDate(topDay.day)} · ${Math.round(topDay.minutes)} min`],
   ];
 
   return (
-    <article className="flex flex-col gap-10">
-      <div className="mx-auto w-full max-w-md">
+    <article className="grid gap-8">
+      <div className="grid items-center gap-6 md:grid-cols-2 md:gap-10">
         <Sleeve era={era} size="hero" href={null} />
-      </div>
-
-      <div className="mx-auto flex max-w-prose flex-col items-center gap-4">
-        <p className="text-center text-lg leading-snug text-balance">{roastEra(era)}</p>
-        <div className="flex gap-2">
-          <ShareButton href={`/api/card/era/${era.id}`} filename={`vinylytics-${era.id}.png`} label="Share sleeve" />
-          <ShareButton href={`/api/card/era/${era.id}?format=story`} filename={`vinylytics-${era.id}-story.png`} label="Story" />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-muted-text">{eraSpan(era)}</p>
+          <h1 className="display my-4 text-5xl md:text-7xl">{era.name}</h1>
+          <p className="text-lg text-muted-text">{era.lead} led these {era.weeks} weeks on repeat.</p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <ShareButton href={`/api/card/era/${era.id}`} filename={`vinylytics-${era.id}.png`} title={era.name} defaultInk={era.ink} />
+            <a href="#edit-era" className="inline-flex min-h-11 items-center gap-2 border border-strong px-3 text-sm font-semibold hover:bg-raised">
+              <Pencil size={16} aria-hidden="true" />Edit this era
+            </a>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-10 md:grid-cols-2">
-        <div className="flex flex-col gap-6">
-          <Side label="A" tracks={tracks.slice(0, 6)} offset={0} />
-          <Side label="B" tracks={tracks.slice(6, 12)} offset={6} />
-        </div>
-
-        <Panel title="Liner notes" action={<SpotifyAttribution />}>
-          <dl className="flex flex-col">
-            {credits.map(([k, v]) => (
-              <div key={k} className="grid grid-cols-[9rem_1fr] gap-3 border-t border-rule py-2.5 text-sm first:border-t-0">
-                <dt className="text-muted-text">{k}</dt>
-                <dd className="min-w-0 font-semibold break-words">{v}</dd>
+      <div className="grid items-start gap-8 md:grid-cols-2">
+        <Panel title="Tracklist">
+          {tracks.length ? <ol>{tracks.map((track, i) => (
+            <li key={track.uri} className="flex items-center gap-3 border-t border-rule py-2.5">
+              <span aria-hidden="true" className="display w-7 shrink-0 text-2xl text-muted-text">{i + 1}</span>
+              <Cover url={track.cover} size={40} alt="" />
+              <div className="min-w-0 flex-1">
+                <Link href={`/track/${encodeURIComponent(track.uri.split(":").at(-1)!)}`} className="block truncate font-semibold hover:underline">{track.name}</Link>
+                <Link href={`/artist/${encodeURIComponent(track.artist)}`} className="block truncate text-sm text-muted-text hover:underline">{track.artist}</Link>
               </div>
-            ))}
-          </dl>
-
-          <details className="mt-6 border-t border-rule pt-4">
-            <summary className="cursor-pointer text-sm font-semibold">Edit this era</summary>
-            <form action={renameEra} className="mt-4 flex gap-2">
-              <input type="hidden" name="eraId" value={era.id} />
-              <input
-                name="name"
-                required
-                defaultValue={era.renamedBy ? era.name : ""}
-                placeholder="Name this era"
-                maxLength={80}
-                pattern={".*\\S.*"}
-                title="Use at least one non-space character."
-                aria-label="Era name"
-                className="h-9 min-w-0 flex-1 rounded-[2px] border border-input bg-ground px-2 text-sm"
-              />
-              <Button size="sm" type="submit">Save name</Button>
-            </form>
-            {next && (
-              <form action={mergeWithNext} className="mt-3">
-                <input type="hidden" name="eraId" value={era.id} />
-                <input type="hidden" name="nextEraId" value={next.id} />
-                <Button size="sm" variant="outline" type="submit">
-                  Merge with {next.name}
-                </Button>
-              </form>
-            )}
-          </details>
+              <span className="nums shrink-0 text-sm text-muted-text">{track.streams}×</span>
+            </li>
+          ))}</ol> : <p className="text-sm text-muted-text">No tracks in this era.</p>}
         </Panel>
+
+        <div className="grid gap-8">
+          <Panel title="Liner notes" action={<SpotifyAttribution />}>
+            <dl>{credits.map(([label, value]) => (
+              <div key={label} className="grid grid-cols-[6rem_1fr] gap-3 border-t border-rule py-3 text-sm">
+                <dt className="text-muted-text">{label}</dt><dd className="min-w-0 font-semibold break-words">{value}</dd>
+              </div>
+            ))}</dl>
+          </Panel>
+          <section id="edit-era" tabIndex={-1} className="scroll-mt-6">
+            <Panel title="Edit this era">
+              <form action={renameEra}>
+                <input type="hidden" name="eraId" value={era.id} />
+                <label htmlFor="era-name" className="text-sm font-semibold">Era name</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <input id="era-name" name="name" required defaultValue={era.name} maxLength={80} pattern={".*\\S.*"}
+                    title="Use at least one non-space character." className="min-h-11 min-w-0 flex-1 border border-input bg-ground px-2 text-sm" />
+                  <Button className="min-h-11" type="submit">Save name</Button>
+                </div>
+              </form>
+              {next && <form action={mergeWithNext} className="mt-5 border-t border-rule pt-4">
+                <input type="hidden" name="eraId" value={era.id} /><input type="hidden" name="nextEraId" value={next.id} />
+                <Button variant="outline" type="submit" className="h-auto min-h-11 max-w-full whitespace-normal">Merge with {next.name}</Button>
+              </form>}
+            </Panel>
+          </section>
+        </div>
       </div>
     </article>
   );

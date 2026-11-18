@@ -43,7 +43,7 @@ export default async function PublicPage() {
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-8">
       <DemoBanner />
       <header className="flex flex-col gap-2 border-b border-rule pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <h1 className="display text-5xl whitespace-nowrap">A discography</h1>
+        <h1 className="display text-5xl">A discography</h1>
         <SpotifyAttribution />
       </header>
 
@@ -58,23 +58,20 @@ export default async function PublicPage() {
       {p.top && (
         <div className="grid gap-10 md:grid-cols-2">
           <TopList title="Top artists, 4 weeks" items={p.top.artists} />
-          <TopList title="Top tracks, 4 weeks" items={p.top.tracks} />
+          <TopList title="Top songs, 4 weeks" items={p.top.tracks} />
         </div>
       )}
 
       {p.insights && (
-        <div className="grid gap-10 md:grid-cols-2">
-          <Panel title="B-sides">
-            {p.insights.bSides.length === 0 ? <Empty>No abandoned favourites.</Empty> : (
-              <ol>{p.insights.bSides.slice(0, 8).map((b) => <li key={b.uri} className="truncate border-t border-rule py-2 text-sm first:border-t-0">{b.name} · {b.artist}</li>)}</ol>
-            )}
-          </Panel>
-          <Panel title="Streaks">
-            {p.insights.artistStreaks.length === 0 ? <Empty>No streaks yet.</Empty> : (
-              <ol>{p.insights.artistStreaks.slice(0, 8).map((s) => <li key={s.artist} className="flex justify-between border-t border-rule py-2 text-sm first:border-t-0"><span className="truncate">{s.artist}</span><span className="nums">{s.days} days</span></li>)}</ol>
-            )}
-          </Panel>
-        </div>
+        <Panel title="Artist streaks">
+          {p.insights.artistStreaks.length === 0 ? <Empty>No streaks yet.</Empty> : (
+            <ol>{p.insights.artistStreaks.slice(0, 8).map((s) => (
+              <li key={s.artist} className="flex justify-between gap-3 border-t border-rule py-2 text-sm first:border-t-0">
+                <span className="truncate">{s.artist}</span><span className="nums shrink-0">{s.days} days</span>
+              </li>
+            ))}</ol>
+          )}
+        </Panel>
       )}
 
       <footer className="border-t border-rule pt-4 text-xs text-muted-text">

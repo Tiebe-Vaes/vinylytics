@@ -1,12 +1,12 @@
 import { Empty } from "@/components/panel";
-import type { ChartData } from "@/lib/spotify/data";
+import type { genreMinutes } from "@/lib/spotify/stats";
 
 /**
  * Minutes per genre as plain horizontal bars: one series, so one hue, and
  * "other" in the neutral so it never competes with a real genre. With only
  * "other" there is nothing to compare, so it says so instead of drawing a bar.
  */
-export function Genres({ genres }: { genres: ChartData["genres"] }) {
+export function Genres({ genres }: { genres: ReturnType<typeof genreMinutes> }) {
   const named = genres.filter((g) => g.genre !== "other");
   if (named.length === 0) return <Empty>No genre tags yet. They come from Last.fm once artists are looked up.</Empty>;
   const total = genres.reduce((a, g) => a + g.minutes, 0);

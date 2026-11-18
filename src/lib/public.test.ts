@@ -56,4 +56,18 @@ describe("public page", () => {
       expect(json).not.toContain(secret);
     }
   });
+
+  it.each(["eras", "top", "insights", "nowPlaying"] as const)("carries only %s when it is the one switched on", async (only) => {
+    const sections = { eras: false, top: false, insights: false, nowPlaying: false, [only]: true };
+    await d.insert(schema.settings).values({ publicEnabled: true, publicSections: sections });
+    const p = (await publicPayload())!;
+    const field = { eras: "eras", top: "top", insights: "insights", nowPlaying: "lastSpin" }[only];
+    expect(Object.keys(p).sort()).toEqual(["sections", field].sort());
+  });
+
+  it("hides everything when the page is switched off, whatever sections are ticked", async () => {
+    await d.insert(schema.settings).values({ publicEnabled: false, publicSections: { eras: true, top: true, insights: true, nowPlaying: true } });
+    expect(await publicPayload()).toBeNull();
+    expect(await publicAllows("top")).toBe(false);
+  });
 });

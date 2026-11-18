@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeStreaks, findObsessions, genreMinutes, rankByMonth } from "./stats";
+import { computeStreaks, genreMinutes, rankByMonth } from "./stats";
 
 describe("computeStreaks", () => {
   it("is zero with no plays", () => {
@@ -87,35 +87,5 @@ describe("genreMinutes", () => {
     const g = genreMinutes(artists, tags);
     expect(g).toHaveLength(11);
     expect(g[10]).toEqual({ genre: "other", minutes: 90 + 89 });
-  });
-});
-
-describe("findObsessions", () => {
-  const track = (day: string, streams: number, uri = "t1") => ({ uri, name: "Song", artist: "Band", day, streams });
-
-  it("is empty with no plays", () => {
-    expect(findObsessions([], new Map())).toEqual([]);
-  });
-  it("keeps a track with most of its streams in one fortnight", () => {
-    const rows = ["2026-03-01", "2026-03-03", "2026-03-05", "2026-03-08", "2026-03-10"].map((d) => track(d, 4));
-    const [o] = findObsessions(rows, new Map([["t1", 25]]));
-    expect(o).toMatchObject({ uri: "t1", start: "2026-03-01", end: "2026-03-10", streams: 20 });
-    expect(o.share).toBeCloseTo(0.8);
-  });
-  it("drops a steady favourite", () => {
-    const rows = [track("2026-03-01", 10), track("2026-03-05", 10)];
-    expect(findObsessions(rows, new Map([["t1", 100]]))).toEqual([]);
-  });
-  it("needs at least 15 streams in the window", () => {
-    expect(findObsessions([track("2026-03-01", 14)], new Map([["t1", 14]]))).toEqual([]);
-  });
-  it("counts 14 calendar days across the DST change", () => {
-    // 25 Oct is the clock change; 18 Oct + 13 days = 31 Oct is still inside the window.
-    const rows = [track("2026-10-18", 8), track("2026-10-31", 8)];
-    expect(findObsessions(rows, new Map([["t1", 16]]))).toMatchObject([{ uri: "t1", start: "2026-10-18", end: "2026-10-31", streams: 16 }]);
-  });
-  it("does not stretch the window past 14 days", () => {
-    const rows = [track("2026-10-18", 8), track("2026-11-01", 8)];
-    expect(findObsessions(rows, new Map([["t1", 16]]))).toEqual([]);
   });
 });

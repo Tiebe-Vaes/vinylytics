@@ -2,7 +2,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { eq } from "drizzle-orm";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
-import { resetDb, useTestDb } from "@/db/test-db";
+import { resetDb, useTestDb as openTestDb } from "@/db/test-db";
 import { copyAll, mapTieboardPlay, type SourceQuery } from "@/lib/spotify/copy";
 
 const TIEBOARD_TABLES = `
@@ -25,7 +25,7 @@ INSERT INTO spotify_artists (name, tags) VALUES ('Artist', '["indie"]');
 `;
 
 async function destination() {
-  const db = await useTestDb();
+  const db = await openTestDb();
   await resetDb();
   return { db };
 }

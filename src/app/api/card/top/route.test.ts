@@ -33,6 +33,12 @@ describe("GET /api/card/top", () => {
     expect(res.headers.get("cache-control")).toBe("private, no-store");
   });
 
+  it("exports only the owner's selected custom dates and rejects a reversed range", async () => {
+    expect((await call("kind=track&sort=plays&range=custom&from=2025-01-01&to=2025-01-12")).status).toBe(200);
+    expect((await call("kind=track&sort=plays&range=custom&from=2025-02-01&to=2025-02-02")).status).toBe(404);
+    expect((await call("kind=track&range=custom&from=2025-02-02&to=2025-02-01")).status).toBe(400);
+  });
+
   it("404s an anonymous visitor while the public top lists are off", async () => {
     owner.yes = false;
     expect((await call("kind=artist&range=4w")).status).toBe(404);
@@ -43,5 +49,6 @@ describe("GET /api/card/top", () => {
     await d.insert(schema.settings).values({ publicEnabled: true, publicSections: { eras: false, top: true, insights: false, nowPlaying: false } });
     // All-time has data, 4 weeks has none: a visitor asking for all-time still gets the 4-week card (empty, so 404).
     expect((await call("kind=artist&range=all")).status).toBe(404);
+    expect((await call("kind=album&range=all")).status).toBe(404);
   });
 });

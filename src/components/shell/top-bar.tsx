@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings } from "lucide-react";
+import Image from "next/image";
+import { LibrarySearch } from "@/components/music/library-search";
 import { cn } from "@/lib/utils";
 import { isActive, NAV } from "./nav";
 
@@ -10,9 +12,9 @@ export function TopBar() {
   const pathname = usePathname();
   return (
     <header className="sticky top-0 z-30 border-b border-rule bg-ground">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-6 px-4">
-        <Link href="/" className="display text-[28px] leading-none tracking-tight">
-          Vinylytics
+      <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4">
+        <Link href="/" aria-label="Vinylytics shelf" className="flex min-h-11 shrink-0 items-center">
+          <Image src="/brand/vinylytics.svg" width={132} height={36} alt="Vinylytics" className="h-auto w-24 sm:w-32" unoptimized />
         </Link>
         <nav aria-label="Main" className="hidden flex-1 items-center gap-6 md:flex">
           {NAV.map((n) => (
@@ -29,11 +31,12 @@ export function TopBar() {
             </Link>
           ))}
         </nav>
+        <LibrarySearch />
         <Link
           href="/settings"
           aria-label="Settings"
           aria-current={pathname.startsWith("/settings") ? "page" : undefined}
-          className="flex size-10 items-center justify-center text-muted-text transition-colors hover:text-text aria-[current=page]:text-text"
+          className="flex size-11 shrink-0 items-center justify-center text-muted-text transition-colors hover:text-text aria-[current=page]:text-text"
         >
           <Settings className="size-5" strokeWidth={1.75} />
         </Link>

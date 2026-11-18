@@ -39,9 +39,9 @@ describe("eraDetail", () => {
     expect(detail!.tracks.every((t) => t.artist === "A")).toBe(true);
   });
 
-  it("counts tracks first heard during the era", async () => {
+  it("does not count an earlier play of a ranked track", async () => {
     const detail = await eraDetail("2026-01-05");
-    expect(detail!.firstHeard).toBe(13); // a1..a13; a0 was heard in December
+    expect(detail!.tracks.find((track) => track.uri === "a0")?.streams).toBe(15);
   });
 
   it("finds the era's biggest day", async () => {

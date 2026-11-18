@@ -74,7 +74,7 @@ export function roastItem(s: { name: string; streams: number; peakWeekMinutes: n
   }
   return pick(
     [
-      `${fmt(s.streams)} streams of "${s.name}". At this point you owe someone royalties.`,
+      `${fmt(s.streams)} plays of "${s.name}". At this point you owe someone royalties.`,
       `"${s.name}": ${fmt(s.streams)} streams and counting. It's not a habit if you can stop. Can you stop?`,
     ],
     `${s.name}|${s.streams}`

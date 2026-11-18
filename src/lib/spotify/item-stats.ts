@@ -19,7 +19,7 @@ export type ItemStats = {
   streams: number;
   peakWeek: { week: string; minutes: number } | null;
   weekly: { week: string; minutes: number }[];
-  rankByMonth: { month: string; rank: number }[];
+  rankByMonth: { month: string; rank: number; streams: number }[];
   allTimeRank: number | null;
 };
 
@@ -56,9 +56,9 @@ export async function getItemStats(ref: ItemRef): Promise<ItemStats> {
       SELECT to_char(date_trunc('week', ${local()}), 'YYYY-MM-DD') AS week, (sum(ms_played) / 60000.0)::float AS minutes
       FROM ${from} WHERE k = ${value} GROUP BY 1 ORDER BY 1`),
     d.execute(sql`
-      SELECT month, rank FROM (
-        SELECT month, k, rank() OVER (PARTITION BY month ORDER BY ms DESC)::int AS rank
-        FROM (SELECT to_char(${local()}, 'YYYY-MM') AS month, k, sum(ms_played) AS ms FROM ${from} GROUP BY 1, 2) m
+      SELECT month, rank, streams FROM (
+        SELECT month, k, streams, rank() OVER (PARTITION BY month ORDER BY ms DESC)::int AS rank
+        FROM (SELECT to_char(${local()}, 'YYYY-MM') AS month, k, sum(ms_played) AS ms, count(*) FILTER (WHERE ${STREAM})::int AS streams FROM ${from} GROUP BY 1, 2) m
       ) r WHERE k = ${value} ORDER BY month`),
     d.execute(sql`
       SELECT rank FROM (
@@ -77,7 +77,7 @@ export async function getItemStats(ref: ItemRef): Promise<ItemStats> {
     streams: t?.streams ?? 0,
     peakWeek: peak,
     weekly: weeks,
-    rankByMonth: rowsOf<{ month: string; rank: number }>(monthly),
+    rankByMonth: rowsOf<{ month: string; rank: number; streams: number }>(monthly),
     allTimeRank: rowsOf<{ rank: number }>(allTime)[0]?.rank ?? null,
   };
 }
@@ -85,5 +85,5 @@ export async function getItemStats(ref: ItemRef): Promise<ItemStats> {
 /** getItemStats for pages: four scans of the history (~1 s at 300k plays), so cached until the next sync. */
 export function cachedItemStats(ref: ItemRef): Promise<ItemStats> {
   const id = ref.kind === "artist" ? ref.name : ref.kind === "track" ? ref.uri : ref.albumId;
-  return unstable_cache(() => getItemStats(ref), ["item", ref.kind, id, timezone()], { tags: ["spotify"] })();
+  return unstable_cache(() => getItemStats(ref), ["item-v2", ref.kind, id, timezone()], { tags: ["spotify"] })();
 }
