@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" color="#1f4fd8" role="img" aria-labelledby="title">
+  <title id="title">Vinylytics - Catalogue icon</title>
+  <g id="icon" fill="currentColor">
+    <path d="M48 64H144L256 320L352 64H448L320 384H464V448H224Z" />
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" color="#1f4fd8" fill="currentColor" role="img" aria-labelledby="title desc">
+  <title id="title">Vinylytics - Side A icon</title>
+  <desc id="desc">The V becomes a tonearm: a pivot at one end, a cartridge at the other. One flat ink.</desc>
+  <g id="icon">
+    <path d="M48 80H144L272 336L208 368Z" /><path d="M384 96H448L288 384H224Z" /><path fill-rule="evenodd" d="M480 96a64 64 0 1 1-128 0 64 64 0 1 1 128 0ZM440 96a24 24 0 1 0-48 0 24 24 0 1 0 48 0Z" /><path d="M208 336H304V416H208Z" /></g>
+</svg>

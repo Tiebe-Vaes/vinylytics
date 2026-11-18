@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Vinylytics - Uit de hoes in Claude’s kleuren"><title>Vinylytics - Uit de hoes, kleurstudie 01</title><g id="icon"><defs><clipPath id="record-reveal"><path d="M344 64H512V448H344Z"/></clipPath></defs>
+<g id="record" clip-path="url(#record-reveal)">
+<circle cx="360" cy="256" r="136" fill="#0f0f10" stroke="#eeebe4" stroke-width="6"/>
+<circle cx="360" cy="256" r="100" fill="none" stroke="#2a2826" stroke-width="6"/>
+<circle cx="360" cy="256" r="48" fill="#d9a21b"/>
+<circle cx="360" cy="256" r="16" fill="#0f0f10"/>
+</g>
+<g id="sleeve"><path d="M32 112H320V400H32Z" fill="#1f4fd8"/>
+<path d="M72 168H136L176 272L216 168H280L208 344H144Z" fill="#bf3a22"/></g></g></svg>

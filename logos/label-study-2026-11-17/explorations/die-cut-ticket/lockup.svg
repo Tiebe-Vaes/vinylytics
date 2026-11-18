@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512" color="#1f4fd8" fill="currentColor" role="img" aria-labelledby="title desc">
+  <title id="title">Vinylytics — Side A horizontal lockup</title>
+  <desc id="desc">A die-cut label imprint beside a condensed Vinylytics wordmark.</desc>
+  <g id="icon" transform="translate(0 112) scale(.5625)">
+    <path fill-rule="evenodd" d="M48 96H400L464 160V352L400 416H112L48 352V288L96 256L48 224ZM144 160 256 352 368 160H304L256 256 208 160Z"/>
+  </g>
+  <g id="wordmark" font-family="Big Shoulders, Arial, sans-serif" font-weight="900" font-size="148" letter-spacing="-1.5">
+    <text x="326" y="309">VINYLYTICS</text>
+  </g>
+</svg>

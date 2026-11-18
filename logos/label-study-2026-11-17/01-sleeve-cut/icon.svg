@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" color="#1f4fd8" role="img" aria-labelledby="title desc">
+  <title id="title">Vinylytics - Sleeve Cut icon</title>
+  <desc id="desc">A sharp square record sleeve with a broad V cut through its face.</desc>
+  <g id="icon" fill="currentColor">
+    <path fill-rule="evenodd" d="M48 48H464V464H48ZM96 112 214 400H298L416 112H328L256 304 184 112Z" />
+  </g>
+</svg>
