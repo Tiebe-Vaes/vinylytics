@@ -29,7 +29,10 @@ async function Turntable() {
         fallback={view.status === "connected" ? view.lastPlayed : null}
         poll={view.status === "connected" && !view.demo}
       />
-      {view.status !== "connected" && (
+      {view.status !== "connected" && !process.env.SPOTIFY_CLIENT_ID ? (
+        // Recap-only copies have no Spotify app; the export is their only source.
+        <Link href="/settings/import" className="shrink-0 text-sm font-semibold underline">Import history</Link>
+      ) : view.status !== "connected" && (
         <a href="/api/auth/login" className="shrink-0 text-sm font-semibold underline">
           {view.status === "broken" ? "Reconnect" : "Connect Spotify"}
         </a>

@@ -6,6 +6,7 @@
 //   npm run dev:local -- --reset wipe the local db first
 //   npm run dev:local -- --empty a separate db with no plays, to check empty states
 //   npm run dev:local -- 3300    other port
+//   npm run local                your own history: separate db, no seed, no sign-in, this computer only
 //
 // DEMO_MODE=1 turns sign-in off; src/lib/env.ts ignores it in production.
 import { spawn } from "node:child_process";
@@ -19,13 +20,17 @@ import * as schema from "../src/db/schema.ts";
 import { seedPlays } from "./seed.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const empty = process.argv.includes("--empty");
-const dir = path.join(root, ".data", empty ? "pglite-empty" : "pglite");
-const snapshotFile = path.join(root, ".data", empty ? "schema-empty.json" : "schema.json");
+const mine = process.argv.includes("--mine");
+const empty = mine || process.argv.includes("--empty");
+const name = mine ? "mine" : empty ? "empty" : "";
+const dir = path.join(root, ".data", name ? `pglite-${name}` : "pglite");
+const snapshotFile = path.join(root, ".data", name ? `schema-${name}.json` : "schema.json");
 const args = process.argv.slice(2);
 const port = args.find((a) => /^\d+$/.test(a)) || "3000";
-if (args.includes("--reset")) {
-  rmSync(path.join(root, ".data"), { recursive: true, force: true });
+// Resets only the chosen dev db, never your own history in .data/pglite-mine.
+if (args.includes("--reset") && !mine) {
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(snapshotFile, { force: true });
   // Next's data cache survives restarts and would keep serving the wiped db's results.
   rmSync(path.join(root, ".next", "dev", "cache", "fetch-cache"), { recursive: true, force: true });
 }
@@ -53,10 +58,15 @@ const seeded = empty ? 0 : await seedPlays(db, schema);
 if (seeded) console.log(`local db: seeded ${seeded} plays`);
 await client.close();
 
-const child = spawn(`npx next dev -p ${port}`, {
+// Local mode has no sign-in, so it listens on this computer only.
+const host = mine ? " -H 127.0.0.1" : "";
+if (mine) console.log(`
+Vinylytics: open http://127.0.0.1:${port} and choose Import history.
+`);
+const child = spawn(`npx next dev -p ${port}${host}`, {
   stdio: "inherit",
   shell: true,
   cwd: root,
-  env: { ...process.env, DATABASE_URL: `pglite:${dir}`, DEMO_MODE: "1" },
+  env: { ...process.env, DATABASE_URL: `pglite:${dir}`, ...(mine ? { VINYLYTICS_LOCAL: "1" } : { DEMO_MODE: "1" }) },
 });
 child.on("exit", (code) => process.exit(code ?? 0));

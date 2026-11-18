@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db, hasDb, schema } from "@/db";
-import { demoAllowed } from "@/lib/env";
+import { demoAllowed, isLoopbackHost, localOnly } from "@/lib/env";
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
 /**
@@ -32,9 +32,10 @@ export async function storedOwner(): Promise<string | null> {
   return row?.id ?? null;
 }
 
-/** True for the signed-in owner, or always in local demo mode. */
+/** True for the signed-in owner, always in local demo mode, and for this computer in local mode. */
 export async function isOwner(): Promise<boolean> {
   if (demoAllowed()) return true;
+  if (localOnly()) return isLoopbackHost((await headers()).get("host"));
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const sub = verifySession(token, new Date(), process.env.AUTH_SECRET ?? "");
   if (!sub) return false;
