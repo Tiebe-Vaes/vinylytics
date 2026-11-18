@@ -1,21 +1,19 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { Empty, PageHeader, Panel } from "@/components/panel";
 import { YearCalendar } from "@/components/music/year-calendar";
 import { SpotifyAttribution } from "@/components/music/attribution";
-import { Cover } from "@/components/sleeve/cover";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firstListeningYear, getRecap, recapDates, recapInsights } from "@/lib/spotify/recap";
+import { getRecapExtras } from "@/lib/spotify/recap-extras";
+import { Bento } from "@/components/recap/bento";
 import { listeningDays } from "@/lib/spotify/history";
 import { localDateKey } from "@/lib/time";
-import { timezone } from "@/lib/tz";
 
 export const dynamic = "force-dynamic";
 const number = (n:number) => Math.round(n).toLocaleString("en-GB");
 const pageNumber = (v:unknown) => typeof v === "string" && /^[1-9]\d{0,4}$/.test(v) ? Number(v) : 1;
-const clock = (hour:number) => `${String(hour%24).padStart(2,"0")}:00`;
 
 export default async function RecapPage({searchParams}: {searchParams: Promise<{year?:string; albums?:string; streaks?:string}>}) {
   const p = await searchParams;
@@ -40,30 +38,9 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
       {recap.plays > 0 && <ShareButton href={`/api/card/recap?year=${year}`} filename={`vinylytics-${year}-recap.png`} title={`${year} recap`} defaultInk="cobalt"
         preview={{ cover: "Artist artwork", period: String(year), lead: recap.artist?.name, stat: `${number(recap.minutes)} minutes`, rows: "Year highlights" }}/>}
     </div>
-    <section className="grid gap-6 bg-ink-cobalt p-6 text-[#eeebe4] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end md:p-10">
-      <div>
-        <p className="text-sm font-bold uppercase tracking-widest">{year}{year === thisYear ? " so far" : " in music"}</p>
-        <h2 className="display mt-4 text-[clamp(3.75rem,12vw,8rem)] leading-none">{number(recap.minutes)}</h2>
-        <p className="display text-2xl md:text-4xl">minutes of music</p>
-      </div>
-      {recap.artist && <Link href={recap.artist.href} className="group flex max-w-xs flex-col items-start gap-1">
-        {recap.artist.imageUrl && <Cover url={recap.artist.imageUrl} alt="" size={128} className="mb-2 ring-0"/>}
-        <span className="text-xs font-semibold uppercase tracking-wider">Most listened artist</span>
-        <strong className="display break-words text-3xl group-hover:underline">{recap.artist.name} ↗</strong>
-      </Link>}
-    </section>
     {!recap.plays && <Empty>No music plays recorded for {year}. Choose another year or import your history in Settings.</Empty>}
-    <div className="my-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-      <Fact label="Days listening" value={number(recap.activeDays)} detail={`${number(recap.plays)} logged plays`}/>
-      <Fact label="Longest listening streak" value={`${recap.longestStreak} days`} detail="Consecutive days with music"/>
-      <Fact label="Peak listening hour" value={recap.peakHour === null ? "—" : `${clock(recap.peakHour)}–${clock(recap.peakHour+1)}`} detail={`Most minutes · ${timezone()}`}/>
-      <Fact label="Repeat share" value={recap.repeatShare === null ? "—" : `${recap.repeatShare}%`} detail="Plays beyond each song’s first play this year, among identified songs played for 30s or more"/>
-    </div>
-    {recap.track && <Link href={recap.track.href} className="group mb-8 flex items-center gap-4 border-y border-rule py-4">
-      <Cover url={recap.track.imageUrl} alt="" size={64}/>
-      <div className="min-w-0 flex-1"><p className="text-xs text-muted-text">Most listened song · {number(recap.track.ms/60000)} min</p>
-        <p className="display break-words text-3xl group-hover:underline">{recap.track.name}</p><p className="text-sm text-muted-text">{recap.track.subtitle}</p></div><ArrowUpRight className="hover-reveal" aria-hidden/>
-    </Link>}
+    {recap.plays > 0 && <Suspense fallback={<Skeleton className="h-96"/>}><Extras year={year} recap={recap}/></Suspense>}
+    <div className="mt-8"/>
     <Panel title="Every day" subtitle="Choose a date for its favourites and plays. Arrow keys move through the calendar.">
       <YearCalendar key={year} days={recap.days} year={year} end={to}/>
     </Panel>
@@ -72,9 +49,8 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
   </>;
 }
 
-function Fact({label,value,detail}:{label:string;value:string;detail:string}) {
-  return <div className="border-t border-rule pt-3"><h3 className="text-xs font-semibold uppercase tracking-wider text-muted-text">{label}</h3>
-    <p className="display my-2 text-3xl">{value}</p><p className="text-xs text-muted-text">{detail}</p></div>;
+async function Extras({year,recap}:{year:number;recap:Awaited<ReturnType<typeof getRecap>>}) {
+  return <Bento year={year} recap={recap} extras={await getRecapExtras(year)}/>;
 }
 
 async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:number;streakPage:number}) {
