@@ -33,6 +33,14 @@ describe("GET /api/card/top", () => {
     expect(res.headers.get("cache-control")).toBe("private, no-store");
   });
 
+  it("draws a cover mosaic for the grid view", async () => {
+    const res = await call("kind=track&range=all&view=grid");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("image/png");
+    const { cardOptions } = await import("@/lib/card-options");
+    expect(cardOptions(new URLSearchParams("view=grid"), "top", "cobalt").visual).toBe("mosaic");
+  });
+
   it("exports only the owner's selected custom dates and rejects a reversed range", async () => {
     expect((await call("kind=track&sort=plays&range=custom&from=2025-01-01&to=2025-01-12")).status).toBe(200);
     expect((await call("kind=track&sort=plays&range=custom&from=2025-02-01&to=2025-02-02")).status).toBe(404);

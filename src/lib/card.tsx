@@ -74,6 +74,8 @@ export type CardContent = {
   ranked?: boolean;
   /** Weekly, monthly or ranked values that shape the visual. */
   series?: number[];
+  /** Data-URI covers in rank order for the mosaic visual; null where an item has no art. */
+  covers?: (string | null)[];
   /** Short hero text for the sticker and label visuals, with a small caption under it. */
   badge?: string;
   caption?: string;
@@ -104,7 +106,7 @@ export async function renderCard(req: Request, card: CardContent) {
       <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18 }}>
         {hasVisual && (
           <CardVisualBox visual={visual} size={coverSize} ink={ink} series={card.series} artwork={artwork}
-            badge={card.badge} caption={card.caption} edition={card.edition.replace(/\s+\/\s+/, " / ")} />
+            badge={card.badge} caption={card.caption} covers={card.covers} edition={card.edition.replace(/\s+\/\s+/, " / ")} />
         )}
         <div style={{ ...display, display: "flex", fontSize, lineHeight: 0.99, maxWidth: 948, wordBreak: "break-word", ...(card.kind === "era" ? {} : { lineClamp: 4 }) }}>{title}</div>
         {fields.includes("lead") && card.lead && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}

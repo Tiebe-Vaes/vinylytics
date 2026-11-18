@@ -7,11 +7,11 @@ export const DENSITIES = ["minimal", "light", "balanced", "detailed", "maximal"]
 export type Density = (typeof DENSITIES)[number];
 export const FIELDS = ["period", "lead", "cover", "stat", "rows"] as const;
 /** The card's one visual element. "cover" is the plain artwork; the rest draw from the card's own data. */
-export const VISUALS = ["sleeve", "grooves", "turntable", "label", "stack", "sticker", "waveform", "dots", "cover"] as const;
+export const VISUALS = ["sleeve", "grooves", "turntable", "label", "stack", "sticker", "waveform", "dots", "mosaic", "cover"] as const;
 export type CardVisual = (typeof VISUALS)[number];
 export const VISUAL_LABELS: Record<CardVisual, string> = {
   sleeve: "Sleeve", grooves: "Grooves", turntable: "Turntable", label: "Label", stack: "Stack",
-  sticker: "Sticker", waveform: "Waveform", dots: "Dots", cover: "Cover only",
+  sticker: "Sticker", waveform: "Waveform", dots: "Dots", mosaic: "Mosaic", cover: "Cover only",
 };
 const DEFAULT_VISUAL: Record<CardKind, CardVisual> = { era: "sleeve", top: "stack", item: "turntable", recap: "dots" };
 export type CardField = (typeof FIELDS)[number];
@@ -36,7 +36,8 @@ export function cardOptions(q: URLSearchParams, kind: CardKind, defaultInk: InkI
   const density = DENSITIES.find((d) => d === q.get("density")) ?? "balanced";
   const listed = q.get("fields")?.split(",");
   return {
-    visual: VISUALS.find((v) => v === q.get("visual")) ?? DEFAULT_VISUAL[kind],
+    // A chart shared from its grid view looks like that grid unless a visual was picked.
+    visual: VISUALS.find((v) => v === q.get("visual")) ?? (kind === "top" && q.get("view") === "grid" ? "mosaic" : DEFAULT_VISUAL[kind]),
     format: q.get("format") === "story" ? "story" as const : "post" as const,
     ink: INKS.find((i) => i.id === q.get("ink"))?.id ?? defaultInk,
     density,

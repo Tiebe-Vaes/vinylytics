@@ -21,6 +21,12 @@ describe("share card settings", () => {
     expect(cardOptions(new URLSearchParams("density=maximal&fields="), "era", "plum").fields).toEqual([]);
   });
 
+  it("uses the cover mosaic for a chart shared from grid view unless a visual was picked", () => {
+    expect(cardOptions(new URLSearchParams("view=grid"), "top", "cobalt").visual).toBe("mosaic");
+    expect(cardOptions(new URLSearchParams("view=grid&visual=stack"), "top", "cobalt").visual).toBe("stack");
+    expect(cardOptions(new URLSearchParams("view=list"), "top", "cobalt").visual).toBe("stack");
+  });
+
   it.each(INKS)("allows $id on a story card", ({ id }) => {
     expect(cardOptions(new URLSearchParams({ ink: id, format: "story" }), "era", "green")).toMatchObject({ ink: id, format: "story" });
   });

@@ -41,7 +41,7 @@ export function shade(hex: string, amount: number): string {
 
 type Props = {
   visual: CardVisual; size: number; ink: InkId; series?: number[];
-  artwork: string | null; badge?: string; caption?: string; edition: string;
+  artwork: string | null; badge?: string; caption?: string; edition: string; covers?: (string | null)[];
 };
 
 const display = { fontFamily: "Big Shoulders", fontWeight: 900 as const, textTransform: "uppercase" as const };
@@ -69,7 +69,7 @@ function LabelArt({ src, cx, cy, r, size }: { src: string | null; cx: number; cy
   return <img src={src} alt="" width={d} height={d} style={{ position: "absolute", left: ((cx - r) * size) / 100, top: ((cy - r) * size) / 100, borderRadius: d / 2, objectFit: "cover" }} />;
 }
 
-export function CardVisualBox({ visual, size, ink, series, artwork, badge, caption, edition }: Props) {
+export function CardVisualBox({ visual, size, ink, series, artwork, badge, caption, edition, covers }: Props) {
   const bg = inkHex(ink);
   const fg = inkText(bg);
   const accent = inkHex(PARTNER[ink]);
@@ -82,6 +82,28 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
     if (!artwork) return null;
     // eslint-disable-next-line @next/next/no-img-element -- Satori renders an embedded image into the PNG.
     return <img src={artwork} alt="" width={size} height={size} style={{ objectFit: "contain", alignSelf: "flex-end" }} />;
+  }
+
+  if (visual === "mosaic") {
+    // The chart's grid view: up to nine tiles, cover art where it exists, else the rank on a stacked ink.
+    const tiles = (covers?.length ? covers : [artwork]).slice(0, 9);
+    const cols = tiles.length > 4 ? 3 : tiles.length > 1 ? 2 : 1;
+    const gap = Math.round(size * 0.02);
+    const cell = (size - gap * (cols - 1)) / cols;
+    const tints = [accent, shade(accent, 0.2), inkHex(STACK[ink][1])];
+    return (
+      <div style={{ ...box, flexWrap: "wrap", gap, alignContent: "flex-start" }}>
+        {tiles.map((src, i) => (
+          <div key={i} style={{ position: "relative", display: "flex", width: cell, height: cell, background: tints[i % 3], alignItems: "center", justifyContent: "center" }}>
+            {src
+              // eslint-disable-next-line @next/next/no-img-element -- Satori renders an embedded image into the PNG.
+              ? <img src={src} alt="" width={cell} height={cell} style={{ objectFit: "cover" }} />
+              : <span style={{ ...display, fontSize: cell * 0.5, color: inkText(tints[i % 3]) }}>{String(i + 1).padStart(2, "0")}</span>}
+            {src && <span style={{ position: "absolute", left: 0, bottom: 0, display: "flex", padding: `${cell * 0.03}px ${cell * 0.06}px`, background: RECORD, color: "#EEEBE4", fontSize: Math.max(14, cell * 0.11), fontWeight: 600 }}>{i + 1}</span>}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (visual === "sleeve") {
