@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { describeImport, resumeImport, useImport } from "@/lib/spotify/import-runner";
+import { useNotify } from "@/components/toaster";
 import { ImportControls, ImportSpinner } from "./import-controls";
 
 /** Mounted by the app layout: resumes a staged import after a reload and keeps
@@ -14,7 +15,14 @@ export function ImportDock() {
   const pathname = usePathname();
 
   useEffect(() => { void resumeImport(); }, []);
-  useEffect(() => { if (state.status === "done") router.refresh(); }, [state.status, router]);
+  const notify = useNotify();
+  const written = state.status === "done" ? state.written : null;
+  useEffect(() => {
+    if (written === null) return;
+    router.refresh();
+    notify("Import finished", `${written.toLocaleString("en-GB")} new plays added.`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per finished import; notify is a fresh closure each render.
+  }, [written, router]);
   useEffect(() => {
     if (state.status !== "preparing") return;
     // Preparation lives in this tab's worker; uploads survive a reload, this does not.

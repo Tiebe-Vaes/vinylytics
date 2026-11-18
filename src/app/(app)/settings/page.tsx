@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge, Empty, PageHeader, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
+import { ActionForm } from "@/components/toaster";
 import { getPublicSettings, type PublicSections } from "@/lib/public";
 import { getSpotifyStatus } from "@/lib/spotify/client";
 import { getEras } from "@/lib/spotify/eras-data";
@@ -36,9 +37,9 @@ export default async function SettingsPage() {
       <Panel title="Spotify" subtitle={LABEL[spotify.state] + (spotify.lastSyncAt ? ` · last sync ${dayLabel(spotify.lastSyncAt)}, ${clock(spotify.lastSyncAt)}` : "")}>
         <div className="flex flex-wrap gap-2">
           {spotify.state === "connected" ? (
-            <form action={syncNow}>
+            <ActionForm action={syncNow} success="Synced with Spotify">
               <Button size="sm" type="submit">Sync now</Button>
-            </form>
+            </ActionForm>
           ) : (
             <Button size="sm" render={<a href="/api/auth/login" />} nativeButton={false}>Reconnect</Button>
           )}
@@ -51,7 +52,7 @@ export default async function SettingsPage() {
       </Panel>
 
       <Panel title="Public page" subtitle="A read-only page at /u for friends. Off until you switch it on; your history log is never shown.">
-        <form action={savePublicSettings} className="flex flex-col gap-3">
+        <ActionForm action={savePublicSettings} success="Settings saved" className="flex flex-col gap-3">
           <label className="flex items-center gap-3 text-sm font-semibold">
             <input type="checkbox" name="enabled" defaultChecked={pub.enabled} className="size-4 accent-[var(--text)]" />
             Show my public page
@@ -71,7 +72,7 @@ export default async function SettingsPage() {
               <Link href="/u" className="text-sm font-semibold underline">View public page</Link>
             )}
           </div>
-        </form>
+        </ActionForm>
       </Panel>
 
       <Panel title="Your era edits" subtitle="Names and merges you made. They're re-applied whenever your eras are recalculated.">
@@ -85,10 +86,10 @@ export default async function SettingsPage() {
                   {o.kind === "rename" ? `Named “${o.name}”` : `Merged ${monthYear(o.from)} – ${monthYear(o.to)}`}
                   {o.unused && <Badge tone="warn" className="ml-2">no longer matches</Badge>}
                 </span>
-                <form action={deleteOverride}>
+                <ActionForm action={deleteOverride} success="Edit removed">
                   <input type="hidden" name="id" value={o.id} />
                   <Button size="sm" variant="ghost" type="submit">Remove</Button>
-                </form>
+                </ActionForm>
               </li>
             ))}
           </ul>

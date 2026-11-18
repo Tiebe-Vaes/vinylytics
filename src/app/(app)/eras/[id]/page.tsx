@@ -7,6 +7,7 @@ import { Cover } from "@/components/sleeve/cover";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { eraHours, eraSpan, Sleeve } from "@/components/sleeve/sleeve";
 import { Button } from "@/components/ui/button";
+import { ActionForm } from "@/components/toaster";
 import { getEraDetail } from "@/lib/spotify/era-detail";
 import { mergeWithNext, renameEra } from "../actions";
 
@@ -70,7 +71,7 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
           </Panel>
           <section id="edit-era" tabIndex={-1} className="scroll-mt-6">
             <Panel title="Edit this era">
-              <form action={renameEra}>
+              <ActionForm action={renameEra} success="Era renamed">
                 <input type="hidden" name="eraId" value={era.id} />
                 <label htmlFor="era-name" className="text-sm font-semibold">Era name</label>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -78,11 +79,11 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
                     title="Use at least one non-space character." className="min-h-11 min-w-0 flex-1 border border-input bg-ground px-2 text-sm" />
                   <Button className="min-h-11" type="submit">Save name</Button>
                 </div>
-              </form>
-              {next && <form action={mergeWithNext} className="mt-5 border-t border-rule pt-4">
+              </ActionForm>
+              {next && <ActionForm action={mergeWithNext} success="Eras merged" className="mt-5 border-t border-rule pt-4">
                 <input type="hidden" name="eraId" value={era.id} /><input type="hidden" name="nextEraId" value={next.id} />
                 <Button variant="outline" type="submit" className="h-auto min-h-11 max-w-full whitespace-normal">Merge with {next.name}</Button>
-              </form>}
+              </ActionForm>}
             </Panel>
           </section>
         </div>

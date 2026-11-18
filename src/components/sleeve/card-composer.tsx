@@ -26,6 +26,8 @@ export default function CardComposer({ href, filename, title = "Share card", def
   const [failed, setFailed] = useState<string | null>(null);
   const [shareError, setShareError] = useState(false);
   const [sharing, setSharing] = useState(false);
+  // Confirmation lives in the dialog: a toast would sit behind the modal's top layer.
+  const [done, setDone] = useState<string | null>(null);
   base.searchParams.set("visual", options.visual);
   base.searchParams.set("format", options.format);
   base.searchParams.set("ink", options.ink);
@@ -80,13 +82,15 @@ export default function CardComposer({ href, filename, title = "Share card", def
     if (!ready?.file) return;
     setSharing(true);
     setShareError(false);
-    try { await navigator.share({ title, files: [ready.file] }); }
+    try { await navigator.share({ title, files: [ready.file] }); setDone("Shared"); }
     catch (error) { if (!(error instanceof DOMException && error.name === "AbortError")) setShareError(true); }
     finally { setSharing(false); }
   }
 
   function save() {
-    if (ready) Object.assign(document.createElement("a"), { href: ready.objectUrl, download: downloadName }).click();
+    if (!ready) return;
+    Object.assign(document.createElement("a"), { href: ready.objectUrl, download: downloadName }).click();
+    setDone("Card saved");
   }
 
   function dismiss() {
@@ -97,6 +101,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
 
   // Patches apply to the latest options, so quick taps in one frame all land.
   function setOptions(patch: (o: typeof options) => Partial<typeof options>) {
+    setDone(null);
     setFailed(null);
     setShareError(false);
     updateOptions((o) => {
@@ -134,7 +139,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
             </div>
           </div>
           <p className="my-2 text-xs text-muted-text" role="status">
-            {error ? "Couldn’t render this card." : ready ? [scope, `${size.width} × ${size.height} · PNG`].filter(Boolean).join(" · ") : "Rendering your card…"}
+            {error ? "Couldn’t render this card." : done && ready ? `${done} ✓` : ready ? [scope, `${size.width} × ${size.height} · PNG`].filter(Boolean).join(" · ") : "Rendering your card…"}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {ready?.canShare && <Button className="min-h-11" onClick={share} disabled={sharing}><Share />Share</Button>}
