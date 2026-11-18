@@ -6,6 +6,7 @@ import { Panel } from "@/components/panel";
 import { Cover } from "@/components/sleeve/cover";
 import { Shelf } from "@/components/sleeve/shelf";
 import { eraSpan } from "@/components/sleeve/sleeve";
+import { EraTimeline } from "@/components/sleeve/era-timeline";
 import { roastWeek } from "@/lib/roast";
 import { getEras } from "@/lib/spotify/eras-data";
 import { topArtistsDb } from "@/lib/spotify/queries";
@@ -65,6 +66,7 @@ export default async function ShelfPage() {
             title={latestEra.name} defaultInk={latestEra.ink} label="Share latest era"
             preview={{ cover: "Era artwork", period: eraSpan(latestEra), lead: latestEra.lead, stat: `${Math.round(latestEra.minutes).toLocaleString("en-GB")} minutes`, rows: "Top songs" }} />}
         </div>
+        <EraTimeline eras={eras} today={localDateKey(now)} />
         <Shelf eras={eras} />
       </section>
 
