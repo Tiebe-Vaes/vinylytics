@@ -1,4 +1,4 @@
-import { inkHex, inkText, type InkId } from "@/lib/ink";
+import { classicOf, inkHex, inkText, type ClassicInkId, type InkId } from "@/lib/ink";
 import type { CardVisual } from "@/lib/card-options";
 
 /**
@@ -9,12 +9,12 @@ import type { CardVisual } from "@/lib/card-options";
 
 const RECORD = "#0f0f10";
 const GROOVE = "#2a2826";
-/** A second ink that reads well next to each card ink. */
-const PARTNER: Record<InkId, InkId> = {
+/** A second ink that reads well next to each classic; other inks borrow their nearest classic's pair. */
+const PARTNER: Record<ClassicInkId, InkId> = {
   cobalt: "mustard", vermilion: "teal", mustard: "vermilion", green: "mustard",
   plum: "orange", teal: "orange", orange: "cobalt", redviolet: "mustard",
 };
-const STACK: Record<InkId, [InkId, InkId]> = {
+const STACK: Record<ClassicInkId, [InkId, InkId]> = {
   cobalt: ["mustard", "vermilion"], vermilion: ["mustard", "teal"], mustard: ["plum", "green"], green: ["mustard", "redviolet"],
   plum: ["orange", "teal"], teal: ["mustard", "orange"], orange: ["cobalt", "green"], redviolet: ["mustard", "teal"],
 };
@@ -72,7 +72,7 @@ function LabelArt({ src, cx, cy, r, size }: { src: string | null; cx: number; cy
 export function CardVisualBox({ visual, size, ink, series, artwork, badge, caption, edition, covers }: Props) {
   const bg = inkHex(ink);
   const fg = inkText(bg);
-  const accent = inkHex(PARTNER[ink]);
+  const accent = inkHex(PARTNER[classicOf(ink)]);
   const box = { position: "relative" as const, display: "flex", width: size, height: size, alignSelf: "flex-end" as const };
   const svg = (children: React.ReactNode) => (
     <svg width={size} height={size} viewBox="0 0 100 100" style={{ position: "absolute", left: 0, top: 0 }}>{children}</svg>
@@ -90,7 +90,7 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
     const cols = tiles.length > 4 ? 3 : tiles.length > 1 ? 2 : 1;
     const gap = Math.round(size * 0.02);
     const cell = (size - gap * (cols - 1)) / cols;
-    const tints = [accent, shade(accent, 0.2), inkHex(STACK[ink][1])];
+    const tints = [accent, shade(accent, 0.2), inkHex(STACK[classicOf(ink)][1])];
     return (
       <div style={{ ...box, flexWrap: "wrap", gap, alignContent: "flex-start" }}>
         {tiles.map((src, i) => (
@@ -171,7 +171,7 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
   }
 
   if (visual === "stack") {
-    const [a, b] = STACK[ink].map(inkHex);
+    const [a, b] = STACK[classicOf(ink)].map(inkHex);
     return (
       <div style={box}>
         {svg(<>
