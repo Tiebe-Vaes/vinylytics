@@ -20,9 +20,7 @@ export function Sleeve({ era, size = "shelf", href, className }: {
   const face = (
     <div className={cn("relative flex aspect-square w-full flex-col justify-between gap-2 overflow-hidden", hero ? "p-6 md:p-7" : "p-4")}
       style={{ background: bg, color: inkText(bg) }}>
-      <div className="flex items-center justify-between border-t-[3px] border-b border-current py-1 text-xs font-semibold">
-        <span>VNL {era.start.slice(2, 4)}{era.start.slice(5, 7)}</span><span>{era.weeks} weeks</span>
-      </div>
+      <p className="self-end text-xs font-semibold opacity-80">{era.weeks} weeks</p>
       {era.cover ? (
         // eslint-disable-next-line @next/next/no-img-element -- preserve the source artwork and its aspect ratio.
         <img src={era.cover} alt={`Artwork from ${era.name}`} loading={hero ? "eager" : "lazy"}
@@ -32,7 +30,7 @@ export function Sleeve({ era, size = "shelf", href, className }: {
       </div>}
       <div className="shrink-0">
         <h2 className={cn("display line-clamp-2", hero ? "text-[clamp(2.2rem,6vw,4.75rem)]" : "text-[clamp(2rem,5vw,2.75rem)]")}>{era.name}</h2>
-        <div className="mt-3 flex items-end justify-between gap-3 border-t border-current pt-2 text-xs font-semibold">
+        <div className="mt-3 flex items-end justify-between gap-3 text-xs font-semibold">
           <div className="min-w-0"><span className="block truncate">{era.lead}</span><span>{eraSpan(era)}</span></div>
           {href !== null && <ArrowUpRight className="hover-reveal size-6 shrink-0 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />}
         </div>
