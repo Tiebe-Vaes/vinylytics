@@ -27,5 +27,6 @@ export async function GET(req: Request) {
   return renderCard(req, {
     kind: "item", ink: "cobalt", edition: `LIBRARY  /  ${kind.toUpperCase()}`, title: meta.title,
     period: "All time", lead: meta.subtitle, cover: meta.cover, stat: `${Math.round(stats.minutes).toLocaleString("en-GB")} minutes`, rows,
+    series: stats.weekly.map((w) => w.minutes), badge: stats.streams.toLocaleString("en-GB"), caption: stats.streams === 1 ? "PLAY" : "PLAYS",
   });
 }

@@ -3,6 +3,7 @@ import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
 import { addDaysKey } from "@/lib/time";
 import sharp from "sharp";
+import { VISUALS } from "@/lib/card-options";
 
 const owner = vi.hoisted(() => ({ yes: true }));
 vi.mock("@/lib/owner", () => ({ isOwner: vi.fn(async () => owner.yes) }));
@@ -37,6 +38,12 @@ describe("GET /api/card/era/[id]", () => {
     expect(res.headers.get("content-type")).toBe("image/png");
     expect(res.headers.get("cache-control")).toBe("private, no-store");
     expect((await res.arrayBuffer()).byteLength).toBeGreaterThan(10_000);
+  });
+
+  it.each(VISUALS.flatMap((v) => [[v, "post"], [v, "story"]]))("draws the %s visual on a %s card", async (visual, format) => {
+    // Satori aborts the stream mid-render on unsupported SVG, so decode the whole PNG.
+    const png = sharp(Buffer.from(await (await call("2026-01-05", `${format}&visual=${visual}&density=maximal`)).arrayBuffer()));
+    expect((await png.metadata()).format).toBe("png");
   });
 
   it.each([["post", 1350], ["story", 1920]])("exports %s at the advertised size and selected ink", async (format, height) => {

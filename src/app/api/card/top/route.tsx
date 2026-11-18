@@ -29,7 +29,8 @@ export async function GET(req: Request) {
     kind: "top", ink: "cobalt", edition: "RANKING  /  TOP FIVE",
     title: `Top ${noun}`, period: range === "custom" ? `${filters.from} – ${filters.to}` : CHART_RANGES.find((r) => r.value === range)!.label,
     lead: named(items[0]), cover: items[0].cover, stat: `${value(items[0])} ${units} at number one`,
-    ranked: true, rows: items.map((item) => ({
+    ranked: true, series: items.map(value), badge: value(items[0]).toLocaleString("en-GB"),
+    caption: `${sort === "plays" ? "PLAYS" : "MINUTES"} AT NO. 1`, rows: items.map((item) => ({
       label: named(item), value: `${value(item)} ${units}`, fraction: value(item) / Math.max(1, value(items[0])),
     })),
   });

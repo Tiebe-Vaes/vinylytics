@@ -21,5 +21,6 @@ export async function GET(req: Request) {
     kind: "recap", ink: "cobalt", edition: "ANNUAL  /  RECAP", title: "My year in music", period: String(year),
     lead: recap.artist ? `Top artist · ${recap.artist.name}` : null, cover: recap.artist?.imageUrl ?? recap.track?.imageUrl,
     stat: `${Math.round(recap.minutes).toLocaleString("en-GB")} minutes`, rows,
+    series: recap.days.map((d) => d.minutes), badge: Math.round(recap.minutes).toLocaleString("en-GB"), caption: "MINUTES",
   });
 }

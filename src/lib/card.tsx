@@ -6,6 +6,7 @@ import { ImageResponse } from "next/og";
 import { inkHex, inkText, type InkId } from "@/lib/ink";
 import { CARD_SIZES, cardOptions, type CardKind } from "@/lib/card-options";
 import { fetchCover } from "@/lib/spotify/cover-image";
+import { CardVisualBox } from "@/lib/card-visual";
 
 /**
  * Share cards: PNGs drawn by next/og (Satori). Satori reads TTF/OTF/WOFF, not
@@ -71,6 +72,11 @@ export type CardContent = {
   stat?: string;
   rows?: { label: string; value?: string; fraction?: number }[];
   ranked?: boolean;
+  /** Weekly, monthly or ranked values that shape the visual. */
+  series?: number[];
+  /** Short hero text for the sticker and label visuals, with a small caption under it. */
+  badge?: string;
+  caption?: string;
 };
 
 const display = { fontFamily: "Big Shoulders", fontWeight: 900 as const, textTransform: "uppercase" as const };
@@ -78,7 +84,7 @@ const singleLine = { overflow: "hidden", whiteSpace: "nowrap", textOverflow: "el
 
 /** The response itself is used for both preview and export. */
 export async function renderCard(req: Request, card: CardContent) {
-  const { format, ink, fields } = cardOptions(new URL(req.url).searchParams, card.kind, card.ink);
+  const { format, ink, fields, visual } = cardOptions(new URL(req.url).searchParams, card.kind, card.ink);
   const story = format === "story";
   const [fonts, artwork] = await Promise.all([cardFonts(), fields.includes("cover") ? coverData(card.cover) : null]);
   const bg = inkHex(ink);
@@ -86,7 +92,8 @@ export async function renderCard(req: Request, card: CardContent) {
   const rows = fields.includes("rows") ? (card.rows ?? []).slice(0, 5) : [];
   const coverSize = rows.length ? (story ? 500 : 274) : (story ? 760 : 552);
   const title = card.title.trim() || "Untitled";
-  const fontSize = Math.round(eraTitleSize(title, story) * (!artwork && !rows.length ? 1.45 : 1));
+  const hasVisual = visual !== "cover" || artwork !== null;
+  const fontSize = Math.round(eraTitleSize(title, story) * (!hasVisual && !rows.length ? 1.45 : 1));
 
   return new ImageResponse(
     <div style={{ display: "flex", flexDirection: "column", padding: 64, width: "100%", height: "100%", background: bg, color: fg, fontFamily: "Archivo" }}>
@@ -95,9 +102,9 @@ export async function renderCard(req: Request, card: CardContent) {
         <span style={{ fontSize: 23, fontWeight: 600 }}>{card.edition}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18 }}>
-        {artwork && (
-          // eslint-disable-next-line @next/next/no-img-element -- Satori renders an embedded image into the PNG.
-          <img src={artwork} alt="" width={coverSize} height={coverSize} style={{ objectFit: "contain", alignSelf: "flex-end" }} />
+        {hasVisual && (
+          <CardVisualBox visual={visual} size={coverSize} ink={ink} series={card.series} artwork={artwork}
+            badge={card.badge} caption={card.caption} edition={card.edition.replace(/\s+\/\s+/, " / ")} />
         )}
         <div style={{ ...display, display: "flex", fontSize, lineHeight: 0.99, maxWidth: 948, wordBreak: "break-word", ...(card.kind === "era" ? {} : { lineClamp: 4 }) }}>{title}</div>
         {fields.includes("lead") && card.lead && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}

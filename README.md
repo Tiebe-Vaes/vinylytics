@@ -44,7 +44,7 @@
 Spotify Wrapped shows up once a year and covers part of it. Your account's "top" lists only look back a few months. Vinylytics keeps everything you play, adds your full Extended Streaming History, and turns it into something worth looking at:
 
 - **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a numbered record sleeve: *Saint Juniper era, May to November, 98 hours*.
-- **Made to be shared.** One tap on Share gives a finished card. Customise it if you want: eight inks, five levels of detail, post or story size.
+- **Made to be shared.** One tap on Share gives a finished card. Customise it if you want: eight visuals, eight inks, five levels of detail, post or story size.
 - **Your server, your data.** One owner per installation. The raw play log never leaves your database, and a public page only exists if you switch it on.
 
 ## Features
@@ -94,7 +94,7 @@ Also in the box: **resumable import** of Spotify's Extended Streaming History (i
   </tr>
 </table>
 
-Cards exist for eras, top charts, single artists, songs and albums, and the year recap. They render as 1080 × 1350 posts or 1080 × 1920 stories. Where the browser supports it, Share opens the native share sheet. Otherwise you save a PNG.
+Cards exist for eras, top charts, single artists, songs and albums, and the year recap. Each carries one visual drawn from its own data: a record sliding out of its sleeve, grooves cut from your weekly listening, a turntable, a record label, a stack of sleeves, a shop sticker with a listening barcode, a waveform or a dot calendar. They render as 1080 × 1350 posts or 1080 × 1920 stories. Where the browser supports it, Share opens the native share sheet. Otherwise you save a PNG.
 
 <p align="center"><img src="docs/screenshots/composer.png" alt="The card composer with format, ink, density and field options" width="85%"></p>
 

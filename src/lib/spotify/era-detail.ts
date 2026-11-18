@@ -14,6 +14,8 @@ export type EraDetail = {
   /** The era's 12 most-streamed tracks. */
   tracks: EraTrack[];
   topDay: { day: string; minutes: number };
+  /** Minutes per 7-day stretch from the era's first day; shapes the share card. */
+  weekly: number[];
 };
 
 const STREAM = sql`ms_played >= 30000`;
@@ -42,17 +44,27 @@ export async function eraDetail(id: string): Promise<EraDetail | null> {
     d.execute(sql`
       SELECT to_char((${local()})::date, 'YYYY-MM-DD') AS day, (sum(ms_played) / 60000.0)::float AS minutes
       FROM plays WHERE kind = 'track' AND ${inEra}
-      GROUP BY 1 ORDER BY minutes DESC, day LIMIT 1`),
+      GROUP BY 1 ORDER BY day`),
   ]);
 
+  const byDay = rowsOf<{ day: string; minutes: number }>(days);
+  const weekly = Array<number>(Math.max(1, era.weeks)).fill(0);
+  const start = Date.parse(`${era.start}T00:00:00Z`);
+  for (const d of byDay) {
+    const w = Math.floor((Date.parse(`${d.day}T00:00:00Z`) - start) / (7 * 86_400_000));
+    if (w >= 0 && w < weekly.length) weekly[w] += d.minutes;
+  }
+  // Ties go to the earliest day, as the old ORDER BY minutes DESC, day did.
+  const topDay = byDay.reduce<{ day: string; minutes: number } | null>((best, d) => (!best || d.minutes > best.minutes ? d : best), null);
   return {
     era,
     next: eras[i + 1] ?? null,
     tracks: rowsOf<EraTrack>(tracks),
-    topDay: rowsOf<{ day: string; minutes: number }>(days)[0] ?? { day: era.start, minutes: 0 },
+    topDay: topDay ?? { day: era.start, minutes: 0 },
+    weekly,
   };
 }
 
 export function getEraDetail(id: string): Promise<EraDetail | null> {
-  return unstable_cache(() => eraDetail(id), ["era", id, timezone()], { tags: ["spotify"] })();
+  return unstable_cache(() => eraDetail(id), ["era", "v2-weekly", id, timezone()], { tags: ["spotify"] })();
 }
