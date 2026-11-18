@@ -57,7 +57,7 @@ describe("GET /api/card/era/[id]", () => {
   it("omits hidden facts consistently regardless of the preset", async () => {
     const bytes = async (query: string) => Buffer.from(await (await call("2026-01-05", "post&" + query)).arrayBuffer());
     const minimal = await bytes("density=minimal");
-    expect(await bytes("density=maximal&fields=period")).toEqual(minimal);
+    expect(await bytes("density=maximal&fields=cover")).toEqual(minimal);
     expect((await bytes("density=maximal&fields=period,stat,rows")).equals(minimal)).toBe(false);
   });
 
