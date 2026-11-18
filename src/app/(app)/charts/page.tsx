@@ -8,6 +8,8 @@ import { Genres } from "@/components/music/genres";
 import { KindSplit } from "@/components/music/kind-split";
 import { MinutesChart } from "@/components/music/minutes-chart";
 import { RangeSelect } from "@/components/music/range-select";
+import { SentenceFilter } from "@/components/music/sentence-filter";
+import { chartSentence } from "@/lib/spotify/chart-sentence";
 import { SpotifyAttribution } from "@/components/music/attribution";
 import { Cover } from "@/components/sleeve/cover";
 import { Tilt } from "@/components/motion/tilt";
@@ -25,6 +27,7 @@ const kinds = [{value:"artist",label:"Artists"}, {value:"track",label:"Songs"}, 
 const views = [{value:"grid",label:"Grid"}, {value:"list",label:"List"}];
 const sorts = [{value:"time",label:"Minutes"}, {value:"plays",label:"Plays"}];
 const ranges = [...CHART_RANGES, {value:"custom",label:"Custom"}];
+const rangeWord = (v:string) => ({"4w":"last 4 weeks","6m":"last 6 months","1y":"last year",all:"all time"} as Record<string,string>)[v] ?? v;
 
 export default async function ChartsPage({searchParams}: {searchParams: Promise<Record<string,string | string[] | undefined>>}) {
   const query = pageQuery(await searchParams, ["range","from","to","sort","kind","view"]);
@@ -41,27 +44,22 @@ export default async function ChartsPage({searchParams}: {searchParams: Promise<
   };
   const items = valid ? await topItems({kind,sort,from:window?.from ?? null,to:window?.to ?? null,limit:20}) : [];
   const title = `Top ${kinds.find(k => k.value === kind)?.label.toLowerCase()}`;
+  const sentence = chartSentence({kind,range,sort,from,to});
   return <>
     <PageHeader title="Charts" description="Your record collection, ranked." actions={<SpotifyAttribution/>}/>
-    <div className="flex flex-wrap items-end justify-between gap-4 border-y border-rule py-3">
-      <div className="grid gap-1"><span className="text-xs text-muted-text">Ranking</span><RangeSelect label="Chart type" options={kinds} value={kind} href={v=>href("kind",v)}/></div>
-      <div className="grid gap-1"><span className="text-xs text-muted-text">Period</span><RangeSelect label="Date range" options={ranges} value={range} href={v=>href("range",v)}/></div>
-      <div className="grid gap-1"><span className="text-xs text-muted-text">Rank by</span><RangeSelect label="Rank by" options={sorts} value={sort} href={v=>href("sort",v)}/></div>
-    </div>
-    {range === "custom" && <form action="/charts" className="my-4 flex flex-wrap items-end gap-3 text-sm">
-      {Object.entries({range,kind,sort,view}).map(([k,v])=><input key={k} type="hidden" name={k} value={v}/>)}
-      {([["from",from],["to",to]] as const).map(([name,value])=><label key={name} className="grid gap-1 capitalize">{name}
-        <input required type="date" name={name} max={localDateKey()} defaultValue={value} className="h-11 border border-strong bg-ground px-2"/>
-      </label>)}
-      <button className="h-11 bg-text px-4 font-semibold text-ground">Apply dates</button>
-    </form>}
-    {!valid && <p role="alert" className="py-4 text-sm">Choose a valid start and end date through today. The end date must follow or match the start.</p>}
+    {/* Lowercase words read as a sentence; "last" makes presets read naturally. */}
+    <SentenceFilter max={localDateKey()}
+      kind={{name:"Chart type", value:kind, label:kinds.find(k=>k.value===kind)!.label.toLowerCase(), options:kinds.map(k=>({value:k.value,label:k.label.toLowerCase(),href:href("kind",k.value)}))}}
+      range={{name:"Date range", value:range, label:range === "custom" ? sentence.replace(/^Top \w+ from (.*) by \w+$/,"$1") : rangeWord(range), options:ranges.filter(r=>r.value!=="custom").map(r=>({value:r.value,label:rangeWord(r.value),href:href("range",r.value)}))}}
+      sort={{name:"Rank by", value:sort, label:sorts.find(o=>o.value===sort)!.label.toLowerCase(), options:sorts.map(o=>({value:o.value,label:o.label.toLowerCase(),href:href("sort",o.value)}))}}
+      custom={{from, to, hidden:{kind, sort, view}}}/>
+    {!valid && <p role="alert" className="py-4 text-sm">Choose a valid start and end date through today. The end date must follow or match the start. <Link href={href("range","4w")} className="font-semibold underline">Reset to the last 4 weeks</Link></p>}
     <section className="mt-7">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="display text-3xl">{title}</h2>
         <div className="flex flex-wrap items-center gap-2">
           <RangeSelect label="Layout" options={views} value={view} href={v=>href("view",v)}/>
-          {items.length > 0 && <ShareButton href={`/api/card/top?${filter}&view=${view}`} filename={`vinylytics-${kind}-${range}.png`} title={title}
+          {items.length > 0 && <ShareButton href={`/api/card/top?${filter}&view=${view}`} filename={`vinylytics-${kind}-${range}.png`} title={title} scope={sentence}
             preview={{ cover: "Number one artwork", period: range === "custom" ? `${from} – ${to}` : ranges.find(r => r.value === range)?.label, lead: items[0].name, stat: sort === "time" ? `${Math.round(items[0].minutes).toLocaleString("en-GB")} min at no. 1` : `${items[0].streams.toLocaleString("en-GB")} plays at no. 1`, rows: "Top five" }}/>}
         </div>
       </div>

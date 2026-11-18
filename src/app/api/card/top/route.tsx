@@ -4,7 +4,7 @@ import { isOwner } from "@/lib/owner";
 import { publicAllows } from "@/lib/public";
 import { parseChartFilters } from "@/lib/spotify/chart-filters";
 import { cachedTop, topItems } from "@/lib/spotify/charts";
-import { CHART_RANGES } from "@/lib/spotify/data";
+import { chartSentence } from "@/lib/spotify/chart-sentence";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
   const top5 = items.slice(0, 5);
   return renderCard(req, {
     kind: "top", ink: "cobalt", edition: "RANKING  /  TOP FIVE",
-    title: `Top ${noun}`, period: range === "custom" ? `${filters.from} – ${filters.to}` : CHART_RANGES.find((r) => r.value === range)!.label,
+    title: `Top ${noun}`, period: chartSentence({ kind, range, sort, from: filters.from, to: filters.to }).replace(/^Top \w+ /, ""),
     lead: named(items[0]), cover: items[0].cover, stat: `${value(items[0])} ${units} at number one`,
     ranked: true, series: top5.map(value), covers, badge: value(items[0]).toLocaleString("en-GB"),
     caption: `${sort === "plays" ? "PLAYS" : "MINUTES"} AT NO. 1`, rows: top5.map((item) => ({
