@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { firstListeningYear, getRecap, recapDates, recapInsights } from "@/lib/spotify/recap";
 import { getRecapExtras } from "@/lib/spotify/recap-extras";
 import { Bento } from "@/components/recap/bento";
+import { Story } from "@/components/recap/story";
+import { recapSlides } from "@/lib/spotify/recap-slides";
 import { listeningDays } from "@/lib/spotify/history";
 import { localDateKey } from "@/lib/time";
 
@@ -50,7 +52,11 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
 }
 
 async function Extras({year,recap}:{year:number;recap:Awaited<ReturnType<typeof getRecap>>}) {
-  return <Bento year={year} recap={recap} extras={await getRecapExtras(year)}/>;
+  const extras = await getRecapExtras(year);
+  return <>
+    <div className="mb-5"><Story year={year} slides={recapSlides(recap, extras)}/></div>
+    <Bento year={year} recap={recap} extras={extras}/>
+  </>;
 }
 
 async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:number;streakPage:number}) {

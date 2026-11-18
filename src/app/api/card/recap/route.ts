@@ -1,6 +1,8 @@
 import { renderCard } from "@/lib/card";
 import { isOwner } from "@/lib/owner";
 import { getRecap } from "@/lib/spotify/recap";
+import { getRecapExtras } from "@/lib/spotify/recap-extras";
+import { recapSlides } from "@/lib/spotify/recap-slides";
 import { localDateKey } from "@/lib/time";
 
 export const runtime = "nodejs";
@@ -13,6 +15,19 @@ export async function GET(req: Request) {
   if (!Number.isInteger(year) || year < 2008 || year > Number(localDateKey().slice(0, 4))) return missing();
   const recap = await getRecap(year);
   if (!recap.minutes && !recap.plays) return missing();
+  const slideId = new URL(req.url).searchParams.get("slide");
+  if (slideId) {
+    const slide = recapSlides(recap, await getRecapExtras(year)).find((sl) => sl.id === slideId);
+    if (!slide) return missing();
+    // A slide is a story by default; an explicit format still wins.
+    const url = new URL(req.url);
+    if (!url.searchParams.has("format")) url.searchParams.set("format", "story");
+    return renderCard(new Request(url), {
+      kind: "recap", ink: slide.ink, edition: `${year}  /  RECAP`, title: slide.headline, period: String(year),
+      lead: slide.kicker, cover: recap.artist?.imageUrl ?? null, stat: slide.detail,
+      series: recap.days.map((d) => d.minutes), badge: String(year), caption: "MY YEAR",
+    });
+  }
   const rows = [{ label: "Days listening", value: String(recap.activeDays) }];
   if (recap.track) rows.push({ label: "Favourite song", value: recap.track.name });
   if (recap.peakHour != null) rows.push({ label: "Peak listening hour", value: `${String(recap.peakHour).padStart(2, "0")}:00` });

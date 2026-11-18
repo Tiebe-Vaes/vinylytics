@@ -13,7 +13,12 @@ const GHOST_MINUTES = 300;
 const GHOST_DAYS = 90;
 
 /** All-time favourites, ranked by minutes like the Charts. */
-export async function goat(d: Db) {
+export type Goat = {
+  artist: { name: string; minutes: number } | null;
+  track: { uri: string; name: string; artist: string; minutes: number } | null;
+};
+
+export async function goat(d: Db): Promise<Goat> {
   const [artist] = await rows<{ name: string; minutes: number }>(d, sql`
     SELECT artist_name AS name, round(sum(ms_played) / 60000.0)::int AS minutes FROM plays
     WHERE kind = 'track' AND artist_name IS NOT NULL GROUP BY artist_name ORDER BY sum(ms_played) DESC, artist_name LIMIT 1`);
