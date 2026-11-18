@@ -8,7 +8,11 @@ import type { InkId } from "@/lib/ink";
 
 const CardComposer = dynamic(() => import("./card-composer"));
 
-export type ShareButtonProps = { href: string; filename: string; label?: string; title?: string; defaultInk?: InkId };
+export type ShareButtonProps = {
+  href: string; filename: string; label?: string; title?: string; defaultInk?: InkId;
+  /** What produced the card, e.g. "Top artists · Last 4 weeks · Minutes"; shown under the preview. */
+  scope?: string;
+};
 
 export function ShareButton(props: ShareButtonProps) {
   const [open, setOpen] = useState(false);
