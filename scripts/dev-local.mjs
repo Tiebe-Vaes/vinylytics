@@ -24,7 +24,11 @@ const dir = path.join(root, ".data", empty ? "pglite-empty" : "pglite");
 const snapshotFile = path.join(root, ".data", empty ? "schema-empty.json" : "schema.json");
 const args = process.argv.slice(2);
 const port = args.find((a) => /^\d+$/.test(a)) || "3000";
-if (args.includes("--reset")) rmSync(path.join(root, ".data"), { recursive: true, force: true });
+if (args.includes("--reset")) {
+  rmSync(path.join(root, ".data"), { recursive: true, force: true });
+  // Next's data cache survives restarts and would keep serving the wiped db's results.
+  rmSync(path.join(root, ".next", "dev", "cache", "fetch-cache"), { recursive: true, force: true });
+}
 mkdirSync(path.dirname(dir), { recursive: true });
 
 const client = new PGlite(dir);

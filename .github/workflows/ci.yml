@@ -14,7 +14,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
+      # Route types (PageProps, LayoutProps) live in git-ignored .next/types.
+      - run: npm run typecheck
       - run: npx eslint src
       - run: npx vitest run
       # No DATABASE_URL: the build must work before anyone has a database.
