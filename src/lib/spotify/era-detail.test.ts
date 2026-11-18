@@ -49,6 +49,23 @@ describe("eraDetail", () => {
     expect(detail!.topDay.minutes).toBe(120);
   });
 
+  it("writes liner notes: the first song, the closer and the peak week", async () => {
+    // The closer: the song most played in the era's last 7 days.
+    await d.insert(schema.plays).values(Array.from({ length: 5 }, (_, k) => play("2026-02-02", "A", "a5", 4, 40 + k)));
+    const detail = await eraDetail("2026-01-05");
+    expect(detail!.firstTrack?.uri).toBe("a0");
+    expect(detail!.closer?.uri).toBe("a5");
+    expect(detail!.peakWeek).toEqual({ index: 4, minutes: 140 });
+  });
+
+  it("splits the top eight into Side A and Side B, A taking the odd one", async () => {
+    const a = await eraDetail("2026-01-05");
+    expect([a!.sides.a.length, a!.sides.b.length]).toEqual([4, 4]);
+    const b = await eraDetail("2026-02-09");
+    expect([b!.sides.a.length, b!.sides.b.length]).toEqual([2, 1]);
+    expect(b!.sides.a[0].uri).toBe(b!.tracks[0].uri);
+  });
+
   it("returns null for an unknown era", async () => {
     expect(await eraDetail("1999-01-04")).toBeNull();
   });
