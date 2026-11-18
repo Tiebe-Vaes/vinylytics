@@ -3,10 +3,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, Download, Share, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CARD_SIZES, DENSITIES, FIELDS, FIELD_LABELS, VISUALS, VISUAL_LABELS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
+import { CARD_SIZES, DENSITIES, FIELDS, FIELD_LABELS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
 import { INKS, inkName, inkText } from "@/lib/ink";
 import { cn } from "@/lib/utils";
 import type { ShareButtonProps } from "./share-button";
+import { VisualTiles } from "./visual-tiles";
 
 type Rendered = { src: string; objectUrl: string; file: File | null; canShare: boolean };
 const choice = "min-h-11 border border-strong px-3 text-sm font-semibold capitalize aria-pressed:bg-text aria-pressed:text-ground";
@@ -138,10 +139,9 @@ export default function CardComposer({ href, filename, title = "Share card", def
         </div>
         {customise && (
           <div className="mt-5 grid gap-4 border-t border-rule pt-4 md:mt-0 md:border-t-0 md:pt-0">
-            <fieldset><legend className="mb-2 font-semibold">Visual</legend><div className="flex flex-wrap gap-1">
-              {VISUALS.map((visual) => <button key={visual} className={choice.replace(" capitalize", "")} aria-pressed={options.visual === visual}
-                onClick={() => setOptions({ ...options, visual })}>{VISUAL_LABELS[visual]}</button>)}
-            </div></fieldset>
+            <div className="min-w-0"><p className="mb-2 font-semibold">Visual</p>
+              <VisualTiles value={options.visual} ink={options.ink} onChange={(visual) => setOptions({ ...options, visual })} />
+            </div>
             <fieldset><legend className="mb-2 font-semibold">Format</legend><div className="flex gap-1">
               {(["post", "story"] as CardFormat[]).map((format) => <button key={format} className={choice} aria-pressed={options.format === format}
                 onClick={() => setOptions({ ...options, format })}>{format}</button>)}
