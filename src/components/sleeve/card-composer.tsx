@@ -3,16 +3,18 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, Download, Share, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CARD_SIZES, DENSITIES, FIELDS, FIELD_LABELS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
+import { CARD_SIZES, FIELDS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
 import { INKS, inkName, inkText } from "@/lib/ink";
 import { cn } from "@/lib/utils";
 import type { ShareButtonProps } from "./share-button";
 import { VisualTiles } from "./visual-tiles";
+import { DensitySlider } from "./density-slider";
+import { FieldToggles } from "./field-toggles";
 
 type Rendered = { src: string; objectUrl: string; file: File | null; canShare: boolean };
 const choice = "min-h-11 border border-strong px-3 text-sm font-semibold capitalize aria-pressed:bg-text aria-pressed:text-ground";
 
-export default function CardComposer({ href, filename, title = "Share card", defaultInk = "cobalt", scope, onClose }: ShareButtonProps & { onClose: () => void }) {
+export default function CardComposer({ href, filename, title = "Share card", defaultInk = "cobalt", scope, preview, onClose }: ShareButtonProps & { onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const headingId = useId();
   const base = new URL(href, "https://vinylytics.invalid");
@@ -93,16 +95,20 @@ export default function CardComposer({ href, filename, title = "Share card", def
     onClose();
   }
 
-  function setOptions(next: typeof options) {
-    if (next.visual === options.visual && next.ink === options.ink && next.format === options.format && next.density === options.density &&
-        next.fields.join(",") === options.fields.join(",")) return;
+  // Patches apply to the latest options, so quick taps in one frame all land.
+  function setOptions(patch: (o: typeof options) => Partial<typeof options>) {
     setFailed(null);
     setShareError(false);
-    updateOptions(next);
+    updateOptions((o) => {
+      const next = { ...o, ...patch(o) };
+      const same = next.visual === o.visual && next.ink === o.ink && next.format === o.format && next.density === o.density &&
+        next.fields.join(",") === o.fields.join(",");
+      return same ? o : next;
+    });
   }
 
   function setDensity(density: Density) {
-    setOptions({ ...options, density, fields: presetFields(kind, density) });
+    setOptions(() => ({ density, fields: presetFields(kind, density) }));
   }
   const size = CARD_SIZES[options.format];
   const error = failed === src && !ready;
@@ -140,27 +146,21 @@ export default function CardComposer({ href, filename, title = "Share card", def
         {customise && (
           <div className="mt-5 grid gap-4 border-t border-rule pt-4 md:mt-0 md:border-t-0 md:pt-0">
             <div className="min-w-0"><p className="mb-2 font-semibold">Visual</p>
-              <VisualTiles value={options.visual} ink={options.ink} onChange={(visual) => setOptions({ ...options, visual })} />
+              <VisualTiles value={options.visual} ink={options.ink} onChange={(visual) => setOptions(() => ({ visual }))} />
             </div>
             <fieldset><legend className="mb-2 font-semibold">Format</legend><div className="flex gap-1">
               {(["post", "story"] as CardFormat[]).map((format) => <button key={format} className={choice} aria-pressed={options.format === format}
-                onClick={() => setOptions({ ...options, format })}>{format}</button>)}
+                onClick={() => setOptions(() => ({ format }))}>{format}</button>)}
             </div></fieldset>
             <fieldset><legend className="mb-2 font-semibold">Ink · {inkName(options.ink)}</legend><div className="grid grid-cols-4 gap-2">
               {INKS.map((ink) => <button key={ink.id} aria-label={inkName(ink.id)} title={inkName(ink.id)} aria-pressed={options.ink === ink.id}
-                onClick={() => setOptions({ ...options, ink: ink.id })} className="grid min-h-11 place-items-center border border-white/25"
+                onClick={() => setOptions(() => ({ ink: ink.id }))} className="grid min-h-11 place-items-center border border-white/25"
                 style={{ background: ink.hex, color: inkText(ink.hex) }}>{options.ink === ink.id && <Check size={20} aria-hidden="true" />}</button>)}
             </div></fieldset>
-            <fieldset><legend className="mb-2 font-semibold">Density</legend><div className="flex flex-wrap gap-1">
-              {DENSITIES.map((density) => <button key={density} className={choice} aria-pressed={options.density === density} onClick={() => setDensity(density)}>{density}</button>)}
-            </div></fieldset>
-            <fieldset><legend className="mb-1 font-semibold">Include on card</legend>
-              {FIELDS.map((f) => <label key={f} className="flex min-h-11 cursor-pointer items-center gap-3 border-t border-rule text-sm">
-                <input type="checkbox" className="size-4" checked={options.fields.includes(f)} onChange={(e) => setOptions({
-                  ...options, fields: e.target.checked ? [...options.fields, f] : options.fields.filter((v) => v !== f),
-                })} />{FIELD_LABELS[kind][f]}
-              </label>)}
-            </fieldset>
+            <DensitySlider value={options.density} onChange={setDensity}
+              custom={presetFields(kind, options.density).join(",") !== options.fields.join(",")} />
+            <FieldToggles kind={kind} fields={options.fields} preview={preview} ink={options.ink}
+              onToggle={(f) => setOptions((o) => ({ fields: FIELDS.filter((v) => (v === f) !== o.fields.includes(v)) }))} />
           </div>
         )}
       </div>

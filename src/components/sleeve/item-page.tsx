@@ -48,7 +48,8 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
         </div>
       </header>
 
-      <div><ShareButton href={`/api/card/item?${new URLSearchParams({kind:refOf.kind,key:refOf.kind === "artist" ? refOf.name : refOf.kind === "track" ? refOf.uri : refOf.albumId})}`} filename={`vinylytics-${refOf.kind}.png`} title={meta.title} defaultInk={hashInk(inkSeed)}/></div>
+      <div><ShareButton href={`/api/card/item?${new URLSearchParams({kind:refOf.kind,key:refOf.kind === "artist" ? refOf.name : refOf.kind === "track" ? refOf.uri : refOf.albumId})}`} filename={`vinylytics-${refOf.kind}.png`} title={meta.title} defaultInk={hashInk(inkSeed)}
+        preview={{ cover: "Artwork", period: "All time", lead: meta.subtitle, stat: `${Math.round(stats.minutes).toLocaleString("en-GB")} minutes`, rows: "Plays, rank, peak week" }}/></div>
 
       <p className="max-w-prose text-lg leading-snug text-balance">
         {roastItem({ name: meta.title, streams: stats.streams, peakWeekMinutes: stats.peakWeek?.minutes ?? 0, weeksPlayed: stats.weekly.length })}

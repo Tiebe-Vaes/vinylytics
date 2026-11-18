@@ -36,7 +36,8 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
           <h1 className="display my-4 text-5xl md:text-7xl">{era.name}</h1>
           <p className="text-lg text-muted-text">{era.lead} led these {era.weeks} weeks on repeat.</p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <ShareButton href={`/api/card/era/${era.id}`} filename={`vinylytics-${era.id}.png`} title={era.name} defaultInk={era.ink} />
+            <ShareButton href={`/api/card/era/${era.id}`} filename={`vinylytics-${era.id}.png`} title={era.name} defaultInk={era.ink}
+              preview={{ cover: "Era artwork", period: eraSpan(era), lead: era.lead, stat: `${Math.round(era.minutes).toLocaleString("en-GB")} minutes`, rows: "Top songs" }} />
             <a href="#edit-era" className="inline-flex min-h-11 items-center gap-2 border border-strong px-3 text-sm font-semibold hover:bg-raised">
               <Pencil size={16} aria-hidden="true" />Edit this era
             </a>

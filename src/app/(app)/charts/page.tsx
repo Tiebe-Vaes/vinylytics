@@ -60,7 +60,8 @@ export default async function ChartsPage({searchParams}: {searchParams: Promise<
         <h2 className="display text-3xl">{title}</h2>
         <div className="flex flex-wrap items-center gap-2">
           <RangeSelect label="Layout" options={views} value={view} href={v=>href("view",v)}/>
-          {items.length > 0 && <ShareButton href={`/api/card/top?${filter}&view=${view}`} filename={`vinylytics-${kind}-${range}.png`} title={title}/>}
+          {items.length > 0 && <ShareButton href={`/api/card/top?${filter}&view=${view}`} filename={`vinylytics-${kind}-${range}.png`} title={title}
+            preview={{ cover: "Number one artwork", period: range === "custom" ? `${from} – ${to}` : ranges.find(r => r.value === range)?.label, lead: items[0].name, stat: sort === "time" ? `${Math.round(items[0].minutes).toLocaleString("en-GB")} min at no. 1` : `${items[0].streams.toLocaleString("en-GB")} plays at no. 1`, rows: "Top five" }}/>}
         </div>
       </div>
       {valid && !items.length && <Empty>No {title.toLowerCase().replace("top ","")} in this period.{kind === "album" ? " Albums appear as Spotify metadata arrives." : " Try a wider date range."}</Empty>}

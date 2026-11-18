@@ -5,6 +5,7 @@ import { SpotifyAttribution } from "@/components/music/attribution";
 import { Panel } from "@/components/panel";
 import { Cover } from "@/components/sleeve/cover";
 import { Shelf } from "@/components/sleeve/shelf";
+import { eraSpan } from "@/components/sleeve/sleeve";
 import { roastWeek } from "@/lib/roast";
 import { getEras } from "@/lib/spotify/eras-data";
 import { topArtistsDb } from "@/lib/spotify/queries";
@@ -61,7 +62,8 @@ export default async function ShelfPage() {
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
           <h1 id="shelf-title" className="display text-6xl sm:text-8xl">Your shelf</h1>
           {latestEra && <ShareButton href={`/api/card/era/${latestEra.id}`} filename={`vinylytics-${latestEra.id}.png`}
-            title={latestEra.name} defaultInk={latestEra.ink} label="Share latest era" />}
+            title={latestEra.name} defaultInk={latestEra.ink} label="Share latest era"
+            preview={{ cover: "Era artwork", period: eraSpan(latestEra), lead: latestEra.lead, stat: `${Math.round(latestEra.minutes).toLocaleString("en-GB")} minutes`, rows: "Top songs" }} />}
         </div>
         <Shelf eras={eras} />
       </section>

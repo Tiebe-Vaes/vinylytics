@@ -37,7 +37,8 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
         </label>
         <button className="h-11 border border-strong px-3 text-sm font-semibold hover:bg-muted">Show year</button>
       </form>
-      {recap.plays > 0 && <ShareButton href={`/api/card/recap?year=${year}`} filename={`vinylytics-${year}-recap.png`} title={`${year} recap`} defaultInk="cobalt"/>}
+      {recap.plays > 0 && <ShareButton href={`/api/card/recap?year=${year}`} filename={`vinylytics-${year}-recap.png`} title={`${year} recap`} defaultInk="cobalt"
+        preview={{ cover: "Artist artwork", period: String(year), lead: recap.artist?.name, stat: `${number(recap.minutes)} minutes`, rows: "Year highlights" }}/>}
     </div>
     <section className="grid gap-6 bg-ink-cobalt p-6 text-[#eeebe4] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end md:p-10">
       <div>
