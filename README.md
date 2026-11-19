@@ -9,13 +9,18 @@
 
 <p align="center">
   Every phase you went through becomes a record sleeve. Every sleeve becomes a card you can send.<br>
-  Self-hosted, single-owner, and your listening data stays yours.
+  Runs in your browser with nothing to install, or self-hosted with live sync. Your listening data stays yours.
+</p>
+
+<p align="center">
+  <a href="https://vinylytics-fm.vercel.app/get-started"><b>Try it in your browser →</b></a>
 </p>
 
 <p align="center">
   <a href="#see-it-in-action">Tour</a> ·
   <a href="#features">Features</a> ·
   <a href="#choose-your-path">Get started</a> ·
+  <a href="#in-your-browser">In your browser</a> ·
   <a href="#set-up-a-live-copy">Self-host</a> ·
   <a href="#privacy">Privacy</a> ·
   <a href="#develop">Develop</a>
@@ -26,6 +31,7 @@
   <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1f4fd8?style=flat-square&labelColor=0f0f10"></a>
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-eeebe4?style=flat-square&logo=nextdotjs&logoColor=eeebe4&labelColor=0f0f10&color=2a2826">
   <img alt="Postgres" src="https://img.shields.io/badge/Postgres-Neon%20%7C%20Docker-127450?style=flat-square&logo=postgresql&logoColor=eeebe4&labelColor=0f0f10">
+  <img alt="Runs in the browser" src="https://img.shields.io/badge/browser-no%20install-d9a21b?style=flat-square&labelColor=0f0f10">
   <img alt="Self-hosted" src="https://img.shields.io/badge/self--hosted-yes-d9a21b?style=flat-square&labelColor=0f0f10">
 </p>
 
@@ -43,9 +49,9 @@
 
 Spotify Wrapped shows up once a year and covers part of it. Your account's "top" lists only look back a few months. Vinylytics keeps everything you play, adds your full Extended Streaming History, and turns it into something worth looking at:
 
-- **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a record sleeve coloured from its cover: *Saint Juniper era, May to November, 98 hours*.
+- **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a record sleeve coloured from its cover: *Stromae era, September 2025 to November 2026, 477 hours*.
 - **Made to be shared.** One tap on Share gives a clean card: the art, the name and a link back here. Customise it if you want: ten visuals, 64 inks, a detail slider, post or story size.
-- **Your server, your data.** One owner per installation. The raw play log never leaves your database, and a public page only exists if you switch it on.
+- **Your browser or your server, your data.** In the browser your history never leaves the tab. Self-hosted, there is one owner per installation, the raw play log stays in your database, and a public page only exists if you switch it on.
 
 ## Features
 
@@ -114,10 +120,25 @@ The same app at every size, with a tab bar on phones.
 
 | You want | Path | Needs |
 |---|---|---|
-| To see your history and recap, maybe share a card | [Recap on your computer](#recap-on-your-computer) | Node.js and your Spotify export. No Spotify app, secrets or hosting. |
+| To try it now, nothing to install | [In your browser](#in-your-browser) | A browser and your Spotify export. |
+| To see your history and recap on your own computer, maybe share a card | [Recap on your computer](#recap-on-your-computer) | Node.js and your Spotify export. No Spotify app, secrets or hosting. |
 | New plays added automatically, reachable from your phone | [Set up a live copy](#set-up-a-live-copy) | A Spotify developer app (Premium) and Docker or Vercel with Neon. |
 
-You can start with the recap and set up a live copy later.
+You can start in the browser and set up a live copy later.
+
+## In your browser
+
+Open **[vinylytics-fm.vercel.app/get-started](https://vinylytics-fm.vercel.app/get-started)** and drop in your Spotify export. That's it: no account, no install, no server.
+
+1. Request **Extended streaming history** in your Spotify account's privacy settings, then confirm the email Spotify sends. The ZIP can take up to 30 days; the get-started page can add two calendar reminders.
+2. Drop the ZIP on the get-started page. Vinylytics opens and imports it straight away.
+
+Everything runs in the tab. A copy of Postgres ([PGlite](https://pglite.dev)) stores your plays in this browser's IndexedDB, the same queries as the server version build your eras, charts, recap and history, and share cards are drawn on your device. Nothing is uploaded.
+
+- **The first visit takes a few seconds** while the database engine loads. After that it opens from the browser cache.
+- **Back up your history** in **Settings → Save backup**. Clearing this site's data in your browser deletes it. **Restore backup** brings it back, also on another device; **Delete my data** removes it.
+- **Add a newer export any time.** Plays you already have are skipped.
+- **What the self-hosted version adds:** live sync every 30 minutes, cover art and genre tags, a public page and the weather comparison. The browser version shows only what is in your export.
 
 ## Recap on your computer
 
@@ -234,6 +255,7 @@ Copy this into an agent that has access to your repository:
 
 ## Privacy
 
+- **In the browser, nothing leaves the tab.** The browser version has no server: your export is read and stored on your device, and share cards are drawn there too.
 - **One owner.** Only one Spotify account can sign in: the one in `OWNER_SPOTIFY_ID`, or else the first account that signs in. Everyone runs their own copy with their own database.
 - **Your export is cleaned on your device.** The browser reads the ZIP and uploads only what statistics need: when you played, for how long, the track, artist and album, and how it started, ended, skipped or shuffled. IP address, country and device never leave your machine.
 - **Private by default.** The public page at `/u` is off until you switch it on, and you choose which sections it shows. The play log is never public.
@@ -246,6 +268,8 @@ flowchart LR
   A[Spotify export ZIP] -->|parsed in your browser| B[Import queue<br/>IndexedDB]
   B -->|batches, resumable| D[(Postgres)]
   C[Spotify recently played] -->|sync every 30 min| D
+  A -->|browser version| P[(PGlite<br/>in the tab)]
+  P --> F
   D --> E[Eras<br/>weekly leading artist]
   D --> F[Charts · Recap · History]
   E --> G[Share cards<br/>PNG]
@@ -254,7 +278,8 @@ flowchart LR
 
 - **Eras.** For each week the artist with the most minutes leads. Three or more weeks with the same leader form an era. Quiet weeks under 30 minutes don't break a run, and four silent weeks in a row end one. Only your renames and merges are stored; the eras themselves are recalculated from your plays.
 - **No double counting.** A synced play and the same play in your export, within a minute of each other, merge into one. Import batches carry a server cursor, so a retried batch never adds plays twice.
-- **Built with** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, Recharts, Drizzle ORM on Postgres (PGlite for local mode and tests), `next/og` and sharp for cards, fflate for streaming the export, and Vitest.
+- **One codebase, two builds.** `npm run build:browser` makes a static export served at `/app`. It reuses the server pages and queries as they are: only `*.browser.tsx` route files are part of it, and module aliases swap Postgres for PGlite, server actions for local writes and `next/og` for satori + resvg-wasm. The showcase site ([vinylytics-site](https://github.com/Tiebe-Vaes/vinylytics-site)) builds it on every deploy.
+- **Built with** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, Recharts, Drizzle ORM on Postgres (PGlite in the browser version, local mode and tests), `next/og` and sharp for cards on the server, satori and resvg-wasm in the browser, fflate for streaming the export, and Vitest.
 
 ## Develop
 
@@ -271,6 +296,8 @@ Local demo mode uses a separate database with synthetic plays. Use `npm run type
 | `npm run local` | Your own history on this computer: separate database, no seed, no sign-in. |
 | `npm run typecheck` | Generates Next's route types, then runs TypeScript. |
 | `npm test` | Vitest, with an in-memory Postgres for database tests. |
+| `npm run build:browser` | The browser-only build, a static export in `out-browser/` served at `/app`. `npm run dev:browser` runs it in dev mode. |
+| `node scripts/sample-export.mjs <dir>` | Writes a realistic Spotify export for one invented listener, built from real artists and songs, to test the import. |
 
 Issues and pull requests are welcome. CI runs typecheck, lint, tests and a production build on every push.
 
