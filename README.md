@@ -43,8 +43,8 @@
 
 Spotify Wrapped shows up once a year and covers part of it. Your account's "top" lists only look back a few months. Vinylytics keeps everything you play, adds your full Extended Streaming History, and turns it into something worth looking at:
 
-- **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a numbered record sleeve: *Saint Juniper era, May to November, 98 hours*.
-- **Made to be shared.** One tap on Share gives a finished card. Customise it if you want: eight visuals, eight inks, five levels of detail, post or story size.
+- **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a record sleeve coloured from its cover: *Saint Juniper era, May to November, 98 hours*.
+- **Made to be shared.** One tap on Share gives a clean card: the art, the name and a link back here. Customise it if you want: ten visuals, 64 inks, a detail slider, post or story size.
 - **Your server, your data.** One owner per installation. The raw play log never leaves your database, and a public page only exists if you switch it on.
 
 ## Features
@@ -57,23 +57,23 @@ Spotify Wrapped shows up once a year and covers part of it. Your account's "top"
     </td>
     <td width="50%" valign="top">
       <img src="docs/screenshots/era.png" alt="An era page with tracklist and liner notes"><br>
-      <b>Eras</b> · Tracklist, liner notes, biggest day. Rename an era or merge it with the next one.
+      <b>Eras</b> · A timeline of your eras, then per era a Side A and Side B, liner notes (first song, peak week, the closer, biggest day). Rename an era or merge it with the next one.
     </td>
   </tr>
   <tr>
     <td valign="top">
       <img src="docs/screenshots/charts.png" alt="Charts in grid view"><br>
-      <b>Charts</b> · Top artists, songs and albums for 4 weeks, 6 months, a year, all time or your own dates. Rank by minutes or plays, grid or list.
+      <b>Charts</b> · Read like a sentence: <i>Top artists of the last 4 weeks by minutes</i>. Tap any word to change it, including your own dates. Grid or list.
     </td>
     <td valign="top">
       <img src="docs/screenshots/recap.png" alt="The year recap"><br>
-      <b>Recap</b> · A year in music: minutes, days listening, streaks, peak hour, repeat share, most-skipped and a daily calendar.
+      <b>Recap</b> · Press <i>Play my year</i> for a story to tap through, or read the bento: night owl or early bird, summer vs winter you, your obsession, mood days, crushes and artists you ghosted, monthly number ones, your all-time favourite, turntable maths and a listening fingerprint.
     </td>
   </tr>
   <tr>
     <td valign="top">
       <img src="docs/screenshots/history.png" alt="History grouped by day"><br>
-      <b>History</b> · Every day with its total, favourite song and favourite artist. The raw play log is one tap away.
+      <b>History</b> · Every day with its total, favourite song and favourite artist. Jump to any date from a calendar or a strip of day bars. The raw play log is one tap away.
     </td>
     <td valign="top">
       <img src="docs/screenshots/artist.png" alt="An artist page"><br>
@@ -82,7 +82,7 @@ Spotify Wrapped shows up once a year and covers part of it. Your account's "top"
   </tr>
 </table>
 
-Also in the box: **resumable import** of Spotify's Extended Streaming History (it keeps going after a reload), **live sync** every 30 minutes, **artwork and genre** backfill, and an **opt-in public page** at `/u`.
+Also in the box: **resumable import** of Spotify's Extended Streaming History (it keeps going after a reload), **live sync** every 30 minutes, **artwork and genre** backfill, an **opt-in public page** at `/u`, and an **opt-in weather comparison** (rainy-day you vs sunny-day you).
 
 ### Share cards
 
@@ -94,9 +94,9 @@ Also in the box: **resumable import** of Spotify's Extended Streaming History (i
   </tr>
 </table>
 
-Cards exist for eras, top charts, single artists, songs and albums, and the year recap. Each carries one visual drawn from its own data: a record sliding out of its sleeve, grooves cut from your weekly listening, a turntable, a record label, a stack of sleeves, a shop sticker with a listening barcode, a waveform or a dot calendar. They render as 1080 × 1350 posts or 1080 × 1920 stories. Where the browser supports it, Share opens the native share sheet. Otherwise you save a PNG.
+Cards exist for eras, top charts, single artists, songs and albums, the year recap and every slide of *Play my year*. By default a card shows the art, the name and a small Vinylytics link; dates, totals and lists are yours to switch on. Each carries one visual drawn from its own data: a record sliding out of its sleeve, grooves cut from your weekly listening, a turntable, a record label, a stack of sleeves, a shop sticker with a listening barcode, a waveform, a dot calendar or, for charts in grid view, a mosaic of covers. Pick from 64 inks, with your recent picks kept at hand. They render as 1080 × 1350 posts or 1080 × 1920 stories. Where the browser supports it, Share opens the native share sheet. Otherwise you save a PNG.
 
-<p align="center"><img src="docs/screenshots/composer.png" alt="The card composer with format, ink, density and field options" width="85%"></p>
+<p align="center"><img src="docs/screenshots/composer.png" alt="The card composer with visual, format, ink, detail and field options" width="85%"></p>
 
 ### On your phone
 
@@ -237,7 +237,7 @@ Copy this into an agent that has access to your repository:
 - **One owner.** Only one Spotify account can sign in: the one in `OWNER_SPOTIFY_ID`, or else the first account that signs in. Everyone runs their own copy with their own database.
 - **Your export is cleaned on your device.** The browser reads the ZIP and uploads only what statistics need: when you played, for how long, the track, artist and album, and how it started, ended, skipped or shuffled. IP address, country and device never leave your machine.
 - **Private by default.** The public page at `/u` is off until you switch it on, and you choose which sections it shows. The play log is never public.
-- **No third-party analytics.** The app talks only to Spotify, Spotify's image CDN for covers, and Last.fm if you add a key.
+- **No third-party analytics.** The app talks only to Spotify, Spotify's image CDN for covers, Last.fm if you add a key, and Open-Meteo if you set a city for the weather comparison (only the city name, its coordinates and dates are sent).
 
 ## How it works
 
