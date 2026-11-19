@@ -53,8 +53,10 @@ export function SpotifyImport() {
         <h2 className="mt-5 text-base font-semibold">Drop your Spotify listening history here</h2>
         <p className="mt-2 max-w-md text-sm text-muted-foreground">
           The Extended Streaming History <span className="nums">.zip</span>, or its{" "}
-          <span className="nums">Streaming_History_Audio_*.json</span> files. It is read in your browser; only
-          the plays themselves are uploaded, never your IP, country or device.
+          <span className="nums">Streaming_History_Audio_*.json</span> files. It is read in your browser;{" "}
+          {process.env.NEXT_PUBLIC_BROWSER_MODE
+            ? "nothing leaves it."
+            : "only the plays themselves are uploaded, never your IP, country or device."}
         </p>
         <Button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="mt-6">
           Choose files

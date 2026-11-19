@@ -14,7 +14,7 @@ export function TopBar() {
     <header className="sticky top-0 z-30 border-b border-rule bg-ground">
       <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4">
         <Link href="/" aria-label="Vinylytics shelf" className="flex min-h-11 shrink-0 items-center">
-          <Image src="/brand/vinylytics.svg" width={132} height={36} alt="Vinylytics" className="h-auto w-24 sm:w-32" unoptimized />
+          <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/brand/vinylytics.svg`} width={132} height={36} alt="Vinylytics" className="h-auto w-24 sm:w-32" unoptimized />
         </Link>
         <nav aria-label="Main" className="hidden flex-1 items-center gap-6 md:flex">
           {NAV.map((n) => (

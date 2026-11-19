@@ -5,7 +5,10 @@
  * Validated here so a typo fails with a clear message, not mid-query.
  */
 export function timezone(): string {
-  const tz = process.env.TIMEZONE || "UTC";
+  // The browser build buckets days in the visitor's own zone.
+  const tz = process.env.NEXT_PUBLIC_BROWSER_MODE
+    ? Intl.DateTimeFormat().resolvedOptions().timeZone
+    : process.env.TIMEZONE || "UTC";
   try {
     new Intl.DateTimeFormat("en", { timeZone: tz });
   } catch {

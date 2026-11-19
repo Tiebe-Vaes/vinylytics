@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { clearQueue, readBatch, readJob, saveJob, type ImportJob } from "./import-store";
 import type { PrepareStage } from "./import-prepare";
+import { sendBatch } from "@/lib/spotify/import-send";
 
 /**
  * One import per browser profile. A worker stages sanitised PlayWire batches in
@@ -123,12 +124,7 @@ async function upload(current: ImportJob, signal: AbortSignal) {
       job = undefined;
       return set({ status: "error", message: "The staged import is incomplete. Choose the export again; saved plays are kept." });
     }
-    const res = await fetch("/api/import", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ plays, batchId: current.id, offset, final: offset + plays.length >= current.total }),
-      signal,
-    }).catch(() => null);
+    const res = await sendBatch({ plays, batchId: current.id, offset, final: offset + plays.length >= current.total }, signal);
     if (signal.aborted) return;
     if (res?.ok) {
       const receipt = (await res.json()) as { saved: number; written: number };

@@ -59,3 +59,7 @@ HANDOFF.md
 
 # /brag launch-video workspace
 brag-output*/
+
+# Browser-only build
+out-browser/
+src/browser/migrations.gen.ts
