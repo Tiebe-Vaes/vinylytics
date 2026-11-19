@@ -76,7 +76,7 @@ describe("cardFonts", () => {
 
 describe("cardFooter", () => {
   it("links the project site and keeps a small Spotify credit", () => {
-    expect(cardFooter(false)).toEqual({ site: "vinylytics.vercel.app", attribution: "Data from Spotify" });
+    expect(cardFooter(false)).toEqual({ site: "vinylytics-fm.vercel.app", attribution: "Data from Spotify" });
     expect(cardFooter(true).attribution).toBe("Synthetic demo history");
   });
 });
