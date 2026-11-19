@@ -17,6 +17,7 @@ import { ArrowUpRight } from "lucide-react";
 import { localDateKey } from "@/lib/time";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { artistHref } from "@/lib/href";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +84,7 @@ export default async function ShelfPage() {
               <li key={a.name} className="flex items-center gap-3 border-t border-rule py-2.5">
                 <span className="display w-6 text-2xl text-muted-text">{i + 1}</span>
                 <Cover url={a.imageUrl} size={40} alt={a.name} />
-                <Link href={`/artist/${encodeURIComponent(a.name)}`} className="min-w-0 flex-1 truncate font-semibold hover:underline">
+                <Link href={artistHref(a.name)} className="min-w-0 flex-1 truncate font-semibold hover:underline">
                   {a.name}
                 </Link>
                 <span className="nums text-sm text-muted-text">{Math.round(a.minutes ?? 0)} min</span>

@@ -23,6 +23,11 @@ const browserConfig: NextConfig = {
       "@/db": "./src/browser/db.ts",
       "next/cache": "./src/browser/next-cache.ts",
       "@/lib/spotify/import-send": "./src/browser/import-send.ts",
+      "@/lib/card": "./src/browser/card.tsx",
+      "@/lib/api-fetch": "./src/browser/api-fetch.ts",
+      "@/lib/owner": "./src/browser/owner.ts",
+      "@/app/(app)/eras/actions": "./src/browser/era-actions.ts",
+      "@/lib/dominant-colour": "./src/browser/dominant-colour.ts",
     },
   },
 };

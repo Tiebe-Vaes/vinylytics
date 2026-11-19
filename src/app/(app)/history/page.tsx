@@ -8,6 +8,7 @@ import { DayPicker } from "@/components/music/day-picker";
 import { MonthStrip } from "@/components/music/month-strip";
 import { dayPresets } from "@/lib/spotify/day-presets";
 import { firstListeningYear } from "@/lib/spotify/recap";
+import { artistHref, trackHref } from "@/lib/href";
 
 /** The date jump shown on every History view: strip for the month, picker for anywhere. */
 async function DateJump({ selected, today }: { selected?: string; today: string }) {
@@ -108,14 +109,14 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
                   <span className="nums w-12 shrink-0 text-muted-text">{clock(new Date(p.playedAt))}</span>
                   <div className="min-w-0 flex-1">
                     {p.uri?.startsWith("spotify:track:") ? (
-                      <Link href={`/track/${p.uri.split(":")[2]}`} className="block truncate font-semibold hover:underline">
+                      <Link href={trackHref(p.uri)} className="block truncate font-semibold hover:underline">
                         {p.name ?? "Unknown track"}
                       </Link>
                     ) : (
                       <span className="block truncate font-semibold">{p.name ?? "Local file"}</span>
                     )}
                     {p.artist && (
-                      <Link href={`/artist/${encodeURIComponent(p.artist)}`} className="block truncate text-muted-text hover:underline">
+                      <Link href={artistHref(p.artist)} className="block truncate text-muted-text hover:underline">
                         {p.artist}
                       </Link>
                     )}

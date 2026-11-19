@@ -5,6 +5,7 @@ import { inkHex, inkText } from "@/lib/ink";
 import type { EraView } from "@/lib/spotify/eras-data";
 import { cn } from "@/lib/utils";
 import { Tilt } from "@/components/motion/tilt";
+import { eraHref } from "@/lib/href";
 
 const monthYear = (key: string) =>
   new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -39,6 +40,6 @@ export function Sleeve({ era, size = "shelf", href, className }: {
   );
   // Morph only between the shelf and the era page; stay still during other navigations.
   return <ViewTransition name={`sleeve-${era.id}`} share="auto" default="none">{href === null ? <div className={className}>{face}</div> : (
-    <Link href={href ?? `/eras/${era.id}`} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}><Tilt>{face}</Tilt></Link>
+    <Link href={href ?? eraHref(era.id)} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}><Tilt>{face}</Tilt></Link>
   )}</ViewTransition>;
 }

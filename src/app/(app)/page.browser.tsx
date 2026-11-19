@@ -1,17 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { sql } from "drizzle-orm";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageHeader } from "@/components/panel";
 import { SpotifyImport } from "@/components/music/spotify-import";
+import { VinylLoader } from "@/components/vinyl-loader";
 import { startImport, useImport } from "@/lib/spotify/import-runner";
 import { takeHandoff } from "@/browser/handoff";
+import { browserPage } from "@/browser/render-page";
 import { db } from "@/db";
 import { rowsOf } from "@/db/rows";
+import ShelfPage from "./page";
 
-/** Browser build start page: import the export, then open the charts. */
+const Shelf = browserPage(ShelfPage);
+
+/** Browser build start page: the shelf once there are plays, the import until then. */
 export default function BrowserHome() {
   const state = useImport();
   const client = useQueryClient();
@@ -30,6 +34,8 @@ export default function BrowserHome() {
     void takeHandoff().then((files) => { if (files.length) void startImport(files); });
   }, []);
 
+  if (plays === undefined) return <VinylLoader label="Opening your record shelf…" className="py-24" />;
+  if (plays > 0) return <Shelf />;
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -39,12 +45,6 @@ export default function BrowserHome() {
       <p className="text-sm text-muted-text">
         Your history lives only in this browser. Nothing is uploaded. Clearing this site&apos;s data removes it.
       </p>
-      {plays ? (
-        <p className="text-sm">
-          <strong className="nums">{plays.toLocaleString("en-GB")}</strong> plays on the shelf.{" "}
-          <Link href="/charts" className="font-semibold underline">Open your charts</Link>
-        </p>
-      ) : null}
       <SpotifyImport />
     </div>
   );

@@ -1,3 +1,4 @@
+import Form from "next/form";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Empty, PageHeader, Panel } from "@/components/panel";
@@ -12,6 +13,7 @@ import { Story } from "@/components/recap/story";
 import { recapSlides } from "@/lib/spotify/recap-slides";
 import { listeningDays } from "@/lib/spotify/history";
 import { localDateKey } from "@/lib/time";
+import { albumHref, artistHref } from "@/lib/href";
 
 export const dynamic = "force-dynamic";
 const number = (n:number) => Math.round(n).toLocaleString("en-GB");
@@ -29,14 +31,14 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
   return <>
     <PageHeader title="Year recap" description="Your year in music, drawn from your listening history." actions={<SpotifyAttribution/>}/>
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <form action="/recap" className="flex items-end gap-2">
+      <Form action="/recap" className="flex items-end gap-2">
         <label className="grid gap-1 text-xs text-muted-text">Listening year
           <select name="year" defaultValue={year} className="h-11 border border-strong bg-ground px-3 text-base font-semibold text-text">
             {Array.from({length:thisYear-firstYear+1},(_,i)=>thisYear-i).map(y=><option key={y}>{y}</option>)}
           </select>
         </label>
         <button className="h-11 border border-strong px-3 text-sm font-semibold hover:bg-muted">Show year</button>
-      </form>
+      </Form>
       {recap.plays > 0 && <ShareButton href={`/api/card/recap?year=${year}`} filename={`vinylytics-${year}-recap.png`} title={`${year} recap`} defaultInk="cobalt"
         preview={{ cover: "Artist artwork", period: String(year), lead: recap.artist?.name, stat: `${number(recap.minutes)} minutes`, rows: "Year highlights" }}/>}
     </div>
@@ -79,12 +81,12 @@ async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:num
     </Panel>
     <div id="albums"><Panel title="Album completion" subtitle={`Different tracks played for 30s or more in ${year}, out of the album’s track count.`}>
       {albumCompletion.length === 0 ? <Empty>{albumPage > 1 ? "No more albums on this page." : `No album has three or more of its tracks played in ${year} yet. Album track counts arrive with artwork.`}</Empty> : <ol>{albumCompletion.slice(0,10).map(a=>
-        <li key={a.albumId}><Link href={`/album/${encodeURIComponent(a.albumId)}`} className="flex min-h-11 items-center justify-between gap-2 border-b border-rule py-2 text-sm hover:underline"><span>{a.name} · {a.artist}</span><strong>{a.played}/{a.total}</strong></Link></li>)}</ol>}
+        <li key={a.albumId}><Link href={albumHref(a.albumId)} className="flex min-h-11 items-center justify-between gap-2 border-b border-rule py-2 text-sm hover:underline"><span>{a.name} · {a.artist}</span><strong>{a.played}/{a.total}</strong></Link></li>)}</ol>}
       {pagination("albums",albumPage,albumCompletion.length>10)}
     </Panel></div>
     <div id="streaks"><Panel title="Artist streaks" subtitle="Consecutive days with at least one 30-second play by the same artist.">
       {artistStreaks.length === 0 ? <Empty>No multi-day streaks on this page.</Empty> : <ol>{artistStreaks.slice(0,10).map(a=>
-        <li key={a.artist}><Link href={`/artist/${encodeURIComponent(a.artist)}`} className="flex min-h-11 items-center justify-between gap-2 border-b border-rule py-2 text-sm hover:underline"><span>{a.artist}</span><strong>{a.days}d</strong></Link></li>)}</ol>}
+        <li key={a.artist}><Link href={artistHref(a.artist)} className="flex min-h-11 items-center justify-between gap-2 border-b border-rule py-2 text-sm hover:underline"><span>{a.artist}</span><strong>{a.days}d</strong></Link></li>)}</ol>}
       {pagination("streaks",streakPage,artistStreaks.length>10)}
     </Panel></div>
   </div>;

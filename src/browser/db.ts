@@ -9,6 +9,10 @@ import * as schema from "@/db/schema";
 import { MIGRATIONS } from "./migrations.gen";
 
 type Db = ReturnType<typeof drizzle<typeof schema>>;
+const DATA_DIR = "idb://vinylytics";
+/** PGlite names the IndexedDB database after the data dir. */
+const IDB_NAME = "/pglite/vinylytics";
+let client: PGlite | null = null;
 let _db: Db | null = null;
 let opening: Promise<Db> | null = null;
 
@@ -25,7 +29,8 @@ export function db(): Db {
 /** Opens (or creates) the history in this browser and applies new migrations. */
 export function openDb(): Promise<Db> {
   opening ??= (async () => {
-    const d = drizzle(new PGlite("idb://vinylytics"), { schema });
+    client = new PGlite(DATA_DIR);
+    const d = drizzle(client, { schema });
     await d.execute(sql`CREATE TABLE IF NOT EXISTS _migrations (name text PRIMARY KEY)`);
     const done = new Set(
       ((await d.execute(sql`SELECT name FROM _migrations`)).rows as { name: string }[]).map((r) => r.name)
@@ -39,10 +44,52 @@ export function openDb(): Promise<Db> {
         await tx.execute(sql`INSERT INTO _migrations (name) VALUES (${name})`);
       });
     }
+    // PGlite runs no autovacuum, so tables start without statistics and the planner
+    // picks nested loops that turn a 50 ms recap query into 40 s. Analyze once here.
+    const [stats] = (await d.execute(sql`SELECT reltuples FROM pg_class WHERE relname = 'plays'`)).rows as { reltuples: number }[];
+    if (!stats || stats.reltuples < 0) await d.execute(sql`ANALYZE`);
     _db = d;
     return d;
   })();
   return opening;
+}
+
+/** The whole database as one gzipped file, for the Settings backup button. */
+export async function backupDb(): Promise<Blob> {
+  await openDb();
+  return client!.dumpDataDir("gzip");
+}
+
+function dropIndexedDb() {
+  return new Promise<void>((resolve, reject) => {
+    const req = indexedDB.deleteDatabase(IDB_NAME);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+    // Another tab still has it open: it closes when that tab reloads.
+    req.onblocked = () => resolve();
+  });
+}
+
+async function closeDb() {
+  await client?.close();
+  client = null;
+  _db = null;
+  opening = null;
+}
+
+/** Deletes the history in this browser. The caller reloads the page. */
+export async function deleteDb() {
+  await closeDb();
+  await dropIndexedDb();
+}
+
+/** Replaces the history in this browser with a backup file. The caller reloads the page. */
+export async function restoreDb(file: Blob) {
+  await closeDb();
+  await dropIndexedDb();
+  const restored = new PGlite(DATA_DIR, { loadDataDir: file });
+  await restored.waitReady;
+  await restored.close();
 }
 
 export { schema };

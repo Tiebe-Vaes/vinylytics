@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { db, hasDb } from "@/db";
 import { rowsOf } from "@/db/rows";
 import type { ChartKind } from "./charts";
+import { albumHref, artistHref, trackHref } from "@/lib/href";
 
 type Match = {kind: ChartKind; key: string; name: string; subtitle: string | null; cover: string | null};
 
@@ -29,6 +30,6 @@ export async function searchLibrary(query: string) {
     SELECT kind, key, name, subtitle, cover FROM ranked WHERE pos <= 10 ORDER BY kind,pos`));
   return rows.map(row => ({
     ...row,
-    href: `/${row.kind}/${encodeURIComponent(row.kind === "track" ? row.key.split(":").at(-1)! : row.key)}`,
+    href: row.kind === "artist" ? artistHref(row.key) : row.kind === "track" ? trackHref(row.key) : albumHref(row.key),
   }));
 }

@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Download, Share, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CARD_SIZES, FIELDS, cardOptions, presetFields, type CardFormat, type CardKind, type Density } from "@/lib/card-options";
+import { apiFetch } from "@/lib/api-fetch";
 import { cn } from "@/lib/utils";
 import { VinylLoader } from "@/components/vinyl-loader";
 import type { ShareButtonProps } from "./share-button";
@@ -51,7 +52,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
     const controller = new AbortController();
     async function generate() {
       try {
-        const response = await fetch(src, { signal: controller.signal, cache: "no-store" });
+        const response = await apiFetch(src, { signal: controller.signal, cache: "no-store" });
         if (!response.ok || !response.headers.get("content-type")?.startsWith("image/png")) throw new Error("PNG unavailable");
         const blob = await response.blob();
         if (controller.signal.aborted) return;

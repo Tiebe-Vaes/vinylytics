@@ -1,5 +1,6 @@
 "use client";
 
+import Form from "next/form";
 import Link from "next/link";
 import { Popover } from "@base-ui/react/popover";
 import { ChevronDown } from "lucide-react";
@@ -47,7 +48,7 @@ export function SentenceFilter({ kind, range, sort, custom, max }: {
     <p className="display flex flex-wrap items-baseline gap-x-2 gap-y-1 text-3xl leading-tight md:text-5xl">
       <span>Top</span><Word slot={kind} /><span>{range.value === "all" ? "of" : range.value === "custom" ? "from" : "of the"}</span>
       <Word slot={range}>
-        <form action="/charts" className="mt-1 grid gap-2 border-t border-rule p-2 font-sans text-sm normal-case">
+        <Form action="/charts" className="mt-1 grid gap-2 border-t border-rule p-2 font-sans text-sm normal-case">
           {Object.entries(custom.hidden).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
           <input type="hidden" name="range" value="custom" />
           {(["from", "to"] as const).map((name) => (
@@ -56,7 +57,7 @@ export function SentenceFilter({ kind, range, sort, custom, max }: {
             </label>
           ))}
           <button className="h-11 bg-text px-4 font-semibold text-ground">Apply dates</button>
-        </form>
+        </Form>
       </Word>
       <span>by</span><Word slot={sort} />
     </p>

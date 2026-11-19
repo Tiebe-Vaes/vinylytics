@@ -3,6 +3,7 @@ import { inkHex, inkText } from "@/lib/ink";
 import type { EraView } from "@/lib/spotify/eras-data";
 import { timelineSegments } from "@/lib/spotify/era-timeline";
 import { eraSpan } from "./sleeve";
+import { eraHref } from "@/lib/href";
 
 /** The years as bands of eras, like rock strata; each band opens its era. */
 export function EraTimeline({ eras, today }: { eras: EraView[]; today: string }) {
@@ -18,7 +19,7 @@ export function EraTimeline({ eras, today }: { eras: EraView[]; today: string })
         {segs.map((s) => {
           const bg = inkHex(s.ink);
           return (
-            <Link key={s.id} href={`/eras/${s.id}`} aria-label={`${s.name}, ${eraSpan(s)}`} title={`${s.name} · ${eraSpan(s)}`}
+            <Link key={s.id} href={eraHref(s.id)} aria-label={`${s.name}, ${eraSpan(s)}`} title={`${s.name} · ${eraSpan(s)}`}
               className="group absolute flex h-7 min-w-6 items-center overflow-hidden px-2 text-xs font-semibold transition-transform duration-200 ease-[cubic-bezier(0.2,0.9,0.25,1.35)] hover:-translate-y-1 focus-visible:-translate-y-1"
               style={{ left: `${s.left * 100}%`, width: `${s.width * 100}%`, top: s.lane * 34, background: bg, color: inkText(bg) }}>
               <span className="truncate">{s.name}</span>

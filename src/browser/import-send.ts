@@ -3,7 +3,8 @@
 import { ImportOrderError, saveImportBatch } from "@/lib/spotify/import-batch";
 import type { BatchBody } from "@/lib/spotify/import-send";
 import type { PlayRow } from "@/lib/spotify/types";
-import { openDb } from "./db";
+import { db, openDb } from "./db";
+import { sql } from "drizzle-orm";
 
 type Wire = Omit<PlayRow, "playedAt"> & { playedAt: string };
 
@@ -12,6 +13,8 @@ export async function sendBatch(body: BatchBody): Promise<Response | null> {
   const rows = (body.plays as Wire[]).map((p) => ({ ...p, playedAt: new Date(p.playedAt) })) as PlayRow[];
   try {
     const receipt = await saveImportBatch(body.batchId, body.offset, rows, body.final);
+    // Fresh statistics for the planner after an import (PGlite has no autovacuum).
+    if (receipt.finished) await db().execute(sql`ANALYZE`);
     return Response.json(receipt);
   } catch (err) {
     if (err instanceof ImportOrderError) return Response.json({ error: "Import cursor mismatch." }, { status: 409 });

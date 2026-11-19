@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { ActionForm } from "@/components/toaster";
 import { getEraDetail } from "@/lib/spotify/era-detail";
 import { inkHex } from "@/lib/ink";
-import { mergeWithNext, renameEra } from "../actions";
+import { mergeWithNext, renameEra } from "@/app/(app)/eras/actions";
+import { artistHref, trackHref } from "@/lib/href";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,8 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
           <span aria-hidden="true" className="display w-9 shrink-0 text-xl text-muted-text">{label}{i + 1}</span>
           <Cover url={track.cover} size={40} alt="" />
           <div className="min-w-0 flex-1">
-            <Link href={`/track/${encodeURIComponent(track.uri.split(":").at(-1)!)}`} className="link-underline block truncate font-semibold">{track.name}</Link>
-            <Link href={`/artist/${encodeURIComponent(track.artist)}`} className="block truncate text-sm text-muted-text hover:underline">{track.artist}</Link>
+            <Link href={trackHref(track.uri)} className="link-underline block truncate font-semibold">{track.name}</Link>
+            <Link href={artistHref(track.artist)} className="block truncate text-sm text-muted-text hover:underline">{track.artist}</Link>
           </div>
           <span className="nums shrink-0 text-sm text-muted-text">{track.streams}×</span>
         </li>

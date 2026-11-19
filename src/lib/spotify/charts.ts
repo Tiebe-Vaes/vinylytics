@@ -5,6 +5,7 @@ import { timezone } from "@/lib/tz";
 import { chartRange, type ChartRange } from "./data";
 import { db, hasDb } from "@/db";
 import { rowsOf } from "@/db/rows";
+import { albumHref, artistHref, trackHref } from "@/lib/href";
 
 export type ChartKind = "artist" | "track" | "album";
 export type ChartSort = "time" | "plays";
@@ -57,10 +58,10 @@ export async function topItems(q: {
     subtitle: r.subtitle ?? "",
     href:
       q.kind === "artist"
-        ? `/artist/${encodeURIComponent(r.key)}`
+        ? artistHref(r.key)
         : q.kind === "track"
-          ? `/track/${r.key.split(":").at(-1)}`
-          : `/album/${r.key}`,
+          ? trackHref(r.key)
+          : albumHref(r.key),
   }));
 }
 

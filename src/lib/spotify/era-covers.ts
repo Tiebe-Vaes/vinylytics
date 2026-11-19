@@ -5,6 +5,7 @@ import { hashInk, nearestInk, type InkId } from "@/lib/ink";
 import { addDaysKey, localToUtc } from "@/lib/time";
 import type { Era } from "./eras";
 import { fetchCover } from "./cover-image";
+import { dominantRgb } from "@/lib/dominant-colour";
 
 const dayStart = (key: string) => {
   const [y, m, d] = key.split("-").map(Number);
@@ -51,9 +52,7 @@ async function dominantColour(url: string): Promise<[number, number, number] | n
   try {
     const cover = await fetchCover(url);
     if (!cover) return null;
-    const { default: sharp } = await import("sharp");
-    const { dominant } = await sharp(cover.data, { limitInputPixels: 16_777_216 }).stats();
-    return [dominant.r, dominant.g, dominant.b];
+    return await dominantRgb(cover.data);
   } catch {
     return null;
   }
