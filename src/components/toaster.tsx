@@ -32,8 +32,12 @@ function Toaster() {
 
 /** `notify("Era renamed")` from any client component under the provider. */
 export function useNotify() {
-  const { add } = Toast.useToastManager();
-  return (title: string, description?: string) => { add({ title, description }); };
+  const { add, close, toasts } = Toast.useToastManager();
+  return (title: string, description?: string) => {
+    // Saving twice shows one toast, not a stack of identical ones.
+    for (const t of toasts) if (t.title === title) close(t.id);
+    add({ title, description });
+  };
 }
 
 /** A server-action form that confirms success, or says it failed, with a toast. */

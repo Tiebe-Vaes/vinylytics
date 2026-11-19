@@ -118,7 +118,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
   }
   const size = CARD_SIZES[options.format];
   return (
-    <dialog ref={dialog} aria-labelledby={headingId} onCancel={(event) => { event.preventDefault(); dismiss(); }}
+    <dialog ref={dialog} aria-labelledby={headingId} onCancel={(event) => { event.preventDefault(); event.stopPropagation(); dismiss(); }}
       className="fixed inset-0 m-auto max-h-[94dvh] w-[min(95vw,48rem)] overflow-y-auto overscroll-contain border border-strong bg-ground p-0 text-text backdrop:bg-black/80">
       <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-rule bg-ground px-4 py-2">
         <h2 id={headingId} className="min-w-0 text-lg font-semibold break-words">{title}</h2>
