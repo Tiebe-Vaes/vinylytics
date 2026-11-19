@@ -17,7 +17,8 @@ export async function GET(req: Request) {
   const filters = parseChartFilters(owner ? params : new URLSearchParams({ kind: params.get("kind") === "track" ? "track" : "artist", range: "4w" }));
   if (!filters.valid) return new Response("Invalid chart dates", { status: 400 });
   const { kind, sort, range, window } = filters;
-  const mosaic = cardOptions(params, "top", "cobalt").visual === "mosaic";
+  // Covers aren't cached, so only the owner gets the nine-cover mosaic; visitors get the default visual.
+  const mosaic = owner && cardOptions(params, "top", "cobalt").visual === "mosaic";
   const limit = mosaic ? 9 : 5;
   const items = owner
     ? await topItems({ kind, sort, from: window?.from ?? null, to: window?.to ?? null, limit })

@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils";
 import { VinylLoader } from "@/components/vinyl-loader";
 import type { ShareButtonProps } from "./share-button";
 import { VisualTiles } from "./visual-tiles";
+import { previewState, type Rendered } from "./preview-gate";
 import { InkPicker } from "./ink-picker";
 import { DensitySlider } from "./density-slider";
 import { FieldToggles } from "./field-toggles";
 
-type Rendered = { src: string; objectUrl: string; file: File | null; canShare: boolean };
 const choice = "min-h-11 border border-strong px-3 text-sm font-semibold capitalize aria-pressed:bg-text aria-pressed:text-ground";
 
 export default function CardComposer({ href, filename, title = "Share card", defaultInk = "cobalt", scope, preview, onClose }: ShareButtonProps & { onClose: () => void }) {
@@ -38,7 +38,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
   const downloadName = filename.replace(/\.png$/i, "") + (options.format === "story" ? "-story.png" : ".png");
   // A changed URL immediately invalidates the previous file, including before effects run.
   // The old image stays on screen, dimmed, until the new one is ready.
-  const ready = result?.src === src ? result : null;
+  const { ready, error } = previewState(result, src, failed);
   const latest = useRef<string | null>(null);
 
   useEffect(() => {
@@ -117,7 +117,6 @@ export default function CardComposer({ href, filename, title = "Share card", def
     setOptions(() => ({ density, fields: presetFields(kind, density) }));
   }
   const size = CARD_SIZES[options.format];
-  const error = failed === src && !ready;
   return (
     <dialog ref={dialog} aria-labelledby={headingId} onCancel={(event) => { event.preventDefault(); dismiss(); }}
       className="fixed inset-0 m-auto max-h-[94dvh] w-[min(95vw,48rem)] overflow-y-auto overscroll-contain border border-strong bg-ground p-0 text-text backdrop:bg-black/80">

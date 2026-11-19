@@ -1,10 +1,16 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { inArray } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
 
 const owner = vi.hoisted(() => ({ yes: true }));
 vi.mock("@/lib/owner", () => ({ isOwner: vi.fn(async () => owner.yes) }));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: () => unknown) => fn, revalidateTag: vi.fn() }));
+const covers = vi.hoisted(() => ({ calls: 0 }));
+vi.mock("@/lib/card", async (orig) => ({
+  ...(await orig<typeof import("@/lib/card")>()),
+  coverData: vi.fn(async () => { covers.calls++; return null; }),
+}));
 
 const { GET } = await import("./route");
 const call = (qs: string) => GET(new Request(`http://app.test/api/card/top?${qs}`));
@@ -50,6 +56,23 @@ describe("GET /api/card/top", () => {
   it("404s an anonymous visitor while the public top lists are off", async () => {
     owner.yes = false;
     expect((await call("kind=artist&range=4w")).status).toBe(404);
+  });
+
+  it("never fans out cover fetches for a visitor's mosaic", async () => {
+    owner.yes = false;
+    await d.insert(schema.settings).values({ publicEnabled: true, publicSections: { eras: false, top: true, insights: false, nowPlaying: false } });
+    const recent = Array.from({ length: 9 }, (_, i) => ({
+      playedAt: new Date(Date.now() - (i + 1) * 3_600_000), msPlayed: 200_000, kind: "track",
+      uri: `spotify:track:r${i}`, trackName: `R${i}`, artistName: `Recent ${i}`, source: "export",
+    }));
+    await d.insert(schema.plays).values(recent);
+    covers.calls = 0;
+    try {
+      expect((await call("kind=artist&range=4w&view=grid")).status).toBe(200);
+      expect(covers.calls).toBe(0);
+    } finally {
+      await d.delete(schema.plays).where(inArray(schema.plays.uri, recent.map((r) => r.uri)));
+    }
   });
 
   it("only gives visitors what the public page shows: the last 4 weeks", async () => {
