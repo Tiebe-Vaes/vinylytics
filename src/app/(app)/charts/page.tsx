@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Empty, PageHeader, Panel } from "@/components/panel";
@@ -68,7 +68,8 @@ export default async function ChartsPage({searchParams}: {searchParams: Promise<
         {items.map((item,i)=>{
           const bg = inkHex(hashInk(item.key));
           const metric = sort === "time" ? `${Math.round(item.minutes).toLocaleString("en-GB")} min` : `${item.streams.toLocaleString("en-GB")} ${item.streams === 1 ? "play" : "plays"}`;
-          return <li key={item.key} className="min-w-0"><Link href={item.href} className={`group ${view === "grid" ? "block h-full" : "flex items-center gap-3 border-t border-rule py-2 hover:bg-muted"}`}>
+          // Same name before and after a sort change, so the row glides to its new rank.
+          return <li key={item.key} className="min-w-0"><ViewTransition name={`rank-${item.key.replace(/[^a-zA-Z0-9_-]/g, "_")}`}><Link href={item.href} className={`group ${view === "grid" ? "block h-full" : "flex items-center gap-3 border-t border-rule py-2 hover:bg-muted"}`}>
             {view === "grid" ? <Tilt><div className="relative grid aspect-square place-items-center overflow-hidden" style={{background:bg,color:inkText(bg)}}>
               {item.cover ? <Cover url={item.cover} alt="" size={160} className="size-full! ring-0"/> : <span aria-hidden className="display text-7xl sm:text-8xl">{String(i+1).padStart(2,"0")}</span>}
               {item.cover && <span className="absolute bottom-0 left-0 bg-ground px-2 py-1 text-xs font-bold text-text">#{i+1}</span>}
@@ -78,7 +79,7 @@ export default async function ChartsPage({searchParams}: {searchParams: Promise<
               {item.subtitle && <small className="block break-words text-muted-text">{item.subtitle}</small>}
               <small className="nums block text-muted-text">{metric}</small>
             </div>
-          </Link></li>;
+          </Link></ViewTransition></li>;
         })}
       </ol>
     </section>
