@@ -1,7 +1,7 @@
-// The browser-only build (served at /app): `node scripts/browser.mjs build|dev`.
+// The browser-only build (served at /app): `node scripts/browser.mjs build|dev|public`.
 // Bundles drizzle/*.sql into src/browser/migrations.gen.ts (the browser has no
 // file system to read them from), then runs Next with VINYLYTICS_BROWSER=1.
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const files = readdirSync("drizzle").filter((f) => f.endsWith(".sql")).sort();
@@ -17,4 +17,10 @@ const run = spawnSync("npx", ["next", ...command], {
   shell: true,
   env: { ...process.env, VINYLYTICS_BROWSER: "1" },
 });
+// `public`: copy the export into public/app, so the server deploy serves it at /app.
+if (run.status === 0 && process.argv[2] === "public") {
+  rmSync("public/app", { recursive: true, force: true });
+  cpSync("out-browser", "public/app", { recursive: true });
+  console.log("browser build copied to public/app");
+}
 process.exit(run.status ?? 1);

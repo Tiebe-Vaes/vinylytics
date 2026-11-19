@@ -11,7 +11,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "dev:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev-local.mjs",
     "local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev-local.mjs --mine",
-    "vercel-build": "node scripts/migrate.mjs && next build",
+    "vercel-build": "node scripts/migrate.mjs && node scripts/browser.mjs public && next build",
     "start:docker": "node scripts/migrate.mjs && next start",
     "db:generate": "drizzle-kit generate",
     "build:browser": "node scripts/browser.mjs build",

@@ -38,6 +38,18 @@ const serverConfig: NextConfig = {
       "./node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff",
     ],
   },
+  // The browser build is copied into public/app (scripts/browser.mjs public). Real files
+  // win over these, so only page URLs fall through to their exported .html.
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [
+        { source: "/app", destination: "/app/index.html" },
+        { source: "/app/:path((?!_next/).*)", destination: "/app/:path.html" },
+      ],
+      fallback: [],
+    };
+  },
 };
 
 export default browser ? browserConfig : serverConfig;
