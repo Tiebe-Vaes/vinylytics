@@ -37,13 +37,26 @@
 
 ## See it in action
 
-<p align="center">
-  <a href="docs/media/vinylytics-ad.mp4">
-    <img src="docs/media/vinylytics-ad.webp" alt="A 25-second Vinylytics ad: import your Spotify history, pick an era sleeve from the shelf, read its liner notes, change the ink and save a card to send" width="320">
-  </a>
-  <br>
-  <sub><a href="docs/media/vinylytics-ad.mp4">▶ Watch the 25-second ad with sound</a> · every screen uses the synthetic demo history, never a real person's listening</sub>
-</p>
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="docs/media/vinylytics-ad.mp4">
+        <img src="docs/media/vinylytics-ad.webp" alt="A 25-second Vinylytics ad: import your Spotify history, pick an era sleeve from the shelf, read its liner notes, change the ink and save a card to send" width="300">
+      </a>
+      <br>
+      <sub><a href="docs/media/vinylytics-ad.mp4">▶ The 25-second ad</a> · English</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="docs/media/vinylytics-reel-nl.mp4">
+        <img src="docs/media/vinylytics-reel-nl.webp" alt="A 25-second Dutch Instagram reel: a calendar page asks if you can wait for Spotify Wrapped, a ZIP drops into the get-started page, Play my year shows the minutes and top artist, the era sleeve becomes a card to send" width="300">
+      </a>
+      <br>
+      <sub><a href="docs/media/vinylytics-reel-nl.mp4">▶ “Je luisterjaar, nu al”</a> · Dutch reel, no install needed</sub>
+    </td>
+  </tr>
+</table>
+
+<p align="center"><sub>Both play with sound. Every screen uses the synthetic demo history, never a real person's listening.</sub></p>
 
 ## Why Vinylytics
 
@@ -303,6 +316,6 @@ Issues and pull requests are welcome. CI runs typecheck, lint, tests and a produ
 
 ## Credits and licence
 
-Data from Spotify. Genre tags from Last.fm. Type by Big Shoulders and Archivo. Music in the ad: Sascha Ende, “Happy Beats / Business Moves Vol. 12” (excerpt, edited and mixed), [ende.app](https://ende.app), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Released under the [MIT licence](LICENSE).
+Data from Spotify. Genre tags from Last.fm. Type by Big Shoulders and Archivo. Music by Sascha Ende, [ende.app](https://ende.app), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): “Happy Beats / Business Moves Vol. 12” in the ad and “Happy Beats / Business Moves Vol. 9” in the Dutch reel (excerpts, edited and mixed). Released under the [MIT licence](LICENSE).
 
 <sub>Vinylytics is not affiliated with or endorsed by Spotify.</sub>
