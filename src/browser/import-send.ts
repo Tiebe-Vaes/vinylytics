@@ -14,7 +14,12 @@ export async function sendBatch(body: BatchBody): Promise<Response | null> {
   try {
     const receipt = await saveImportBatch(body.batchId, body.offset, rows, body.final);
     // Fresh statistics for the planner after an import (PGlite has no autovacuum).
-    if (receipt.finished) await db().execute(sql`ANALYZE`);
+    if (receipt.finished) {
+      await db().execute(sql`ANALYZE`);
+      // Without this the browser may evict the whole history under storage pressure
+      // (Safari also after 7 days without a visit). A refusal changes nothing.
+      void navigator.storage?.persist?.().catch(() => false);
+    }
     return Response.json(receipt);
   } catch (err) {
     if (err instanceof ImportOrderError) return Response.json({ error: "Import cursor mismatch." }, { status: 409 });

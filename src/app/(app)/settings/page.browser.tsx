@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PageHeader, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,11 @@ export default function BrowserSettings() {
   const restoreInput = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Whether the browser promised not to evict this site's storage (navigator.storage.persist()).
+  const [persisted, setPersisted] = useState<boolean | null>(null);
+  useEffect(() => {
+    navigator.storage?.persisted?.().then(setPersisted, () => setPersisted(false));
+  }, []);
 
   async function run(label: string, task: () => Promise<void>) {
     setBusy(label);
@@ -60,6 +65,13 @@ export default function BrowserSettings() {
         <input ref={restoreInput} type="file" accept=".gz,.tar.gz,application/gzip" className="sr-only" tabIndex={-1} aria-label="Backup file"
           onChange={(e) => { void restore(e.target.files?.[0]); e.target.value = ""; }} />
         <p aria-live="polite" className="mt-3 min-h-5 text-sm text-muted-text">{error ? <span role="alert" className="text-bad">{error}</span> : busy}</p>
+        <p className="mt-2 text-sm text-muted-text">
+          {persisted === true
+            ? "This browser keeps your history until you delete it or clear this site's data."
+            : persisted === false
+              ? "This browser may clear your history when it runs low on space or after weeks without a visit. Save a backup to be safe."
+              : null}
+        </p>
       </Panel>
     </div>
   );
