@@ -7,6 +7,12 @@ const recap = {
   track: { id: "t", name: "Slow Motion Summer", subtitle: "Saint Juniper", plays: 1, ms: 1, imageUrl: null, href: "/track/t" },
 };
 
+it("gives the minutes slide a number to count up to, matching its headline", () => {
+  const [first] = recapSlides(recap, null);
+  expect(first.count).toBe(10656);
+  expect(first.headline).toBe("10,656 minutes");
+});
+
 it("tells only what it knows: minutes, artist and song when extras are missing", () => {
   expect(recapSlides(recap, null).map((s) => s.id)).toEqual(["minutes", "artist", "song", "vinyl"]);
 });

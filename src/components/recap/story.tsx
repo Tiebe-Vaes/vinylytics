@@ -1,7 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, motion, useReducedMotion } from "motion/react";
+
+/** Digits settle like a mechanical counter, then hold the exact final number. */
+function Counter({ to, suffix, onDone }: { to: number; suffix: string; onDone: () => void }) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    const controls = animate(0, to, {
+      duration: 1.4, ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setValue(Math.round(v)),
+      onComplete: () => { setValue(to); onDone(); },
+    });
+    return () => controls.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per mount; onDone is a fresh closure each render.
+  }, [to]);
+  return <span className="nums" aria-label={`${to.toLocaleString("en-GB")}${suffix}`}>{value.toLocaleString("en-GB")}{suffix}</span>;
+}
 import { Play, X } from "lucide-react";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { Button } from "@/components/ui/button";
@@ -16,6 +31,8 @@ export function Story({ slides, year }: { slides: Slide[]; year: number }) {
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
   const reduced = useReducedMotion();
+  // Each count runs once per recap visit; going back shows the final number.
+  const [counted, setCounted] = useState<string[]>([]);
   const slide = slides[i];
 
   useEffect(() => {
@@ -59,7 +76,11 @@ export function Story({ slides, year }: { slides: Slide[]; year: number }) {
               exit={reduced ? { opacity: 0 } : { opacity: 0, x: dir * -60, scale: 0.96 }}
               transition={reduced ? { duration: 0.15 } : { type: "spring", stiffness: 260, damping: 24 }}>
               <p className="text-lg font-semibold md:text-2xl">{slide.kicker}</p>
-              <h2 className="display text-[clamp(3rem,12vw,9rem)] leading-[0.95] break-words">{slide.headline}</h2>
+              <h2 className="display text-[clamp(3rem,12vw,9rem)] leading-[0.95] break-words">
+                {slide.count != null && !reduced && !counted.includes(slide.id)
+                  ? <Counter to={slide.count} suffix={slide.headline.replace(/^[\d,]+/, "")} onDone={() => setCounted((c) => [...c, slide.id])} />
+                  : slide.headline}
+              </h2>
               {slide.detail && <p className="max-w-xl text-lg md:text-xl">{slide.detail}</p>}
             </motion.section>
           </AnimatePresence>

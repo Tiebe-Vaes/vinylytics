@@ -3,7 +3,8 @@ import type { loadRecap } from "./recap";
 import type { RecapExtras } from "./recap-extras";
 import { vinylPhysics } from "./recap-stats/vinyl";
 
-export type Slide = { id: string; kicker: string; headline: string; detail?: string; ink: InkId };
+/** `count`, when set, is the number in the headline; the story counts up to it once. */
+export type Slide = { id: string; kicker: string; headline: string; detail?: string; ink: InkId; count?: number };
 type Recap = Pick<Awaited<ReturnType<typeof loadRecap>>, "minutes" | "artist" | "track" | "peakHour">;
 type Extras = Partial<Pick<RecapExtras, "obsessed" | "owl" | "season" | "mood" | "crush" | "race" | "grid" | "best">> | null;
 
@@ -12,7 +13,7 @@ const n = (v: number) => Math.round(v).toLocaleString("en-GB");
 /** "Play my year": one slide per stat that exists, in a fixed order. */
 export function recapSlides(recap: Recap, x: Extras): Slide[] {
   const out: (Slide | null)[] = [
-    { id: "minutes", kicker: "This year you listened for", headline: `${n(recap.minutes)} minutes`, detail: `That's ${n(recap.minutes / 1440)} full days.`, ink: "cobalt" },
+    { id: "minutes", kicker: "This year you listened for", headline: `${n(recap.minutes)} minutes`, count: Math.round(recap.minutes), detail: `That's ${n(recap.minutes / 1440)} full days.`, ink: "cobalt" },
     recap.artist && { id: "artist", kicker: "Your most played artist", headline: recap.artist.name, ink: "redviolet" },
     recap.track && { id: "song", kicker: "Your song of the year", headline: recap.track.name, detail: recap.track.subtitle, ink: "vermilion" },
     x?.obsessed ? { id: "obsession", kicker: `On ${x.obsessed.day} you played one song`, headline: `${x.obsessed.plays} times`, detail: `${x.obsessed.track} · ${x.obsessed.artist}`, ink: "plum" } : null,
