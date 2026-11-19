@@ -32,11 +32,11 @@
 ## See it in action
 
 <p align="center">
-  <a href="docs/media/vinylytics-tour.mp4">
-    <img src="docs/media/vinylytics-tour.webp" alt="A 22-second tour of Vinylytics: era sleeves, the share card in eight inks, charts, recap and the weekly roast" width="100%">
+  <a href="docs/media/vinylytics-ad.mp4">
+    <img src="docs/media/vinylytics-ad.webp" alt="A 25-second Vinylytics ad: import your Spotify history, pick an era sleeve from the shelf, read its liner notes, change the ink and save a card to send" width="320">
   </a>
   <br>
-  <sub><a href="docs/media/vinylytics-tour.mp4">▶ Watch the 22-second tour with sound</a> · every screen uses the synthetic demo history, never a real person's listening</sub>
+  <sub><a href="docs/media/vinylytics-ad.mp4">▶ Watch the 25-second ad with sound</a> · every screen uses the synthetic demo history, never a real person's listening</sub>
 </p>
 
 ## Why Vinylytics
@@ -276,6 +276,6 @@ Issues and pull requests are welcome. CI runs typecheck, lint, tests and a produ
 
 ## Credits and licence
 
-Data from Spotify. Genre tags from Last.fm. Type by Big Shoulders and Archivo. Released under the [MIT licence](LICENSE).
+Data from Spotify. Genre tags from Last.fm. Type by Big Shoulders and Archivo. Music in the ad: Sascha Ende, “Happy Beats / Business Moves Vol. 12” (excerpt, edited and mixed), [ende.app](https://ende.app), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Released under the [MIT licence](LICENSE).
 
 <sub>Vinylytics is not affiliated with or endorsed by Spotify.</sub>
