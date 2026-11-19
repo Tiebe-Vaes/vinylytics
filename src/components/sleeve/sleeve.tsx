@@ -37,7 +37,8 @@ export function Sleeve({ era, size = "shelf", href, className }: {
       </div>
     </div>
   );
-  return <ViewTransition name={`sleeve-${era.id}`}>{href === null ? <div className={className}>{face}</div> : (
+  // Morph only between the shelf and the era page; stay still during other navigations.
+  return <ViewTransition name={`sleeve-${era.id}`} share="auto" default="none">{href === null ? <div className={className}>{face}</div> : (
     <Link href={href ?? `/eras/${era.id}`} className={cn("group block outline-offset-4", className)} aria-label={`Open ${era.name}, ${eraSpan(era)}`}><Tilt>{face}</Tilt></Link>
   )}</ViewTransition>;
 }
