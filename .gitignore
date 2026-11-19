@@ -63,4 +63,3 @@ brag-output*/
 # Browser-only build
 out-browser/
 src/browser/migrations.gen.ts
-public/app/
