@@ -6,7 +6,8 @@ import { sql } from "drizzle-orm";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageHeader } from "@/components/panel";
 import { SpotifyImport } from "@/components/music/spotify-import";
-import { useImport } from "@/lib/spotify/import-runner";
+import { startImport, useImport } from "@/lib/spotify/import-runner";
+import { takeHandoff } from "@/browser/handoff";
 import { db } from "@/db";
 import { rowsOf } from "@/db/rows";
 
@@ -20,6 +21,14 @@ export default function BrowserHome() {
   });
   // Fresh plays: every cached query is stale now.
   useEffect(() => { if (state.status === "done") void client.invalidateQueries(); }, [state.status, client]);
+  // Arrived from the get-started dropzone: import the files it handed over.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("import")) return;
+    url.searchParams.delete("import");
+    window.history.replaceState(null, "", url);
+    void takeHandoff().then((files) => { if (files.length) void startImport(files); });
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">

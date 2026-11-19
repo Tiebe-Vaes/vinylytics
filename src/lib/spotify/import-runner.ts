@@ -226,7 +226,7 @@ export function describeImport(s: ImportState): { title: string; detail: string;
         fraction: null,
       };
     case "uploading":
-      return { title: `Saving ${n(s.saved)} of ${n(s.total)} plays`, detail: "You can keep browsing. Closing the tab pauses the upload; it resumes when you return.", fraction: s.saved / s.total };
+      return { title: `Saving ${n(s.saved)} of ${n(s.total)} plays`, detail: process.env.NEXT_PUBLIC_BROWSER_MODE ? "You can keep browsing. Closing the tab pauses saving; it resumes when you return." : "You can keep browsing. Closing the tab pauses the upload; it resumes when you return.", fraction: s.saved / s.total };
     case "paused":
       return { title: `Paused at ${n(s.saved)} of ${n(s.total)} plays`, detail: s.error ?? "Progress is kept in this browser.", fraction: s.saved / s.total };
     case "elsewhere":
