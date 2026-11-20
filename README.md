@@ -41,10 +41,10 @@
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="docs/media/vinylytics-ad.mp4">
-        <img src="docs/media/vinylytics-ad.webp" alt="A 25-second Vinylytics ad: import your Spotify history, pick an era sleeve from the shelf, read its liner notes, change the ink and save a card to send" width="300">
+        <img src="docs/media/vinylytics-ad.webp" alt="December Can Wait — a 15-second preview of a Spotify listening recap, top track and shareable era sleeve" width="300">
       </a>
       <br>
-      <sub><a href="docs/media/vinylytics-ad.mp4">▶ The 25-second ad</a> · English</sub>
+      <sub><a href="docs/media/vinylytics-ad.mp4">▶ December Can Wait</a> · 15 seconds · English</sub>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="docs/media/vinylytics-reel-nl.mp4">
