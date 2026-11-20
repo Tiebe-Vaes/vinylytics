@@ -22,7 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   return renderCard(req, {
     kind: "era", ink: era.ink, edition: `ERA  /  ${era.weeks} WEEKS`,
     title: era.name, period: `${date(era.start)} – ${date(era.end)}`, lead: era.lead, cover: era.cover,
-    stat: `${Math.round(era.minutes).toLocaleString("en-GB")} minutes`, ranked: true,
+    stat: `${Math.round(era.minutes / 60).toLocaleString("en-GB")} hours`, ranked: true,
     rows: owner ? tracks.map((t) => ({ label: t.name, value: t.artist })) : [],
     series: weekly, badge: `${Math.round(era.minutes / 60)}H`, caption: "ON REPEAT",
   });

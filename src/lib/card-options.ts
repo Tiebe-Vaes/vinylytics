@@ -22,13 +22,13 @@ export const FIELD_LABELS: Record<CardKind, Record<CardField, string>> = {
   recap: { period: "Year", lead: "Favourite artist", cover: "Artwork, when available", stat: "Listening time", rows: "Year highlights" },
 };
 
-/** Each step adds one fact: art only, then dates, lead, total and the list. Title and site link are always on. */
+/** Each step adds one fact: art only, then the headline number, dates, lead and the list. Title and site link are always on. */
 export function presetFields(_kind: CardKind, density: Density): CardField[] {
-  return (["cover", "period", "lead", "stat", "rows"] as const).slice(0, DENSITIES.indexOf(density) + 1);
+  return (["cover", "stat", "period", "lead", "rows"] as const).slice(0, DENSITIES.indexOf(density) + 1);
 }
 
 export function cardOptions(q: URLSearchParams, kind: CardKind, defaultInk: InkId) {
-  const density = DENSITIES.find((d) => d === q.get("density")) ?? "minimal";
+  const density = DENSITIES.find((d) => d === q.get("density")) ?? "light";
   const listed = q.get("fields")?.split(",");
   return {
     // A chart shared from its grid view looks like that grid unless a visual was picked.

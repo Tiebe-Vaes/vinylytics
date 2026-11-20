@@ -128,9 +128,10 @@ export default function CardComposer({ href, filename, title = "Share card", def
       <div className={cn("p-4", customise && "md:grid md:grid-cols-[1fr_1fr] md:items-start md:gap-6")}>
         <div className="flex flex-col items-center">
           <div aria-busy={!ready && !error} className="grid w-full place-items-center bg-raised p-2">
-            <div className={cn("relative grid w-auto max-w-full place-items-center",
-              options.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]",
-              customise ? "h-[30dvh] md:h-[60dvh]" : "h-[58dvh]")}>
+            {/* Sized by width, capped by height: a fixed height let the 4:5 box grow wider than a phone's dialog. */}
+            <div className={cn("relative grid place-items-center", options.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]",
+              customise ? "max-h-[30dvh] md:max-h-[60dvh]" : "max-h-[58dvh]")}
+              style={{ width: `min(100%, calc(${customise ? "30dvh" : "58dvh"} * ${options.format === "story" ? "9 / 16" : "4 / 5"}))` }}>
               {result && (
                 // eslint-disable-next-line @next/next/no-img-element -- this is the exact locally generated download Blob.
                 <img src={result.objectUrl} width={size.width} height={size.height} alt={`${title}, ${options.format} preview`}
@@ -141,7 +142,7 @@ export default function CardComposer({ href, filename, title = "Share card", def
             </div>
           </div>
           <p className="my-2 text-xs text-muted-text" role="status">
-            {error ? "Couldn’t render this card." : done && ready ? `${done} ✓` : ready ? [scope, `${size.width} × ${size.height} · PNG`].filter(Boolean).join(" · ") : "Rendering your card…"}
+            {error ? "Couldn’t render this card." : done && ready ? `${done} ✓` : ready ? [scope, `${size.width} × ${size.height} · PNG`].filter(Boolean).join(" · ") : result ? "Updating…" : null}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {ready?.canShare && <Button className="min-h-11" onClick={share} disabled={sharing}><Share />Share</Button>}

@@ -77,12 +77,14 @@ export function cardLayout(req: Request, card: CardContent, artwork: string | nu
   const element = (
     <div style={{ display: "flex", flexDirection: "column", padding: 64, width: "100%", height: "100%", background: bg, color: fg, fontFamily: "Archivo" }}>
       {fields.includes("period") && <span style={{ fontSize: 29, fontWeight: 600 }}>{card.period}</span>}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18 }}>
+      {/* Centred like a record sleeve; a ranked list reads better left-aligned. */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18,
+        ...(rows.length ? {} : { alignItems: "center", textAlign: "center" as const }) }}>
         {hasVisual && (
           <CardVisualBox visual={visual} size={coverSize} ink={ink} series={card.series} artwork={artwork}
             badge={card.badge} caption={card.caption} covers={card.covers} edition={card.edition.replace(/\s+\/\s+/, " / ")} />
         )}
-        <div style={{ ...display, display: "flex", fontSize, lineHeight: 0.99, maxWidth: 948, wordBreak: "break-word", ...(card.kind === "era" ? {} : { lineClamp: 4 }) }}>{title}</div>
+        <div style={{ ...display, display: "flex", justifyContent: rows.length ? "flex-start" : "center", fontSize, lineHeight: 0.99, maxWidth: 948, wordBreak: "break-word", ...(card.kind === "era" ? {} : { lineClamp: 4 }) }}>{title}</div>
         {fields.includes("lead") && card.lead && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}
         {fields.includes("stat") && card.stat && <span style={{ ...display, fontSize: story ? 78 : 62 }}>{card.stat}</span>}
         {rows.length > 0 && (

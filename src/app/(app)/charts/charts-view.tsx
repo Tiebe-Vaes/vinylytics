@@ -87,10 +87,12 @@ export function ChartsView({query, items, patterns}: {query: URLSearchParams; it
 }
 
 export function PatternsView({bump, months, genres, kinds}: Awaited<ReturnType<typeof chartPatterns>>) {
+  // Two bars or a two-point line say nothing about change over time.
+  const fewMonths = <Empty>Pick a range of three months or more to see this.</Empty>;
   return <div className="mt-12 grid gap-9">
-    <MinutesChart byMonth={months}/>
+    {months.length >= 3 ? <MinutesChart byMonth={months}/> : <Panel title="Minutes per month">{fewMonths}</Panel>}
     <Panel title="Top artists over time" subtitle={`The five leading artists by listening time, ranked against each other each ${bump.unit}.`}>
-      {bump.months.length < 2 ? <Empty>Listen across two periods to see how your favourites trade places.</Empty> : <ArtistBump bump={bump}/>}
+      {bump.months.length < 3 ? fewMonths : <ArtistBump bump={bump}/>}
     </Panel>
     <div className="grid gap-8 md:grid-cols-2">
       <Panel title="Genre mix">{genres.length ? <Genres genres={genres}/> : <Empty>Genres appear as artist tags become available.</Empty>}</Panel>

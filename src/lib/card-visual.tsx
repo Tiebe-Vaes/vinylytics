@@ -73,7 +73,7 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
   const bg = inkHex(ink);
   const fg = inkText(bg);
   const accent = inkHex(PARTNER[classicOf(ink)]);
-  const box = { position: "relative" as const, display: "flex", width: size, height: size, alignSelf: "flex-end" as const };
+  const box = { position: "relative" as const, display: "flex", width: size, height: size, alignSelf: "center" as const };
   const svg = (children: React.ReactNode) => (
     <svg width={size} height={size} viewBox="0 0 100 100" style={{ position: "absolute", left: 0, top: 0 }}>{children}</svg>
   );
@@ -81,7 +81,7 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
   if (visual === "cover") {
     if (!artwork) return null;
     // eslint-disable-next-line @next/next/no-img-element -- Satori renders an embedded image into the PNG.
-    return <img src={artwork} alt="" width={size} height={size} style={{ objectFit: "contain", alignSelf: "flex-end" }} />;
+    return <img src={artwork} alt="" width={size} height={size} style={{ objectFit: "contain", alignSelf: "center" }} />;
   }
 
   if (visual === "mosaic") {
@@ -108,13 +108,23 @@ export function CardVisualBox({ visual, size, ink, series, artwork, badge, capti
 
   if (visual === "sleeve") {
     const rings = shape(series, 10);
+    const px = (u: number) => (u * size) / 100;
+    const print = { position: "absolute" as const, left: px(2), width: px(60), display: "flex", justifyContent: "center", color: fg, fontWeight: 600 as const };
     return (
       <div style={box}>
         {svg(<>
           {record(62, 50, 36, rings, accent, bg)}
           <rect x={2} y={12} width={60} height={76} fill={shade(bg, 0.32)} />
+          {/* No cover: a printed sleeve (frame, catalogue line, caption) instead of a blank that reads as a missing image. */}
+          {!artwork && <rect x={5} y={15} width={54} height={70} fill="none" stroke={fg} strokeWidth={0.4} opacity={0.4} />}
         </>)}
-        <LabelArt src={artwork} cx={62} cy={50} r={36 * 0.34} size={size} />
+        {artwork
+          // eslint-disable-next-line @next/next/no-img-element -- Satori renders an embedded image into the PNG.
+          ? <img src={artwork} alt="" width={px(60)} height={px(76)} style={{ position: "absolute", left: px(2), top: px(12), objectFit: "cover" }} />
+          : <>
+            <div style={{ ...print, top: px(19), fontSize: Math.max(12, size * 0.036) }}>{edition}</div>
+            {caption && <div style={{ ...print, top: px(74), fontSize: Math.max(12, size * 0.036) }}>{caption}</div>}
+          </>}
       </div>
     );
   }

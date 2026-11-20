@@ -93,14 +93,15 @@ export function Heatmap({
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
+    <div className={cn("flex w-fit max-w-full flex-col gap-3", className)}>
       <div ref={scroller} className="overflow-x-auto">
         <div
           className="inline-grid gap-[3px] text-[11px] leading-[11px] text-faint"
           style={{ gridTemplateColumns: `auto repeat(${columns.length}, 11px)` }}
         >
-          {/* Month labels, above each month's first column. */}
-          <span />
+          {/* Month labels, above each month's first column. The label column stays put
+              while the weeks scroll under it, so a half-scrolled week never looks cut off. */}
+          <span className="sticky left-0 z-10 bg-ground" />
           {columns.map((col, i) => {
             const first = col.find((c) => c && c.date.endsWith("-01"));
             const month = first ? Number(first.date.slice(5, 7)) - 1 : null;
@@ -114,7 +115,7 @@ export function Heatmap({
           {/* Weekday labels, then one row per weekday. */}
           {WEEKDAYS.map((label, row) => (
             <Fragment key={row}>
-              <span className="pr-1.5 text-right">{label}</span>
+              <span className="sticky left-0 z-10 bg-ground pr-1.5 text-right">{label}</span>
               {columns.map((col, i) => {
                 const cell = col[row];
                 if (!cell) return <span key={i} />;

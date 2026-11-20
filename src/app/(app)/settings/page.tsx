@@ -44,13 +44,12 @@ export default async function SettingsPage() {
               <Button size="sm" type="submit">Sync now</Button>
             </ActionForm>
           ) : (
-            <Button size="sm" render={<a href="/api/auth/login" />} nativeButton={false}>Reconnect</Button>
+            <Button size="sm" render={<a href="/api/auth/login" />} nativeButton={false}>{spotify.state === "not-connected" ? "Connect Spotify" : "Reconnect"}</Button>
           )}
           <Button size="sm" variant="outline" render={<Link href="/settings/import" />} nativeButton={false}>Import history</Button>
         </div>
         <p className="mt-3 text-sm text-muted-text">
-          Artwork fills in during sync. Each run processes a limited number of items and retries older gaps.
-          Items without artwork on Spotify keep a placeholder and are checked again every six hours.
+          Covers fill in over the next few syncs.
         </p>
       </Panel>
 

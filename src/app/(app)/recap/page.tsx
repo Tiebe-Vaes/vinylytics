@@ -74,7 +74,7 @@ async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:num
     </nav>;
   };
   return <div className="mt-10 grid gap-8 md:grid-cols-2">
-    <Panel title="Most skipped" subtitle="Highest skip rate among songs and artists with at least ten export plays carrying a skip flag. Ties go to more plays, then item ID or artist name." className="md:col-span-2">
+    <Panel title="Most skipped" subtitle="Songs and artists you skipped most, out of those with at least ten plays." className="md:col-span-2">
       <div className="grid gap-4 sm:grid-cols-2">{([["Song",skips.tracks[0]],["Artist",skips.artists[0]]] as const).map(([kind,item])=>
         <div key={kind} className="border-l-2 border-ink-cobalt pl-4"><p className="text-xs text-muted-text">{kind}</p>
           {item ? <><p className="display break-words text-3xl">{item.name}</p><p className="text-sm">{Math.round(item.skipRate*100)}% skipped · {number(item.plays)} known plays</p></> : <p className="text-sm">No eligible {kind.toLowerCase()} with a recorded skip.</p>}</div>)}</div>

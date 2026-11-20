@@ -26,7 +26,8 @@ export function Shelf({ eras, linkable = true }: { eras: EraView[]; linkable?: b
   return (
     <ul
       aria-label="Your eras"
-      className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pt-1 pb-4"
+      // Newest first in the DOM (focus order), drawn old → new like the era timeline; a reversed row opens at its newest end.
+      className="flex flex-row-reverse snap-x snap-mandatory gap-4 overflow-x-auto px-1 pt-1 pb-4"
     >
       {newestFirst.map((era) => (
         <li key={era.id} className="w-[min(79vw,320px)] shrink-0 snap-start">
