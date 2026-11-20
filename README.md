@@ -1,310 +1,138 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/media/logo-dark.svg">
-    <img src="docs/media/logo-light.svg" alt="Vinylytics" width="420">
+    <img src="docs/media/logo-light.svg" width="380" alt="Vinylytics">
   </picture>
 </p>
 
-<h3 align="center">Your Spotify history, pressed as records.</h3>
+# Your Spotify history, pressed as records
 
-<p align="center">
-  Every phase you went through becomes a record sleeve. Every sleeve becomes a card you can send.<br>
-  Runs in your browser with nothing to install, or self-hosted with live sync. Your listening data stays yours.
-</p>
+Which artist owned your summer? Which song did you play six times after midnight? Vinylytics turns your Spotify listening history into a shelf of record sleeves. Open a sleeve to revisit an era, play a recap of your year so far, or send a friend the card that explains the obsession.
 
-<p align="center">
-  <a href="https://vinylytics-fm.vercel.app/get-started"><b>Try it in your browser →</b></a>
-</p>
+**[Open Vinylytics in your browser](https://vinylytics-fm.vercel.app/get-started)** · [Watch *December Can Wait* (15s)](https://vinylytics-fm.vercel.app/media/ad.mp4) · [Self-host with live sync](#set-up-a-live-copy)
 
-<p align="center">
-  <a href="#see-it-in-action">Tour</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#choose-your-path">Get started</a> ·
-  <a href="#in-your-browser">In your browser</a> ·
-  <a href="#set-up-a-live-copy">Self-host</a> ·
-  <a href="#privacy">Privacy</a> ·
-  <a href="#develop">Develop</a>
-</p>
+![The Shelf in Vinylytics, with record sleeves for different phases of a listener’s history](docs/screenshots/shelf.png)
 
-<p align="center">
-  <a href="https://github.com/Tiebe-Vaes/vinylytics/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Tiebe-Vaes/vinylytics/ci.yml?branch=main&style=flat-square&label=CI&labelColor=0f0f10"></a>
-  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1f4fd8?style=flat-square&labelColor=0f0f10"></a>
-  <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-eeebe4?style=flat-square&logo=nextdotjs&logoColor=eeebe4&labelColor=0f0f10&color=2a2826">
-  <img alt="Postgres" src="https://img.shields.io/badge/Postgres-Neon%20%7C%20Docker-127450?style=flat-square&logo=postgresql&logoColor=eeebe4&labelColor=0f0f10">
-  <img alt="Runs in the browser" src="https://img.shields.io/badge/browser-no%20install-d9a21b?style=flat-square&labelColor=0f0f10">
-  <img alt="Self-hosted" src="https://img.shields.io/badge/self--hosted-yes-d9a21b?style=flat-square&labelColor=0f0f10">
-</p>
+## Get started with your Spotify export
+
+1. Request **Extended streaming history** in your [Spotify privacy settings](https://www.spotify.com/account/privacy/) and confirm the request by email.
+2. When Spotify sends your ZIP, drop it onto the [Vinylytics import page](https://vinylytics-fm.vercel.app/get-started). Leave the ZIP intact. Your browser reads it and stores the plays on your device.
+3. Open **Shelf** for your eras, or **Recap → Play my year** for the highlights. Open an era and select **Share** to export its sleeve as a PNG.
+
+You can import a newer export later. Vinylytics skips plays it already has. Use **Settings → Save backup** before clearing browser data or moving devices, then **Restore backup** in the destination browser.
 
 ## See it in action
 
-<p align="center">
-  <a href="docs/media/vinylytics-ad.mp4">
-    <img src="docs/media/vinylytics-ad.webp" alt="December Can Wait — a 15-second preview of a Spotify listening recap, top track and shareable era sleeve" width="300">
-  </a>
-  <br>
-  <sub><a href="docs/media/vinylytics-ad.mp4">▶ December Can Wait</a> · 15 seconds · English</sub>
-</p>
+| Explore | What you can find |
+| --- | --- |
+| **Shelf and eras** | An artist who leads your listening for at least three weeks can earn a sleeve. Open it for the tracklist, first song, peak week and closing track. Rename the era or merge adjacent eras. |
+| **Charts** | Rank artists, tracks or albums over a preset period or your own dates. Switch between play count and listening time to see how the rankings change. |
+| **Year recap** | Play a sequence of highlights or explore the full year on one page, from your longest streak to the artists who topped each month. |
+| **History and search** | Jump to a date, inspect the plays behind a daily total, or follow a song, artist or album through your library. |
+| **Share cards** | Choose an ink colour, visual and which details to print. Save a 1080 × 1350 post or a 1080 × 1920 story. |
 
-<p align="center"><sub>Plays with sound. All listening stats come from synthetic demo history.</sub></p>
+| The year recap | The share-card editor |
+| --- | --- |
+| [![Year recap with listening totals and a Play my year button](docs/screenshots/recap.png)](docs/screenshots/recap.png) | [![Era card preview alongside its visual and format controls](docs/screenshots/composer.png)](docs/screenshots/composer.png) |
 
-## Why Vinylytics
-
-Spotify Wrapped shows up once a year and covers part of it. Your account's "top" lists only look back a few months. Vinylytics keeps everything you play, adds your full Extended Streaming History, and turns it into something worth looking at:
-
-- **Eras, not just lists.** It finds the artist who led each week and presses every run of three weeks or more into a record sleeve coloured from its cover: *Stromae era, September 2025 to November 2026, 477 hours*.
-- **Made to be shared.** One tap on Share gives a clean card: the art, the name and a link back here. Customise it if you want: ten visuals, 64 inks, a detail slider, post or story size.
-- **Your browser or your server, your data.** In the browser your history never leaves the tab. Self-hosted, there is one owner per installation, the raw play log stays in your database, and a public page only exists if you switch it on.
-
-## Features
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="docs/screenshots/shelf.png" alt="The Shelf: record sleeves for each era"><br>
-      <b>Shelf</b> · Your eras as record sleeves, the turntable showing what's playing, and this week's listening with a roast line.
-    </td>
-    <td width="50%" valign="top">
-      <img src="docs/screenshots/era.png" alt="An era page with tracklist and liner notes"><br>
-      <b>Eras</b> · A timeline of your eras, then per era a Side A and Side B, liner notes (first song, peak week, the closer, biggest day). Rename an era or merge it with the next one.
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">
-      <img src="docs/screenshots/charts.png" alt="Charts in grid view"><br>
-      <b>Charts</b> · Read like a sentence: <i>Top artists of the last 4 weeks by minutes</i>. Tap any word to change it, including your own dates. Grid or list.
-    </td>
-    <td valign="top">
-      <img src="docs/screenshots/recap.png" alt="The year recap"><br>
-      <b>Recap</b> · Press <i>Play my year</i> for a story to tap through, or read the bento: night owl or early bird, summer vs winter you, your obsession, mood days, crushes and artists you ghosted, monthly number ones, your all-time favourite, turntable maths and a listening fingerprint.
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">
-      <img src="docs/screenshots/history.png" alt="History grouped by day"><br>
-      <b>History</b> · Every day with its total, favourite song and favourite artist. Jump to any date from a calendar or a strip of day bars. The raw play log is one tap away.
-    </td>
-    <td valign="top">
-      <img src="docs/screenshots/artist.png" alt="An artist page"><br>
-      <b>Artist, song and album pages</b> · Totals, peak week, all-time rank and how it placed month by month. Search your library from any page.
-    </td>
-  </tr>
-</table>
-
-Also in the box: **resumable import** of Spotify's Extended Streaming History (it keeps going after a reload), **live sync** every 30 minutes, **artwork and genre** backfill, an **opt-in public page** at `/u`, and an **opt-in weather comparison** (rainy-day you vs sunny-day you).
-
-### Share cards
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/screenshots/card-era.png" alt="Era card"></td>
-    <td width="33%"><img src="docs/screenshots/card-top.png" alt="Top songs card"></td>
-    <td width="33%"><img src="docs/screenshots/card-recap.png" alt="Year recap card"></td>
-  </tr>
-</table>
-
-Cards exist for eras, top charts, single artists, songs and albums, the year recap and every slide of *Play my year*. By default a card shows the art, the name and a small Vinylytics link; dates, totals and lists are yours to switch on. Each carries one visual drawn from its own data: a record sliding out of its sleeve, grooves cut from your weekly listening, a turntable, a record label, a stack of sleeves, a shop sticker with a listening barcode, a waveform, a dot calendar or, for charts in grid view, a mosaic of covers. Pick from 64 inks, with your recent picks kept at hand. They render as 1080 × 1350 posts or 1080 × 1920 stories. Where the browser supports it, Share opens the native share sheet. Otherwise you save a PNG.
-
-<p align="center"><img src="docs/screenshots/composer.png" alt="The card composer with visual, format, ink, detail and field options" width="85%"></p>
-
-### On your phone
+<details>
+<summary>Watch the 15-second release film · December Can Wait</summary>
 
 <p align="center">
-  <img src="docs/screenshots/phone-shelf.png" alt="Shelf on a phone" width="30%">
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/phone-recap.png" alt="Recap on a phone" width="30%">
+  <a href="docs/media/vinylytics-ad.mp4"><img src="docs/media/vinylytics-ad.webp" width="245" alt="December Can Wait, an animated preview of the English release film"></a><br>
+  <a href="docs/media/vinylytics-ad.mp4">Open the film with sound</a>
 </p>
 
-The same app at every size, with a tab bar on phones.
+</details>
 
-## Choose your path
+The film and screenshots use synthetic listening histories.
 
-**Do you want a recap once, or a copy that keeps updating?**
+## Choose where your history lives
 
-| You want | Path | Needs |
-|---|---|---|
-| To try it now, nothing to install | [In your browser](#in-your-browser) | A browser and your Spotify export. |
-| To see your history and recap on your own computer, maybe share a card | [Recap on your computer](#recap-on-your-computer) | Node.js and your Spotify export. No Spotify app, secrets or hosting. |
-| New plays added automatically, reachable from your phone | [Set up a live copy](#set-up-a-live-copy) | A Spotify developer app (Premium) and Docker or Vercel with Neon. |
+| Mode | Storage | How new plays arrive |
+| --- | --- | --- |
+| [Browser](https://vinylytics-fm.vercel.app/get-started) | PGlite in this browser profile, on this device | Import a Spotify export whenever you like. No sign-in or installation. |
+| [Local on your computer](#run-locally) | A database folder on your computer | Import exports through the local app. No Spotify developer credentials required. |
+| [Self-hosted](#set-up-a-live-copy) | PostgreSQL on your infrastructure | Import past plays, then connect Spotify to sync recent plays on a schedule. |
 
-You can start in the browser and set up a live copy later.
+## Run locally
 
-## In your browser
-
-Open **[vinylytics-fm.vercel.app/get-started](https://vinylytics-fm.vercel.app/get-started)** and drop in your Spotify export. That's it: no account, no install, no server.
-
-1. Request **Extended streaming history** in your Spotify account's privacy settings, then confirm the email Spotify sends. The ZIP can take up to 30 days; the get-started page can add two calendar reminders.
-2. Drop the ZIP on the get-started page. Vinylytics opens and imports it straight away.
-
-Everything runs in the tab. A copy of Postgres ([PGlite](https://pglite.dev)) stores your plays in this browser's IndexedDB, the same queries as the server version build your eras, charts, recap and history, and share cards are drawn on your device. Nothing is uploaded.
-
-- **The first visit takes a few seconds** while the database engine loads. After that it opens from the browser cache.
-- **Back up your history** in **Settings → Save backup**. Clearing this site's data in your browser deletes it. **Restore backup** brings it back, also on another device; **Delete my data** removes it.
-- **Add a newer export any time.** Plays you already have are skipped.
-- **What the self-hosted version adds:** live sync every 30 minutes, cover art and genre tags, a public page and the weather comparison. The browser version shows only what is in your export.
-
-## Recap on your computer
-
-1. Request **Extended streaming history** in your Spotify account’s privacy settings. Spotify emails a ZIP, which can take up to 30 days.
-2. Install [Node.js](https://nodejs.org) 22 or newer.
-3. Download this repository (**Code → Download ZIP** on GitHub, then unzip it), open a terminal in that folder and run:
-
-   ```sh
-   npm ci
-   npm run local
-   ```
-
-4. Open `http://127.0.0.1:3000`, choose **Import history** and select the ZIP. Your plays stay on this computer in `.data/pglite-mine`.
-
-There is no sign-in, so the app only answers on this computer. Stop it with Ctrl+C and run `npm run local` again whenever you want to look back. To start over, stop the app and delete `.data/pglite-mine`.
-
-## Set up a live copy
-
-Choose **Docker** to run the app and database on your own machine, or **Vercel with Neon** to host them online. Both paths use the same Spotify app.
-
-A live-sync installation connects to one owner’s Spotify account and database. Spotify requires the owner of a development-mode app to have Premium. [Spotify quota modes](https://developer.spotify.com/documentation/web-api/concepts/quota-modes)
-
-### Create your Spotify app
-
-1. Open the Spotify Developer Dashboard, sign in with the Premium account you want to use, and select **Create app**. Give it a name such as “My Vinylytics”, select **Web API**, and save. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Enter a callback address. For Docker on this computer, use `http://127.0.0.1:3000/api/auth/callback`. For a hosted copy, use its HTTPS address followed by `/api/auth/callback`. If Vercel has yet to assign the address, register the loopback callback and add the hosted callback after the first deployment. Spotify matches the full address, including the scheme, port, and path. [Spotify redirect rules](https://developer.spotify.com/documentation/web-api/concepts/redirect_uri)
-3. In the app's **Settings**, copy **Client ID** and reveal **Client secret**. Keep the secret in your deployment settings or password manager.
-4. Open your Spotify profile, select **Share → Copy link to profile**, and take the part after `/user/` and before any `?`. This is your owner ID. Enter it before your first sign-in to pin the installation to your account.
-
-### Generate two secrets
-
-Run the command twice and save the outputs separately. Use one for `AUTH_SECRET` and the other for `CRON_SECRET`.
-
-**Windows PowerShell**
-
-```powershell
-$bytes = New-Object byte[] 32
-$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-$rng.GetBytes($bytes)
-$rng.Dispose()
-[Convert]::ToBase64String($bytes)
-```
-
-**macOS or Linux**
-
-```sh
-openssl rand -base64 32
-```
-
-### Option A · Docker
-
-1. Install and start Docker Desktop or Docker Engine with the Compose plugin. Clone or download this repository and open a terminal in the folder that contains `docker-compose.yml`.
-2. Copy the example configuration. On Windows run `Copy-Item .env.example .env` in PowerShell. On macOS or Linux run `cp .env.example .env`.
-3. Open the new `.env` in a text editor and fill in the Spotify values and both generated secrets from the [table below](#environment-variables). Leave `DATABASE_URL` blank so Compose can use its own Postgres service.
-4. Run `docker compose up -d --build`. Then run `docker compose ps` and look for the running app and healthy database. If the app restarts repeatedly, run `docker compose logs --tail=50 app`.
-5. Open `http://127.0.0.1:3000`, sign in with Spotify, and choose **Settings → Sync now**. The connection status and last-sync time should update. The Compose cron service makes subsequent sync attempts every 30 minutes.
-
-For access from another machine, put the app behind an HTTPS reverse proxy and register the exact HTTPS callback in Spotify and `.env`. After changing environment values, run `docker compose up -d`. Back up the database before upgrading, then pull the new source and run `docker compose up -d --build`.
-
-### Option B · Vercel with Neon
-
-1. Fork this repository on GitHub. In Vercel, select **Add New → Project** and import your fork.
-2. Create a Neon Postgres database. Connect it through the Vercel integration or copy the connection string from Neon's **Connect** dialog into the Vercel project's **Settings → Environment Variables** as `DATABASE_URL`.
-3. Add the Spotify credentials, owner ID, two generated secrets, and callback URI from the [table below](#environment-variables) to the **Production** environment. Use the registered loopback callback for the first build if the hosted address is pending. Give Preview its own Neon branch or disable automatic preview deployments. The build command applies database migrations.
-4. Deploy. Copy the Production HTTPS address from the deployment, add `/api/auth/callback`, and register that full URI in Spotify. Set the same URI as the Production `SPOTIFY_REDIRECT_URI` in Vercel, then redeploy.
-5. In your GitHub fork, open **Settings → Secrets and variables → Actions**. Add `APP_URL` with the Production base address without a trailing slash, and `CRON_SECRET` with the exact value from Vercel.
-6. Sign in on the Production address. Go to **Actions → Spotify sync → Run workflow** and verify the run succeeds and the app shows a last-sync time. Enable Actions on your fork if prompted. [Run a GitHub workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)
-
-When changing a Vercel environment value, redeploy the affected environment. When rotating `CRON_SECRET`, update GitHub Actions too. Keep a Neon backup or restore point before updating from upstream.
-
-### Environment variables
-
-Put these in the copy of `.env` next to `docker-compose.yml`, or in Vercel's Production environment.
-
-| Name | Where to get it |
-|---|---|
-| `SPOTIFY_CLIENT_ID` | Spotify app **Settings → Client ID**. |
-| `SPOTIFY_CLIENT_SECRET` | Spotify app **Settings → Client secret**. Keep private. |
-| `SPOTIFY_REDIRECT_URI` | The exact registered callback URI, ending in `/api/auth/callback`. |
-| `OWNER_SPOTIFY_ID` | Your Spotify profile link. Set before sign-in. |
-| `AUTH_SECRET` | First generated secret. Signs sessions. Rotating it signs everyone out. |
-| `CRON_SECRET` | Second generated secret. Compose passes it to the app and cron service from the same file. On Vercel, save the same value in GitHub Actions. |
-| `DATABASE_URL` | Compose supplies this automatically. Vercel uses Neon’s Postgres connection string. Keep it private. |
-| `TIMEZONE` | Optional IANA time zone such as `Europe/Brussels`. Defaults to `UTC`. |
-| `LASTFM_API_KEY` | Optional key from your Last.fm API account for genre tags. Keep private. |
-
-### Import your listening history
-
-Request **Extended streaming history** from your Spotify account’s privacy settings. When the ZIP arrives, open Vinylytics and go to **Settings → Import history**. Select the ZIP (or its `Streaming_History_Audio_*.json` files). The app parses it in your browser and uploads only the fields needed for listening statistics, never your IP address, country or device.
-
-- **Keep the tab open while it says Preparing.** If you close or reload it during that step, choose the files again.
-- **Once it says Saving, you can browse other pages.** Progress stays visible in the corner. If you reload or close the tab, the upload resumes from the last saved batch when you open Vinylytics again in the same browser.
-- **Pause, Resume and Cancel** sit next to the progress bar. Cancelling keeps the plays already saved.
-- **One import at a time.** A second tab shows that the import runs elsewhere and takes over if the first tab closes.
-- **Importing the same export again is safe.** Plays already stored are skipped.
-
-When the upload finishes, artwork and genres keep filling in in the background.
-
-### Troubleshooting
-
-| What you see | What to check |
-|---|---|
-| Spotify rejects the callback | Compare the complete URI in Spotify and your environment. Open the app at the same origin. On local Docker, use the numeric loopback address. |
-| Wrong account or failed sign-in | Compare the profile ID with `OWNER_SPOTIFY_ID`, confirm the app owner's Premium status, and sign in with that same account. |
-| No recent plays | Play a track, choose **Sync now**, and check the Spotify connection status. On Docker, inspect `docker compose logs --tail=30 cron`. On GitHub, check the **Spotify sync** run and both Actions secrets. |
-| Build or startup fails | Check the app logs. On Vercel, confirm the database URL is set for the environment being built. On Docker, check that the database service is healthy and that port 3000 is free. |
-| Covers are missing | Artwork fills in during sync, a limited batch per run. Items Spotify has no artwork for keep a placeholder and are checked again every six hours. |
-
-### Ask an AI coding agent to guide setup
-
-Copy this into an agent that has access to your repository:
-
-> Help me set up Vinylytics in this checkout. Inspect README.md, .env.example, package.json, Docker and Vercel configuration, and the sync workflow. Identify my OS and installed tools, then ask whether I want Docker or Vercel with Neon if you cannot infer it. Give me one step at a time and tell me what I should see before continuing. Use current official docs if dashboard steps have changed. You can prepare local config with placeholders and verify commands and status. Guide me through the Spotify, Vercel, Neon and GitHub dashboard actions I need to perform myself. Let me enter all credentials directly in the local file or dashboard. Keep secrets, tokens, database connection strings, and my listening history out of chat, logs and Git. Verify sign-in, sync and import with me, and report anything still pending.
-
-## Privacy
-
-- **In the browser, nothing leaves the tab.** The browser version has no server: your export is read and stored on your device, and share cards are drawn there too.
-- **One owner.** Only one Spotify account can sign in: the one in `OWNER_SPOTIFY_ID`, or else the first account that signs in. Everyone runs their own copy with their own database.
-- **Your export is cleaned on your device.** The browser reads the ZIP and uploads only what statistics need: when you played, for how long, the track, artist and album, and how it started, ended, skipped or shuffled. IP address, country and device never leave your machine.
-- **Private by default.** The public page at `/u` is off until you switch it on, and you choose which sections it shows. The play log is never public.
-- **No third-party analytics.** The app talks only to Spotify, Spotify's image CDN for covers, Last.fm if you add a key, and Open-Meteo if you set a city for the weather comparison (only the city name, its coordinates and dates are sent).
-
-## How it works
-
-```mermaid
-flowchart LR
-  A[Spotify export ZIP] -->|parsed in your browser| B[Import queue<br/>IndexedDB]
-  B -->|batches, resumable| D[(Postgres)]
-  C[Spotify recently played] -->|sync every 30 min| D
-  A -->|browser version| P[(PGlite<br/>in the tab)]
-  P --> F
-  D --> E[Eras<br/>weekly leading artist]
-  D --> F[Charts · Recap · History]
-  E --> G[Share cards<br/>PNG]
-  F --> G
-```
-
-- **Eras.** For each week the artist with the most minutes leads. Three or more weeks with the same leader form an era. Quiet weeks under 30 minutes don't break a run, and four silent weeks in a row end one. Only your renames and merges are stored; the eras themselves are recalculated from your plays.
-- **No double counting.** A synced play and the same play in your export, within a minute of each other, merge into one. Import batches carry a server cursor, so a retried batch never adds plays twice.
-- **One codebase, two builds.** `npm run build:browser` makes a static export served at `/app`. It reuses the server pages and queries as they are: only `*.browser.tsx` route files are part of it, and module aliases swap Postgres for PGlite, server actions for local writes and `next/og` for satori + resvg-wasm. The showcase site ([vinylytics-site](https://github.com/Tiebe-Vaes/vinylytics-site)) builds it on every deploy.
-- **Built with** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, Recharts, Drizzle ORM on Postgres (PGlite in the browser version, local mode and tests), `next/og` and sharp for cards on the server, satori and resvg-wasm in the browser, fflate for streaming the export, and Vitest.
-
-## Develop
+Install Node.js 22 (latest 22.x), download or clone this repository, and run the following from its root:
 
 ```sh
 npm ci
-npm run dev:local
+npm run local
 ```
 
-Local demo mode uses a separate database with synthetic plays. Use `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` to check a change.
+Open `http://127.0.0.1:3000`, select **Import history**, and choose your ZIP. This mode listens on the loopback address and keeps your history in `.data/pglite-mine` between runs. To explore with invented data instead, run `npm run dev:local`. The demo uses a separate database.
 
-| Command | What it does |
-|---|---|
-| `npm run dev:local` | Dev server with a synthetic demo history, no sign-in. Add `-- --reset` to start fresh or `-- 3100` for another port. |
-| `npm run local` | Your own history on this computer: separate database, no seed, no sign-in. |
-| `npm run typecheck` | Generates Next's route types, then runs TypeScript. |
-| `npm test` | Vitest, with an in-memory Postgres for database tests. |
-| `npm run build:browser` | The browser-only build, a static export in `out-browser/` served at `/app`. `npm run dev:browser` runs it in dev mode. |
-| `node scripts/sample-export.mjs <dir>` | Writes a realistic Spotify export for one invented listener, built from real artists and songs, to test the import. |
+## Set up a live copy
 
-Issues and pull requests are welcome. CI runs typecheck, lint, tests and a production build on every push.
+A self-hosted installation serves one Spotify account. Import your export to backfill earlier years. The sync job then requests recently played tracks every 30 minutes.
 
-## Credits and licence
+### Configure Spotify and the environment
 
-Data from Spotify. Genre tags from Last.fm. Type by Big Shoulders and Archivo. The ad features an original instrumental breakbeat. Released under the [MIT licence](LICENSE).
+1. Create a Web API app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). The owner of a development-mode app needs Spotify Premium. [Spotify quota modes](https://developer.spotify.com/documentation/web-api/concepts/quota-modes)
+2. Register the exact callback URI. For local Docker use `http://127.0.0.1:3000/api/auth/callback`. For a hosted installation use your HTTPS origin followed by `/api/auth/callback`. [Spotify redirect URI requirements](https://developer.spotify.com/documentation/web-api/concepts/redirect_uri)
+3. Set the values below in your deployment environment. For Docker, copy [.env.example](.env.example) to `.env` first. Generate independent values for the two secrets by running `node -p "require('node:crypto').randomBytes(32).toString('hex')"` twice, or use a password manager.
 
-<sub>Vinylytics is not affiliated with or endorsed by Spotify.</sub>
+| Variable | Value |
+| --- | --- |
+| `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Credentials from your Spotify app. |
+| `SPOTIFY_REDIRECT_URI` | The callback registered in step 2. |
+| `OWNER_SPOTIFY_ID` | Your Spotify user ID, found after `/user/` in your profile link. Set it before signing in to reserve the installation for your account. Otherwise the first account to sign in becomes the owner. |
+| `AUTH_SECRET`, `CRON_SECRET` | Separate secrets for signing sessions and authorising sync requests. |
+| `DATABASE_URL` | PostgreSQL connection string on Vercel. Compose supplies its own value. |
+| `TIMEZONE` | Optional IANA time zone for day and hour statistics, for example `Europe/Brussels`. Defaults to UTC. |
+| `LASTFM_API_KEY` | Optional Last.fm key for genre tags. |
+
+### Docker Compose
+
+From the folder containing [docker-compose.yml](docker-compose.yml), run:
+
+```sh
+docker compose up -d --build
+docker compose ps
+```
+
+Open `http://127.0.0.1:3000`, sign in with Spotify and choose **Settings → Sync now**. Check the last-sync time. Compose runs the app, PostgreSQL and the scheduled sync worker. For remote access, use an HTTPS reverse proxy and register its callback address. Back up the database volume before upgrading.
+
+### Vercel and Neon
+
+1. Fork this repository and import the fork as a Vercel project. Create a Neon PostgreSQL database and add its connection string and the variables above to Vercel’s **Production** environment. The configured build applies database migrations. Use a separate database for previews or disable preview deployments.
+2. Deploy, register the final production callback in Spotify and confirm that `SPOTIFY_REDIRECT_URI` matches it. Redeploy after changing environment values.
+3. In your fork, enable GitHub Actions and add two **Actions secrets**: `APP_URL` (your production origin without a trailing slash) and `CRON_SECRET` (the same value used by Vercel).
+4. Sign in on the production site. Run **Actions → Spotify sync → Run workflow**, then check the last-sync time in Settings. The [sync workflow](.github/workflows/sync.yml) also runs on a 30-minute schedule.
+
+### Import and troubleshoot
+
+On a self-hosted copy, open **Settings → Import history** and choose the ZIP or its `Streaming_History_Audio_*.json` files. Keep the tab open during **Preparing**. Once **Saving** begins, the import can resume in the same browser after a reload. Cancelling keeps the plays already saved.
+
+| Symptom | First check |
+| --- | --- |
+| Spotify rejects sign-in | Compare the full callback URI and the owner ID. For local Docker, open the app at `127.0.0.1`. |
+| Recent plays are missing | Play a track and select **Sync now**. For scheduled sync, check `docker compose logs --tail=30 cron` or the GitHub Actions run and its secrets. |
+| The app fails to start | Run `docker compose logs --tail=50 app`, or check Vercel build logs and the database connection for that environment. |
+| Browser history disappears | Check the device and browser profile. Clearing site data removes local plays. Restore a saved backup in Settings. |
+
+## Privacy
+
+The hosted browser edition processes your export and renders cards on your device. A self-hosted copy sends the listening fields needed for statistics to your own server. The import discards device, country and IP-address fields.
+
+On a self-hosted copy, the public profile at `/u` is off by default. You choose which summaries to publish. Your play-by-play history stays private. Optional integrations include Last.fm genre tags and Open-Meteo weather comparisons when you configure a city.
+
+## Development
+
+Vinylytics uses Next.js, React, TypeScript and Drizzle. The browser build runs queries against PGlite and renders share cards locally. The self-hosted build uses PostgreSQL. The [showcase site](https://vinylytics-fm.vercel.app/) builds and serves the browser edition under `/app`.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev:local` | Start the development server with seeded demo listening history. |
+| `npm run dev:browser` | Develop against the browser-only runtime. |
+| `npm run build:browser` | Generate the static browser app in `out-browser/`. |
+| `npm run typecheck` · `npm run lint` · `npm test` | Check route types, lint the code and run the test suite. |
+| `npm run build` | Build the server edition for production. |
+
+[Report an issue](https://github.com/Tiebe-Vaes/vinylytics/issues) · [CI workflow](.github/workflows/ci.yml) · [MIT license](LICENSE)
+
+Created by Tiebe Vaes. Typefaces are Archivo and Big Shoulders. *December Can Wait* uses an original instrumental breakbeat. Vinylytics is an independent project, unaffiliated with Spotify.
