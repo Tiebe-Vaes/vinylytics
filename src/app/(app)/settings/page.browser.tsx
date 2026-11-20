@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageHeader, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { backupDb, deleteDb, restoreDb } from "@/browser/db";
+import { promptInstall, useInstallState } from "@/browser/install";
 
 /** Browser build settings: the history lives in this browser, so it is yours to back up, move or delete. */
 export default function BrowserSettings() {
@@ -13,6 +14,7 @@ export default function BrowserSettings() {
   const [error, setError] = useState<string | null>(null);
   // Whether the browser promised not to evict this site's storage (navigator.storage.persist()).
   const [persisted, setPersisted] = useState<boolean | null>(null);
+  const install = useInstallState();
   useEffect(() => {
     navigator.storage?.persisted?.().then(setPersisted, () => setPersisted(false));
   }, []);
@@ -55,6 +57,20 @@ export default function BrowserSettings() {
       <Panel title="Import">
         <p className="text-sm text-muted-text">Add a newer Spotify export. Plays you already have are skipped.</p>
         <Link href="/settings/import" className="mt-3 inline-block text-sm font-semibold underline">Import history</Link>
+      </Panel>
+      <Panel title="App">
+        {install === "installed" ? (
+          <p className="text-sm text-muted-text">Installed. Vinylytics opens like an app and works offline.</p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-text">Install Vinylytics to open it like an app, offline too. Browsers are far less likely to clear an installed app&apos;s history.</p>
+            {install === "prompt" ? (
+              <Button type="button" onClick={() => void promptInstall().then(() => navigator.storage?.persist?.()).then((p) => p !== undefined && setPersisted(p))} className="mt-3 min-h-11">Install app</Button>
+            ) : (
+              <p className="mt-2 text-sm text-muted-text">On iPhone: Share, then Add to Home Screen. In Chrome or Edge: the install icon in the address bar.</p>
+            )}
+          </>
+        )}
       </Panel>
       <Panel title="Your data">
         <div className="flex flex-wrap gap-2">
