@@ -9,7 +9,8 @@ export const artistHref = (name: string) =>
 
 /** `id` is the bare Spotify track id or a full `spotify:track:` URI. */
 export const trackHref = (id: string) => {
-  const bare = id.split(":").at(-1)!;
+  // Apple Music ids keep their whole "apple:…" form; Spotify ones lose the "spotify:track:" prefix.
+  const bare = id.startsWith("apple:") ? id : id.split(":").at(-1)!;
   return browser ? `/track?id=${encodeURIComponent(bare)}` : `/track/${encodeURIComponent(bare)}`;
 };
 

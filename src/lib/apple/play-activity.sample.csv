@@ -1,0 +1,7 @@
+﻿Apple ID Number,Apple Music Subscription,Artist Name,Build Version,Client IP Address,Content Name,Device Identifier,End Reason Type,Event End Timestamp,Event Start Timestamp,Event Type,Media Duration In Milliseconds,Play Duration Milliseconds,Song Name,UTC Offset In Seconds
+,true,Saint Juniper,,,Slow Motion Summer,,NATURAL_END_OF_TRACK,2026-05-01T10:04:00.000Z,2026-05-01T10:00:00.000Z,PLAY_END,240000,240000,Slow Motion Summer,7200
+,true,Saint Juniper,,,Slow Motion Summer,,,,2026-05-01T10:05:00.000Z,PLAY_START,240000,,Slow Motion Summer,7200
+,true,Juno & the Tides,,,"Northern Lights, Drive",,TRACK_SKIPPED_FORWARDS,2026-05-01T10:05:20.000Z,2026-05-01T10:05:00.000Z,PLAY_END,200000,20000,"Northern Lights, Drive",7200
+,true,,,,"Quiet ""Room""",,NATURAL_END_OF_TRACK,2026-05-02T21:03:00.000Z,,PLAY_END,180000,180000,"Quiet ""Room""",3600
+,true,Ghost,,,,,NATURAL_END_OF_TRACK,2026-05-03T09:00:00.000Z,2026-05-03T08:57:00.000Z,PLAY_END,180000,180000,,3600
+,true,Mira Vale,,,Glass Houses,,NATURAL_END_OF_TRACK,not a date,not a date,PLAY_END,180000,180000,Glass Houses,3600

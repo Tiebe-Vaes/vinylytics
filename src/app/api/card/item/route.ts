@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   if (!key || key.length > 512) return missing();
   let ref: ItemRef;
   if (kind === "artist") ref = { kind, name: key };
-  else if (kind === "track") ref = { kind, uri: key.startsWith("spotify:track:") ? key : `spotify:track:${key}` };
+  else if (kind === "track") ref = { kind, uri: key.startsWith("spotify:track:") || key.startsWith("apple:") ? key : `spotify:track:${key}` };
   else if (kind === "album") ref = { kind, albumId: key };
   else return missing();
   const meta = await itemMeta(ref);

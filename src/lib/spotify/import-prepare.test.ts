@@ -40,3 +40,14 @@ it("rejects malformed and unrelated archives with a clear message", async () => 
   await expect(run([new File([strToU8("garbage")], "export.zip")])).rejects.toThrow(/Extended Streaming History/);
   await expect(run([new File([strToU8("{}")], "Streaming_History_Audio_2024.json")])).rejects.toThrow(/no valid plays/);
 });
+
+it("imports Apple Music's play activity, inside Apple's ZIP or as the CSV itself", async () => {
+  const { readFileSync } = await import("node:fs");
+  const csv = readFileSync("src/lib/apple/play-activity.sample.csv");
+  const zip = zipSync({ "Apple_Media_Services/Apple Music Activity/Apple Music Play Activity.csv": new Uint8Array(csv), "Apple_Media_Services/Read Me First.pdf": strToU8("x") });
+  const fromZip = await run([new File([zip], "Apple Media Services information.zip")]);
+  const fromCsv = await run([new File([csv], "Apple Music Play Activity.csv")]);
+  expect(fromZip.total).toBe(3);
+  expect(fromCsv.staged).toEqual(fromZip.staged);
+  expect(fromCsv.staged[0][1][0]).toMatchObject({ trackName: "Slow Motion Summer", artistName: "Saint Juniper", playedAt: "2026-05-01T10:00:00.000Z" });
+});

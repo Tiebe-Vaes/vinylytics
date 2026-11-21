@@ -40,7 +40,7 @@ export default function BrowserHome() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Your record shelf"
-        description="Drop in Spotify's Extended Streaming History. Request it at spotify.com → Account → Privacy; Spotify takes up to 30 days."
+        description="Drop in Spotify's Extended Streaming History (spotify.com → Account → Privacy, up to 30 days) or Apple Music's play activity (privacy.apple.com → Get a copy of your data)."
       />
       <p className="text-sm text-muted-text">
         Your history lives only in this browser. Nothing is uploaded. Clearing this site&apos;s data removes it.

@@ -50,10 +50,11 @@ export function SpotifyImport() {
         <span className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
           <Upload className="size-5" aria-hidden />
         </span>
-        <h2 className="mt-5 text-base font-semibold">Drop your Spotify listening history here</h2>
+        <h2 className="mt-5 text-base font-semibold">Drop your listening history here</h2>
         <p className="mt-2 max-w-md text-sm text-muted-foreground">
           The Extended Streaming History <span className="nums">.zip</span>, or its{" "}
-          <span className="nums">Streaming_History_Audio_*.json</span> files. It is read in your browser;{" "}
+          <span className="nums">Streaming_History_Audio_*.json</span> files from Spotify, or{" "}
+          <span className="nums">Apple Music Play Activity.csv</span> from Apple. It is read in your browser;{" "}
           {process.env.NEXT_PUBLIC_BROWSER_MODE
             ? "nothing leaves it."
             : "only the plays themselves are uploaded, never your IP, country or device."}
@@ -65,7 +66,7 @@ export function SpotifyImport() {
           ref={inputRef}
           type="file"
           multiple
-          accept=".zip,.json"
+          accept=".zip,.json,.csv"
           className="hidden"
           onChange={(e) => {
             handle([...(e.target.files ?? [])]);
