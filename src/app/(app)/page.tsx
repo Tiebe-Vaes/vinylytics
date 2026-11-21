@@ -14,7 +14,7 @@ import { getNowPlayingView } from "@/lib/spotify/view";
 import { weekSummary } from "@/lib/spotify/week";
 import { hasDb } from "@/db";
 import { ArrowUpRight } from "lucide-react";
-import { localDateKey } from "@/lib/time";
+import { addDaysKey, localDateKey } from "@/lib/time";
 import { ShareButton } from "@/components/sleeve/share-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { artistHref } from "@/lib/href";
@@ -76,7 +76,10 @@ export default async function ShelfPage() {
         <span className="flex items-center gap-2 font-semibold">Open your recap <ArrowUpRight className="hover-reveal size-5 group-hover:-translate-y-0.5" aria-hidden /></span>
       </Link>
 
-      <Panel title="This week" action={<SpotifyAttribution />}>
+      {/* Something to share before a full export arrives: this week's top artists as a card. */}
+      <Panel title="This week" action={<div className="flex items-center gap-3"><SpotifyAttribution />{top.length > 0 && <ShareButton label="Share week"
+        href={`/api/card/top?${new URLSearchParams({ kind: "artist", sort: "time", range: "custom", from: addDaysKey(localDateKey(now), -6), to: localDateKey(now) })}`}
+        filename="vinylytics-this-week.png" title="This week" scope="Top artists · last 7 days" />}</div>}>
         <p className="max-w-prose text-lg leading-snug text-balance">{roastWeek(week)}</p>
         {top.length > 0 && (
           <ol className="mt-5 flex flex-col">

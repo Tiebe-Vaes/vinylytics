@@ -61,3 +61,28 @@ export async function crushes(d: Db, range: Range) {
     FROM a WHERE early >= ${GHOST_MINUTES} ORDER BY early DESC, artist LIMIT 3`);
   return { fastest: reached[0] ?? null, slowBurner: reached.length > 1 ? reached.at(-1)! : null, ghosted };
 }
+
+/** How the year's taste moved against the year before: new artists (10+ minutes), one comeback, up to three dropped. */
+export type TasteShift = { newCount: number; topNew: string | null; comeback: string | null; dropped: string[] };
+
+export async function tasteShift(d: Db, range: Range | null): Promise<TasteShift> {
+  if (!range) return { newCount: 0, topNew: null, comeback: null, dropped: [] };
+  const prevFrom = new Date(range.from);
+  prevFrom.setUTCFullYear(prevFrom.getUTCFullYear() - 1);
+  const [shift] = await rows<TasteShift>(d, sql`
+    WITH firsts AS (
+      SELECT artist_name AS a, min(played_at) AS f FROM plays WHERE kind = 'track' AND artist_name IS NOT NULL AND ${STREAM} GROUP BY 1
+    ), cur AS (
+      SELECT artist_name AS a, sum(ms_played) / 60000.0 AS m FROM plays
+      WHERE kind = 'track' AND artist_name IS NOT NULL AND played_at >= ${range.from.toISOString()}::timestamptz AND played_at < ${range.to.toISOString()}::timestamptz GROUP BY 1
+    ), prev AS (
+      SELECT artist_name AS a, sum(ms_played) / 60000.0 AS m FROM plays
+      WHERE kind = 'track' AND artist_name IS NOT NULL AND played_at >= ${prevFrom.toISOString()}::timestamptz AND played_at < ${range.from.toISOString()}::timestamptz GROUP BY 1
+    )
+    SELECT
+      (SELECT count(*) FROM cur JOIN firsts USING (a) WHERE f >= ${range.from.toISOString()}::timestamptz AND m >= 10)::int AS "newCount",
+      (SELECT a FROM cur JOIN firsts USING (a) WHERE f >= ${range.from.toISOString()}::timestamptz AND m >= 10 ORDER BY m DESC, a LIMIT 1) AS "topNew",
+      (SELECT a FROM cur JOIN firsts USING (a) WHERE f < ${prevFrom.toISOString()}::timestamptz AND a NOT IN (SELECT a FROM prev) ORDER BY m DESC, a LIMIT 1) AS comeback,
+      (SELECT coalesce(array_agg(a ORDER BY m DESC, a), '{}') FROM (SELECT a, m FROM prev WHERE a NOT IN (SELECT a FROM cur) ORDER BY m DESC, a LIMIT 3) x) AS dropped`);
+  return { newCount: shift?.newCount ?? 0, topNew: shift?.topNew ?? null, comeback: shift?.comeback ?? null, dropped: shift?.dropped ?? [] };
+}

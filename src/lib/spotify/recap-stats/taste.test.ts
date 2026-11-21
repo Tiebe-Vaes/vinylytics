@@ -2,7 +2,7 @@ import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { plays } from "@/db/schema";
 import { resetDb, useTestDb } from "@/db/test-db";
 import { addDaysKey } from "@/lib/time";
-import { crushes, goat, monthlyLeaders } from "./taste";
+import { crushes, goat, monthlyLeaders, tasteShift } from "./taste";
 import { play, year2026 } from "./test-helpers";
 
 let d: Awaited<ReturnType<typeof useTestDb>>;
@@ -48,4 +48,20 @@ it("finds the fastest crush, the slow burner and artists you ghosted", async () 
   expect(c.fastest).toEqual({ track: "T-quick", artist: "Quick", days: 1 });
   expect(c.slowBurner).toEqual({ track: "T-slow", artist: "Slow", days: 95 });
   expect(c.ghosted).toEqual([{ artist: "Gone", lastPlay: "2026-01-10", minutesBefore: 320 }]);
+});
+
+it("finds new artists, a comeback and the ones dropped since last year", async () => {
+  await d.insert(plays).values([
+    play("2024-03-01T10:00:00Z", "old", 60, "Comeback Kid"),
+    play("2025-03-01T10:00:00Z", "a", 90, "Last Year Love"), play("2025-04-01T10:00:00Z", "b", 30, "Still Here"),
+    play("2026-02-01T10:00:00Z", "c", 50, "Still Here"), play("2026-03-01T10:00:00Z", "d", 40, "Comeback Kid"),
+    play("2026-05-01T10:00:00Z", "e", 120, "Fresh Find"), play("2026-06-01T10:00:00Z", "f", 15, "Small New"),
+    play("2026-06-02T10:00:00Z", "g", 5, "Too Brief"),
+  ]);
+  expect(await tasteShift(d, year2026)).toEqual({ newCount: 2, topNew: "Fresh Find", comeback: "Comeback Kid", dropped: ["Last Year Love"] });
+});
+
+it("has no shift without a range or plays", async () => {
+  expect(await tasteShift(d, null)).toEqual({ newCount: 0, topNew: null, comeback: null, dropped: [] });
+  expect(await tasteShift(d, year2026)).toEqual({ newCount: 0, topNew: null, comeback: null, dropped: [] });
 });

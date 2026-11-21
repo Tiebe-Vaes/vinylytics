@@ -40,3 +40,10 @@ it("turns a list stat into a card that opens on its list, with its own visual", 
   expect(slideHref(top, 2026)).toBe("/api/card/recap?year=2026&slide=top-artists&visual=stack&fields=lead%2Crows");
   expect(slideCard(top, 2026, null)).toMatchObject({ kind: "recap", title: "On heavy rotation", visual: "stack", lead: "Your top artists" });
 });
+
+it("tells how taste moved since last year, as a list card", () => {
+  const taste = recapSlides(recap, { shift: { newCount: 12, topNew: "Fresh Find", comeback: null, dropped: ["Old Flame", "Gone Band"] } }).find((s) => s.id === "taste")!;
+  expect(taste.headline).toBe("12 new artists");
+  expect(taste.rows).toEqual([{ label: "Biggest find", value: "Fresh Find" }, { label: "Dropped", value: "Old Flame, Gone Band" }]);
+  expect(recapSlides(recap, { shift: { newCount: 0, topNew: null, comeback: null, dropped: [] } }).some((s) => s.id === "taste")).toBe(false);
+});

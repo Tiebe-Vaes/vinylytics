@@ -15,7 +15,7 @@ export type Slide = {
 };
 type Recap = Pick<Awaited<ReturnType<typeof loadRecap>>, "minutes" | "artist" | "track" | "peakHour" | "longestStreak" | "activeDays">;
 type Extras = Partial<Pick<RecapExtras,
-  "obsessed" | "owl" | "season" | "mood" | "crush" | "race" | "grid" | "best" | "topArtists" | "burned" | "wonders" | "weather" | "repeat">> | null;
+  "obsessed" | "owl" | "season" | "mood" | "crush" | "race" | "grid" | "best" | "topArtists" | "burned" | "wonders" | "weather" | "repeat" | "shift">> | null;
 
 const n = (v: number) => Math.round(v).toLocaleString("en-GB");
 const hh = (h: number) => `${String(h % 24).padStart(2, "0")}:00`;
@@ -46,6 +46,14 @@ export function recapSlides(recap: Recap, x: Extras): Slide[] {
     recap.minutes > 0 && { id: "vinyl", kicker: "On a turntable that's", headline: `${n(v.rotations)} turns`, detail: `${v.grooveKm.toFixed(1)} km of groove.`, ink: "green", visual: "turntable" },
     x?.grid?.some((row) => row.some((m) => m > 0)) && { id: "fingerprint", kicker: "Your listening fingerprint", headline: "Yours alone", detail: "Rings are weekdays, spokes are hours.", ink: "cobalt", visual: "grooves" },
     x?.weather && (x.weather.rainy || x.weather.sunny) && { id: "weather", kicker: `Weather you · ${x.weather.city}`, headline: `${x.weather.rainy?.artist ?? "—"} / ${x.weather.sunny?.artist ?? "—"}`, detail: "Rainy days / sunny days.", ink: "teal", visual: "waveform" },
+    x?.shift && (x.shift.newCount > 0 || Boolean(x.shift.comeback) || x.shift.dropped.length > 0) && { id: "taste", kicker: "Compared with last year", headline: `${n(x.shift.newCount)} new ${x.shift.newCount === 1 ? "artist" : "artists"}`, ink: "green", visual: "stack",
+      rows: [
+        x.shift.topNew && { label: "Biggest find", value: x.shift.topNew },
+        x.shift.comeback && { label: "Comeback", value: x.shift.comeback },
+        x.shift.dropped.length > 0 && { label: "Dropped", value: x.shift.dropped.join(", ") },
+      ].filter((r): r is { label: string; value: string } => Boolean(r)) },
+    x?.crush && x.crush.ghosted.length > 0 && { id: "ghosted", kicker: "Fade-outs", headline: "Where did they go?", ink: "plum", visual: "waveform",
+      rows: x.crush.ghosted.map((g) => ({ label: g.artist, value: `last on ${day(g.lastPlay)}` })) },
     x?.burned && x.burned.length > 0 && { id: "burnout", kicker: "Burnout", headline: "Played to death", ink: "vermilion", visual: "waveform",
       rows: x.burned.slice(0, 5).map((b) => ({ label: b.track, value: `${b.peakPlays}× in ${month(b.peakMonth)}` })) },
     x?.wonders && x.wonders.length > 0 && { id: "wonders", kicker: "One-week wonders", headline: "Here, then gone", ink: "teal", visual: "dots",

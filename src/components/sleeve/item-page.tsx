@@ -26,7 +26,8 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
   const facts: [string, string][] = [
     ["Total", `${Math.round(stats.minutes / 6) / 10} hours`],
     ["Plays", stats.streams.toLocaleString("en-GB")],
-
+    // When you met: the first full play in your history.
+    ...(stats.firstPlay ? [["First heard", longDate(stats.firstPlay)] as [string, string]] : []),
     ["Peak week", stats.peakWeek ? `${weekOf(stats.peakWeek.week)}, ${Math.round(stats.peakWeek.minutes)} min` : "None yet"],
     ["All-time rank", stats.allTimeRank ? `#${stats.allTimeRank}` : "Unranked"],
   ];
@@ -65,7 +66,7 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
               </div>
             ))}
           </dl>
-          {stats.firstPlay && <details className="mt-2 text-xs text-muted-text"><summary className="cursor-pointer py-2">Listening dates</summary>First play · {longDate(stats.firstPlay)}{stats.lastPlay && <> · Latest play {longDate(stats.lastPlay)}</>}</details>}
+          {stats.lastPlay && <p className="mt-2 text-xs text-muted-text">Latest play · {longDate(stats.lastPlay)}</p>}
         </Panel>
 
         <Panel title="Week by week">

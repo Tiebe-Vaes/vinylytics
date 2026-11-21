@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { firstListeningYear, getRecap, recapDates, recapInsights } from "@/lib/spotify/recap";
 import { getRecapExtras } from "@/lib/spotify/recap-extras";
 import { Deck, type DeckItem } from "@/components/recap/deck";
+import { CompareLink } from "@/components/recap/compare-link";
+import { encodeTaste } from "@/lib/taste-code";
 import { recapSlides, slideCard, slideFields, slideHref } from "@/lib/spotify/recap-slides";
 import { specElement, withDemo } from "@/lib/card-spec";
 import { demoAllowed } from "@/lib/env";
@@ -72,7 +74,10 @@ async function Extras({year,recap}:{year:number;recap:Awaited<ReturnType<typeof 
     card: specElement(withDemo({type:"poster", year, ink:"plum", artists: artists.map(a => ({name: a.name, minutes: a.minutes})), minutes: recap.minutes, streak: recap.longestStreak}, demoAllowed()),
       null, cardOptions(new URLSearchParams(), "recap", "plum")).element,
   });
-  return <Deck year={year} items={items}/>;
+  return <>
+    <Deck year={year} items={items}/>
+    {artists.length > 0 && <div className="-mt-6 mb-10"><CompareLink code={encodeTaste(year, artists.map(a => a.name))}/></div>}
+  </>;
 }
 
 async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:number;streakPage:number}) {
@@ -93,7 +98,7 @@ async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:num
         <div key={kind} className="border-l-2 border-ink-cobalt pl-4"><p className="text-xs text-muted-text">{kind}</p>
           {item ? <><p className="break-words text-2xl font-bold tracking-tight">{item.name}</p><p className="text-sm">{Math.round(item.skipRate*100)}% skipped · {number(item.plays)} known plays</p></> : <p className="text-sm">No eligible {kind.toLowerCase()} with a recorded skip.</p>}</div>)}</div>
     </Panel>
-    <div id="albums"><Panel title="Album completion" subtitle={`Different tracks played for 30s or more in ${year}, out of the album’s track count.`}>
+    <div id="albums"><Panel title="Albums worth owning on vinyl" subtitle={`The albums you played most of in ${year}: different tracks played, out of the album’s track count.`}>
       {albumCompletion.length === 0 ? <Empty>{albumPage > 1 ? "No more albums on this page." : `No album has three or more of its tracks played in ${year} yet. Album track counts arrive with artwork.`}</Empty> : <ol>{albumCompletion.slice(0,10).map(a=>
         <li key={a.albumId}><Link href={albumHref(a.albumId)} className="flex min-h-11 items-center justify-between gap-2 border-b border-rule py-2 text-sm hover:underline"><span>{a.name} · {a.artist}</span><strong>{a.played}/{a.total}</strong></Link></li>)}</ol>}
       {pagination("albums",albumPage,albumCompletion.length>10)}
