@@ -1,7 +1,7 @@
 // The browser-only build (served at /app): `node scripts/browser.mjs build|dev`.
 // Bundles drizzle/*.sql into src/browser/migrations.gen.ts (the browser has no
 // file system to read them from), then runs Next with VINYLYTICS_BROWSER=1.
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const files = readdirSync("drizzle").filter((f) => f.endsWith(".sql")).sort();
@@ -12,11 +12,7 @@ writeFileSync(
 );
 
 // Share cards in the browser fetch the resvg WASM and the card fonts from /app/browser.
-mkdirSync("public/browser", { recursive: true });
-copyFileSync("node_modules/@resvg/resvg-wasm/index_bg.wasm", "public/browser/resvg.wasm");
-for (const font of ["big-shoulders/files/big-shoulders-latin-900-normal.woff", "archivo/files/archivo-latin-400-normal.woff", "archivo/files/archivo-latin-600-normal.woff"]) {
-  copyFileSync(`node_modules/@fontsource/${font}`, `public/browser/${font.split("/").pop()}`);
-}
+await import("./card-assets.mjs");
 
 const command = process.argv[2] === "dev" ? ["dev", "--port", "3100"] : ["build"];
 const run = spawnSync("npx", ["next", ...command], {

@@ -1,33 +1,47 @@
-import { renderCard } from "@/lib/card";
+import { renderCard, renderSpec } from "@/lib/card";
+import { MAX_COMBO } from "@/lib/card-spec";
 import { isOwner } from "@/lib/owner";
 import { getRecap } from "@/lib/spotify/recap";
 import { getRecapExtras } from "@/lib/spotify/recap-extras";
-import { recapSlides } from "@/lib/spotify/recap-slides";
+import { recapSlides, slideCard } from "@/lib/spotify/recap-slides";
 import { localDateKey } from "@/lib/time";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * The year recap as a card: `slide=<id>` one stat, `slides=a,b,c` a combo of up
+ * to four, `slide=poster` the festival lineup, nothing the yearly summary.
+ */
 export async function GET(req: Request) {
   const missing = () => new Response("Not found", { status: 404 });
   if (!(await isOwner())) return missing();
-  const year = Number(new URL(req.url).searchParams.get("year"));
+  const q = new URL(req.url).searchParams;
+  const year = Number(q.get("year"));
   if (!Number.isInteger(year) || year < 2008 || year > Number(localDateKey().slice(0, 4))) return missing();
   const recap = await getRecap(year);
   if (!recap.minutes && !recap.plays) return missing();
-  const slideId = new URL(req.url).searchParams.get("slide");
-  if (slideId) {
-    const slide = recapSlides(recap, await getRecapExtras(year)).find((sl) => sl.id === slideId);
+
+  const slideId = q.get("slide");
+  const comboIds = q.get("slides")?.split(",").filter(Boolean) ?? [];
+  if (slideId || comboIds.length) {
+    const extras = await getRecapExtras(year);
+    if (slideId === "poster") {
+      const artists = (extras?.topArtists ?? []).map((a) => ({ name: a.name, minutes: a.minutes }));
+      if (!artists.length) return missing();
+      return renderSpec(req, { type: "poster", year, ink: "plum", artists, minutes: recap.minutes, streak: recap.longestStreak });
+    }
+    const slides = recapSlides(recap, extras);
+    if (comboIds.length > 1) {
+      const tiles = comboIds.slice(0, MAX_COMBO).map((id) => slides.find((s) => s.id === id)).filter((s) => s !== undefined);
+      if (tiles.length < 2) return missing();
+      return renderSpec(req, { type: "combo", year, ink: "cobalt", tiles: tiles.map(({ id, kicker, headline, detail, ink }) => ({ id, kicker, headline, detail, ink })) });
+    }
+    const slide = slides.find((s) => s.id === (slideId ?? comboIds[0]));
     if (!slide) return missing();
-    // A slide is a story by default; an explicit format still wins.
-    const url = new URL(req.url);
-    if (!url.searchParams.has("format")) url.searchParams.set("format", "story");
-    return renderCard(new Request(url), {
-      kind: "recap", ink: slide.ink, edition: `${year}  /  RECAP`, title: slide.headline, period: String(year),
-      lead: slide.kicker, cover: recap.artist?.imageUrl ?? null, stat: slide.detail,
-      series: recap.days.map((d) => d.minutes), badge: String(year), caption: "MY YEAR",
-    });
+    return renderCard(req, slideCard(slide, year, recap.artist?.imageUrl));
   }
+
   const rows = [{ label: "Days listening", value: String(recap.activeDays) }];
   if (recap.track) rows.push({ label: "Favourite song", value: recap.track.name });
   if (recap.peakHour != null) rows.push({ label: "Peak listening hour", value: `${String(recap.peakHour).padStart(2, "0")}:00` });

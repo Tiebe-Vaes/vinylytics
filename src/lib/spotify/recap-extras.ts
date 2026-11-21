@@ -22,7 +22,7 @@ async function loadRecapExtras(year: number, today: string) {
     nightOwl(d, range), seasons(d, range), longestSession(d, range), obsession(d, range), repeatChampion(d, range),
     burnout(d, range), oneWeekWonders(d, range), goat(d), monthlyLeaders(d, range), crushes(d, range),
     moodDays(d, range), hourWeekdayGrid(d, range), weatherYou(d, range),
-    topItems({ kind: "artist", ...range, sort: "time", limit: 5 }),
+    topItems({ kind: "artist", ...range, sort: "time", limit: 15 }),
   ]);
   return { owl, season, session, obsessed, repeat, burned, wonders, best, race, crush, mood, grid, weather, topArtists };
 }
@@ -33,5 +33,5 @@ export type RecapExtras = Awaited<ReturnType<typeof loadRecapExtras>>;
 export function getRecapExtras(year: number): Promise<RecapExtras | null> {
   if (!hasDb()) return Promise.resolve(null);
   const today = localDateKey();
-  return unstable_cache(() => loadRecapExtras(year, today), ["recap-extras-v1", String(year), timezone(), recapDates(year, today).to], { tags: ["spotify", "insights"] })();
+  return unstable_cache(() => loadRecapExtras(year, today), ["recap-extras-v2", String(year), timezone(), recapDates(year, today).to], { tags: ["spotify", "insights"] })();
 }

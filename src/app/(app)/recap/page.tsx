@@ -8,9 +8,11 @@ import { ShareButton } from "@/components/sleeve/share-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firstListeningYear, getRecap, recapDates, recapInsights } from "@/lib/spotify/recap";
 import { getRecapExtras } from "@/lib/spotify/recap-extras";
-import { Bento } from "@/components/recap/bento";
-import { Story } from "@/components/recap/story";
-import { recapSlides } from "@/lib/spotify/recap-slides";
+import { Deck, type DeckItem } from "@/components/recap/deck";
+import { recapSlides, slideCard, slideFields, slideHref } from "@/lib/spotify/recap-slides";
+import { specElement, withDemo } from "@/lib/card-spec";
+import { demoAllowed } from "@/lib/env";
+import { cardOptions } from "@/lib/card-options";
 import { listeningDays } from "@/lib/spotify/history";
 import { localDateKey } from "@/lib/time";
 import { albumHref, artistHref } from "@/lib/href";
@@ -53,12 +55,24 @@ export default async function RecapPage({searchParams}: {searchParams: Promise<{
   </>;
 }
 
+/** Every stat as the card it shares as, then the festival poster. */
 async function Extras({year,recap}:{year:number;recap:Awaited<ReturnType<typeof getRecap>>}) {
   const extras = await getRecapExtras(year);
-  return <>
-    <div className="mb-5"><Story year={year} slides={recapSlides(recap, extras)}/></div>
-    <Bento year={year} recap={recap} extras={extras}/>
-  </>;
+  const cover = recap.artist?.imageUrl ?? null;
+  const items: DeckItem[] = recapSlides(recap, extras).map(slide => ({
+    id: slide.id, label: slide.kicker, ink: slide.ink, href: slideHref(slide, year), filename: `vinylytics-${year}-${slide.id}.png`,
+    summary: [slide.kicker, slide.headline, slide.detail, ...(slide.rows ?? []).map(r => [r.label, r.value].filter(Boolean).join(" "))].filter(Boolean).join(". "),
+    card: specElement(withDemo({type:"content", card: slideCard(slide, year, cover)}, demoAllowed()), cover,
+      cardOptions(new URLSearchParams({fields: slideFields(slide).join(",")}), "recap", slide.ink, slide.visual)).element,
+  }));
+  const artists = extras?.topArtists ?? [];
+  if (artists.length >= 3) items.push({
+    id: "poster", label: "Your festival lineup", ink: "plum", href: `/api/card/recap?year=${year}&slide=poster`, filename: `vinylytics-${year}-fest.png`,
+    summary: `Vinylytics Fest ${year}, headlined by ${artists.slice(0, 3).map(a => a.name).join(", ")}.`,
+    card: specElement(withDemo({type:"poster", year, ink:"plum", artists: artists.map(a => ({name: a.name, minutes: a.minutes})), minutes: recap.minutes, streak: recap.longestStreak}, demoAllowed()),
+      null, cardOptions(new URLSearchParams(), "recap", "plum")).element,
+  });
+  return <Deck year={year} items={items}/>;
 }
 
 async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:number;streakPage:number}) {

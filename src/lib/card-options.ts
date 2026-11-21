@@ -27,12 +27,13 @@ export function presetFields(_kind: CardKind, density: Density): CardField[] {
   return (["cover", "stat", "period", "lead", "rows"] as const).slice(0, DENSITIES.indexOf(density) + 1);
 }
 
-export function cardOptions(q: URLSearchParams, kind: CardKind, defaultInk: InkId) {
+/** `defaultVisual` lets one card (a recap slide) pick its own visual over the kind's default. */
+export function cardOptions(q: URLSearchParams, kind: CardKind, defaultInk: InkId, defaultVisual?: CardVisual) {
   const density = DENSITIES.find((d) => d === q.get("density")) ?? "light";
   const listed = q.get("fields")?.split(",");
   return {
     // A chart shared from its grid view looks like that grid unless a visual was picked.
-    visual: VISUALS.find((v) => v === q.get("visual")) ?? (kind === "top" && q.get("view") === "grid" ? "mosaic" : DEFAULT_VISUAL[kind]),
+    visual: VISUALS.find((v) => v === q.get("visual")) ?? (kind === "top" && q.get("view") === "grid" ? "mosaic" : defaultVisual ?? DEFAULT_VISUAL[kind]),
     format: q.get("format") === "story" ? "story" as const : "post" as const,
     ink: INKS.find((i) => i.id === q.get("ink"))?.id ?? defaultInk,
     density,

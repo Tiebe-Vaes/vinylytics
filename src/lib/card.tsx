@@ -3,7 +3,9 @@ import path from "node:path";
 import sharp from "sharp";
 import { ImageResponse } from "next/og";
 import { fetchCover } from "@/lib/spotify/cover-image";
-import { CARD_FONT_FILES, cardLayout, cardWantsCover, type CardContent, type CardFont } from "@/lib/card-layout";
+import { CARD_FONT_FILES, cardWantsCover, type CardContent, type CardFont } from "@/lib/card-layout";
+import { specElement, specOptions, withDemo, type CardSpec } from "@/lib/card-spec";
+import { demoAllowed } from "@/lib/env";
 
 /**
  * Share cards on the server: PNGs drawn by next/og (Satori) from the shared
@@ -43,9 +45,18 @@ export async function coverData(url: string | null | undefined): Promise<string 
   }
 }
 
-/** The response itself is used for both preview and export. */
-export async function renderCard(req: Request, card: CardContent) {
-  const [cardFontList, artwork] = await Promise.all([cardFonts(), cardWantsCover(req, card) ? coverData(card.cover) : null]);
-  const { element, size } = cardLayout(req, card, artwork);
+/** The response itself is used for both preview and export. `?as=json` answers with the card's data,
+ * so the composer can draw a photo card in the browser and the photo never reaches the server. */
+export async function renderSpec(req: Request, input: CardSpec) {
+  const spec = withDemo(input, demoAllowed());
+  const q = new URL(req.url).searchParams;
+  if (q.get("as") === "json") return Response.json(spec, { headers: { "Cache-Control": "private, no-store" } });
+  const wantsCover = spec.type === "content" && cardWantsCover(req, spec.card);
+  const [cardFontList, artwork] = await Promise.all([cardFonts(), wantsCover ? coverData(spec.card.cover) : null]);
+  const { element, size } = specElement(spec, artwork, specOptions(q, spec));
   return new ImageResponse(element, { ...size, fonts: cardFontList, headers: { "Cache-Control": "private, no-store" } });
+}
+
+export function renderCard(req: Request, card: CardContent) {
+  return renderSpec(req, { type: "content", card });
 }

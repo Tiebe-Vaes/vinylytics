@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import { recapSlides } from "./recap-slides";
+import { recapSlides, slideCard, slideHref } from "./recap-slides";
 
 const recap = {
-  minutes: 10656, peakHour: 10,
+  minutes: 10656, peakHour: 10, longestStreak: 322, activeDays: 322,
   artist: { id: "a", name: "Saint Juniper", subtitle: "", plays: 1, ms: 1, imageUrl: null, href: "/artist/a" },
   track: { id: "t", name: "Slow Motion Summer", subtitle: "Saint Juniper", plays: 1, ms: 1, imageUrl: null, href: "/track/t" },
 };
@@ -14,7 +14,7 @@ it("gives the minutes slide a number to count up to, matching its headline", () 
 });
 
 it("tells only what it knows: minutes, artist and song when extras are missing", () => {
-  expect(recapSlides(recap, null).map((s) => s.id)).toEqual(["minutes", "artist", "song", "vinyl"]);
+  expect(recapSlides(recap, null).map((s) => s.id)).toEqual(["minutes", "artist", "song", "peak", "streak", "vinyl"]);
 });
 
 it("keeps a fixed order with unique ids when every stat is there", () => {
@@ -27,6 +27,16 @@ it("keeps a fixed order with unique ids when every stat is there", () => {
     race: [{ month: "2026-01", artist: "M", minutes: 1 }, { month: "2026-02", artist: "S", minutes: 2 }],
     grid: [[1]], best: { artist: { name: "S", minutes: 600 }, track: null },
   });
-  expect(slides.map((s) => s.id)).toEqual(["minutes", "artist", "song", "obsession", "owl", "seasons", "mood", "crush", "race", "vinyl", "fingerprint", "goat"]);
+  expect(slides.map((s) => s.id)).toEqual(["minutes", "artist", "song", "peak", "streak", "obsession", "owl", "seasons", "mood", "crush", "race", "vinyl", "fingerprint", "goat"]);
   expect(new Set(slides.map((s) => s.id)).size).toBe(slides.length);
+});
+
+it("turns a list stat into a card that opens on its list, with its own visual", () => {
+  const [, , , top] = recapSlides(recap, { topArtists: [
+    { key: "a", name: "Saint Juniper", minutes: 3537 }, { key: "b", name: "Low Orbit Club", minutes: 2936 },
+  ] as never });
+  expect(top.id).toBe("top-artists");
+  expect(top.rows).toEqual([{ label: "Saint Juniper", value: "3,537 min" }, { label: "Low Orbit Club", value: "2,936 min" }]);
+  expect(slideHref(top, 2026)).toBe("/api/card/recap?year=2026&slide=top-artists&visual=stack&fields=lead%2Crows");
+  expect(slideCard(top, 2026, null)).toMatchObject({ kind: "recap", title: "On heavy rotation", visual: "stack", lead: "Your top artists" });
 });

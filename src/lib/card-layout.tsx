@@ -1,6 +1,5 @@
-import { demoAllowed } from "@/lib/env";
 import { inkHex, inkText, type InkId } from "@/lib/ink";
-import { CARD_SIZES, cardOptions, type CardKind } from "@/lib/card-options";
+import { CARD_SIZES, cardOptions, type CardKind, type CardVisual } from "@/lib/card-options";
 import { SITE_URL } from "@/lib/site";
 import { CardVisualBox } from "@/lib/card-visual";
 
@@ -46,7 +45,21 @@ export type CardContent = {
   /** Short hero text for the sticker and label visuals, with a small caption under it. */
   badge?: string;
   caption?: string;
+  /** This card's own default visual, when it differs from its kind's. */
+  visual?: CardVisual;
+  /** Demo history: the footer says so instead of crediting Spotify. Set by the renderer, not the route. */
+  demo?: boolean;
 };
+
+export type CardOptions = ReturnType<typeof cardOptions>;
+/** A photo already cropped to the card and blended with its background colour, used as the card's background. */
+export type CardPhoto = { src: string };
+
+/** Background style for a card, with the photo when there is one. Satori shifts the layout around an
+ * absolutely placed image, so the photo is a background, not an element. */
+export function cardBackground(bg: string, size: { width: number; height: number }, photo?: CardPhoto | null) {
+  return photo ? { backgroundColor: bg, backgroundImage: `url(${photo.src})`, backgroundSize: `${size.width}px ${size.height}px` } : { background: bg };
+}
 
 /** The card's sign-off: where to get your own, plus the data credit Spotify's terms ask for. */
 export function cardFooter(demo: boolean) {
@@ -55,15 +68,42 @@ export function cardFooter(demo: boolean) {
 
 /** Whether this request's card shows the cover, so renderers only fetch art when it is drawn. */
 export function cardWantsCover(req: Request, card: CardContent): boolean {
-  return cardOptions(new URL(req.url).searchParams, card.kind, card.ink).fields.includes("cover");
+  return cardOptions(new URL(req.url).searchParams, card.kind, card.ink, card.visual).fields.includes("cover");
 }
 
-const display = { fontFamily: "Big Shoulders", fontWeight: 900 as const, textTransform: "uppercase" as const };
-const singleLine = { overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" } as const;
+/** The sign-off row every card ends with: the Vinylytics mark, the site and the data credit. */
+export function footerBar(fg: string, bg: string, demo: boolean) {
+  const footer = cardFooter(demo);
+  return (
+    <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <svg width={44} height={44} viewBox="0 0 44 44">
+          <circle cx={22} cy={22} r={21} fill={fg} />
+          <circle cx={22} cy={22} r={14} fill="none" stroke={bg} strokeWidth={1.5} opacity={0.5} />
+          <circle cx={22} cy={22} r={7} fill={bg} />
+          <circle cx={22} cy={22} r={2} fill={fg} />
+        </svg>
+        <span style={{ ...display, fontSize: 38 }}>VINYLYTICS</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+        <span style={{ fontSize: 28, fontWeight: 600 }}>{footer.site}</span>
+        <span style={{ fontSize: 17, opacity: 0.7 }}>{footer.attribution}</span>
+      </div>
+    </div>
+  );
+}
+
+export const display = { fontFamily: "Big Shoulders", fontWeight: 900 as const, textTransform: "uppercase" as const };
+export const singleLine = { overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" } as const;
 
 /** The card element and its pixel size for this request's options. `artwork` is a data URI or null. */
-export function cardLayout(req: Request, card: CardContent, artwork: string | null) {
-  const { format, ink, fields, visual } = cardOptions(new URL(req.url).searchParams, card.kind, card.ink);
+export function cardLayout(req: Request, card: CardContent, artwork: string | null, photo?: CardPhoto | null) {
+  return cardElement(card, artwork, cardOptions(new URL(req.url).searchParams, card.kind, card.ink, card.visual), photo);
+}
+
+/** The same card for any options: the PNG renderers and the recap deck (drawn in the page) share it. */
+export function cardElement(card: CardContent, artwork: string | null, options: CardOptions, photo?: CardPhoto | null) {
+  const { format, ink, fields, visual } = options;
   const story = format === "story";
   const bg = inkHex(ink);
   const fg = inkText(bg);
@@ -73,19 +113,23 @@ export function cardLayout(req: Request, card: CardContent, artwork: string | nu
   const hasVisual = visual !== "cover" || artwork !== null;
   const fontSize = Math.round(eraTitleSize(title, story) * (!hasVisual && !rows.length ? 1.45 : 1));
 
-  const footer = cardFooter(demoAllowed());
+  const size = CARD_SIZES[format];
+  // A recap stat reads as a sentence: "This year you listened for" / "10,656 minutes".
+  const leadFirst = card.kind === "recap";
   const element = (
-    <div style={{ display: "flex", flexDirection: "column", padding: 64, width: "100%", height: "100%", background: bg, color: fg, fontFamily: "Archivo" }}>
-      {fields.includes("period") && <span style={{ fontSize: 29, fontWeight: 600 }}>{card.period}</span>}
+    <div style={{ position: "relative", display: "flex", flexDirection: "column", padding: story ? "250px 64px 340px" : 64, boxSizing: "border-box", width: "100%", height: "100%", ...cardBackground(bg, size, photo), color: fg, fontFamily: "Archivo" }}>
+      {fields.includes("period") && <span style={{ position: "relative", fontSize: 29, fontWeight: 600 }}>{card.period}</span>}
       {/* Centred like a record sleeve; a ranked list reads better left-aligned. */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18,
+      {/* Positioned, so it paints above the absolutely placed photo. */}
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: story ? 28 : 18,
         ...(rows.length ? {} : { alignItems: "center", textAlign: "center" as const }) }}>
         {hasVisual && (
           <CardVisualBox visual={visual} size={coverSize} ink={ink} series={card.series} artwork={artwork}
             badge={card.badge} caption={card.caption} covers={card.covers} edition={card.edition.replace(/\s+\/\s+/, " / ")} />
         )}
+        {fields.includes("lead") && card.lead && leadFirst && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}
         <div style={{ ...display, display: "flex", justifyContent: rows.length ? "flex-start" : "center", fontSize, lineHeight: 0.99, maxWidth: 948, wordBreak: "break-word", ...(card.kind === "era" ? {} : { lineClamp: 4 }) }}>{title}</div>
-        {fields.includes("lead") && card.lead && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}
+        {fields.includes("lead") && card.lead && !leadFirst && <span style={{ ...singleLine, fontSize: 37, fontWeight: 600 }}>{card.lead}</span>}
         {fields.includes("stat") && card.stat && <span style={{ ...display, fontSize: story ? 78 : 62 }}>{card.stat}</span>}
         {rows.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: story ? 18 : 12, marginTop: 8 }}>
@@ -102,22 +146,8 @@ export function cardLayout(req: Request, card: CardContent, artwork: string | nu
           </div>
         )}
       </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <svg width={44} height={44} viewBox="0 0 44 44">
-            <circle cx={22} cy={22} r={21} fill={fg} />
-            <circle cx={22} cy={22} r={14} fill="none" stroke={bg} strokeWidth={1.5} opacity={0.5} />
-            <circle cx={22} cy={22} r={7} fill={bg} />
-            <circle cx={22} cy={22} r={2} fill={fg} />
-          </svg>
-          <span style={{ ...display, fontSize: 38 }}>VINYLYTICS</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-          <span style={{ fontSize: 28, fontWeight: 600 }}>{footer.site}</span>
-          <span style={{ fontSize: 17, opacity: 0.7 }}>{footer.attribution}</span>
-        </div>
-      </div>
+      {footerBar(fg, bg, Boolean(card.demo))}
     </div>
   );
-  return { element, size: CARD_SIZES[format] };
+  return { element, size };
 }

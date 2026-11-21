@@ -15,6 +15,8 @@ export type ShareButtonProps = {
   scope?: string;
   /** The real value behind each optional fact, shown on its toggle card. */
   preview?: Partial<Record<CardField, string>>;
+  /** Recap slides only: other slides that can join this one on a single combo card. */
+  combo?: { first: string; options: { id: string; label: string }[] };
 };
 
 export function ShareButton(props: ShareButtonProps) {
