@@ -18,7 +18,7 @@ const DEBOUNCE_MS = 150;
  * Library search with live, grouped suggestions. Enter without a highlighted
  * suggestion still opens the full results page.
  */
-export function LibrarySearch({ query = "" }: { query?: string }) {
+export function LibrarySearch({ query = "", autoFocus = false }: { query?: string; autoFocus?: boolean }) {
   const [value, setValue] = useState(query);
   const [groups, setGroups] = useState<Group[]>([]);
   const aborter = useRef<AbortController | null>(null);
@@ -41,9 +41,9 @@ export function LibrarySearch({ query = "" }: { query?: string }) {
   const shown = value.trim().length < 2 ? [] : groups;
   return (
     <Autocomplete.Root items={shown} filter={null} value={value} onValueChange={setValue} itemToStringValue={(item: Item) => item.name}>
-      <Form action="/search" role="search" aria-label="Music library" className="flex min-w-0 items-center border border-strong bg-ground focus-within:border-text">
+      <Form action="/search" role="search" aria-label="Music library" className="flex w-full min-w-0 items-center border border-strong bg-ground focus-within:border-text">
         <Search className="ml-3 size-4 shrink-0 text-muted-text" aria-hidden />
-        <Autocomplete.Input aria-label="Search your library" type="search" name="q" maxLength={100} placeholder="Search your library"
+        <Autocomplete.Input aria-label="Search your library" type="search" name="q" maxLength={100} placeholder="Search your library" autoFocus={autoFocus}
           className="h-11 w-36 min-w-0 flex-1 bg-transparent px-2 text-sm outline-none sm:w-48" />
         <button aria-label="Search" className="flex size-11 shrink-0 items-center justify-center hover:bg-muted"><ArrowRight className="size-4" aria-hidden /></button>
       </Form>
@@ -59,7 +59,7 @@ export function LibrarySearch({ query = "" }: { query?: string }) {
                     {(item: Item) => (
                       <Autocomplete.Item key={item.key} value={item} render={<Link href={item.href} />}
                         className="flex min-h-12 items-center gap-3 px-3 py-1.5 text-sm data-[highlighted]:bg-raised">
-                        <Cover url={item.cover} alt="" size={36} />
+                        <Cover url={item.cover} alt="" size={36} seed={item.subtitle || item.name} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-semibold">{item.name}</span>
                           {item.subtitle && <span className="block truncate text-xs text-muted-text">{item.subtitle}</span>}

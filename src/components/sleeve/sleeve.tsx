@@ -21,14 +21,15 @@ export function Sleeve({ era, size = "shelf", href, className }: {
   const face = (
     <div className={cn("relative flex aspect-square w-full flex-col justify-between gap-2 overflow-hidden", hero ? "p-6 md:p-7" : "p-4")}
       style={{ background: bg, color: inkText(bg) }}>
-      <p className="self-end text-xs font-semibold opacity-80">{era.weeks} weeks</p>
+      {/* Fixed slots: hours on top, name and dates at the bottom, so cards line up whatever the name's length. */}
+      <p className={cn("flex items-baseline gap-2 leading-none", hero ? "text-[clamp(3.5rem,9vw,7rem)]" : "text-6xl")}>
+        <span className="display">{eraHours(era)}</span><span className="text-sm font-bold tracking-widest uppercase">hours</span>
+      </p>
       {era.cover ? (
         // eslint-disable-next-line @next/next/no-img-element -- preserve the source artwork and its aspect ratio.
         <img src={era.cover} alt={`Artwork from ${era.name}`} loading={hero ? "eager" : "lazy"}
           className="min-h-0 w-[50%] flex-1 self-end object-contain object-right" />
-      ) : <div aria-hidden="true" className="flex min-h-0 flex-1 items-end">
-        <span className={cn("display", hero ? "text-[clamp(4rem,10vw,8rem)]" : "text-7xl")}>{eraHours(era)}<small className="align-top text-[0.4em]">h</small></span>
-      </div>}
+      ) : <div aria-hidden="true" className="min-h-0 flex-1" />}
       <div className="shrink-0">
         <h2 className={cn("display line-clamp-2", hero ? "text-[clamp(2.2rem,6vw,4.75rem)]" : "text-[clamp(2rem,5vw,2.75rem)]")}>{era.name}</h2>
         <div className="mt-3 flex items-end justify-between gap-3 text-xs font-semibold">

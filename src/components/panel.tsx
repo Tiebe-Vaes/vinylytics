@@ -72,7 +72,7 @@ export function CardHeader({
   return (
     <div className={cn("flex items-start justify-between gap-4 pt-1 pb-3", className)}>
       <div className="min-w-0">
-        <h2 className="display text-2xl">{title}</h2>
+        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
         {subtitle && <p className="mt-1 text-sm text-muted-text">{subtitle}</p>}
       </div>
       {action}
@@ -92,7 +92,7 @@ export function SectionLabel({
 }) {
   return (
     <div className={cn("flex min-h-12 items-center justify-between gap-3 border-b border-rule py-2.5", className)}>
-      <h2 className="display text-2xl">{children}</h2>
+      <h2 className="text-xl font-bold tracking-tight">{children}</h2>
       {action}
     </div>
   );

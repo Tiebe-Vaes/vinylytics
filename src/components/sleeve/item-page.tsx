@@ -36,7 +36,7 @@ export async function ItemPage({ refOf, inkSeed }: { refOf: ItemRef; inkSeed: st
       <header className="-mx-4 flex flex-col gap-5 px-4 pt-8 pb-6 md:mx-0 md:p-8" style={{ background: bg, color: fg }}>
         <div className="flex items-end justify-between gap-4">
           <h1 className="display min-w-0 break-words text-[clamp(44px,12vw,96px)]">{meta.title}</h1>
-          <Cover url={meta.cover} size={88} alt={meta.title} />
+          <Cover url={meta.cover} size={96} alt={meta.title} />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm font-semibold">
           <span>{meta.subtitle}</span>

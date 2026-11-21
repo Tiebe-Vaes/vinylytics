@@ -67,15 +67,11 @@ export function NowPlayingCard({
   const hero = size === "hero";
 
   if (!shown) {
+    // Nothing to show: one quiet line, so the shelf starts on the first screen.
     return (
-      <div className={cn("flex items-center gap-4", hero ? "p-5" : "")}>
-        <ArtTile item={null} hero={hero} />
-        <div className="min-w-0">
-          <div className="text-xs text-muted-text">Turntable</div>
-          <div className={cn("mt-1 font-semibold tracking-tight", hero ? "text-2xl" : "text-base")}>
-            Nothing playing
-          </div>
-        </div>
+      <div className="flex items-center gap-3">
+        <ArtTile item={null} hero={false} />
+        <p className="text-sm text-muted-text">Nothing playing</p>
       </div>
     );
   }

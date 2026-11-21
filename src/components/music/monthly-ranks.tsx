@@ -36,8 +36,9 @@ export function MonthlyRanks({rows}:{rows:ItemStats["rankByMonth"]}) {
   return <>
     <MonthControls {...{order,limit,setOrder,setLimit}}/>
     <ol className="grid gap-x-5 sm:grid-cols-2 md:grid-cols-3">
-      {orderMonths(rows,order,limit,m=>m.streams).map(m=><li key={m.month} className="flex items-baseline gap-2 border-b border-rule py-2 text-sm">
-        <strong className="display text-2xl">#{m.rank}</strong>
+      {orderMonths(rows,order,limit,m=>m.streams).map(m=><li key={m.month} className="flex items-baseline gap-3 border-b border-rule py-2 text-sm">
+        {/* Fixed width so #1 and #10 keep the month names in one column. */}
+        <strong className="nums w-10 shrink-0 text-lg font-bold">#{m.rank}</strong>
         <span>{new Date(`${m.month}-15T12:00:00Z`).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"})}</span>
         <small className="ml-auto text-muted-text">{m.streams} {m.streams === 1 ? "play" : "plays"}</small>
       </li>)}

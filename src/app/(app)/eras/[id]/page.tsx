@@ -34,11 +34,11 @@ export default async function EraPage({ params }: PageProps<"/eras/[id]">) {
   ];
   const side = (label: string, list: typeof tracks) => (
     <div>
-      <h3 className="display mb-1 text-xl">Side {label}</h3>
+      <h3 className="mb-1 text-lg font-bold tracking-tight">Side {label}</h3>
       <ol>{list.map((track, i) => (
         <li key={track.uri} className="group flex items-center gap-3 border-t border-rule py-2.5">
-          <span aria-hidden="true" className="display w-9 shrink-0 text-xl text-muted-text">{label}{i + 1}</span>
-          <Cover url={track.cover} size={40} alt="" />
+          <span aria-hidden="true" className="nums w-9 shrink-0 font-bold text-muted-text">{label}{i + 1}</span>
+          <Cover url={track.cover} size={40} alt="" seed={track.artist} />
           <div className="min-w-0 flex-1">
             <Link href={trackHref(track.uri)} className="link-underline block truncate font-semibold">{track.name}</Link>
             <Link href={artistHref(track.artist)} className="block truncate text-sm text-muted-text hover:underline">{track.artist}</Link>

@@ -72,7 +72,7 @@ export default async function ShelfPage() {
       </section>
 
       <Link href={`/recap?year=${year}`} className="group flex flex-wrap items-end justify-between gap-4 border-y border-current bg-text px-5 py-6 text-ground sm:px-7">
-        <span className="display text-4xl sm:text-6xl">{year} in music</span>
+        <span className="text-2xl font-bold tracking-tight sm:text-3xl">{year} in music</span>
         <span className="flex items-center gap-2 font-semibold">Open your recap <ArrowUpRight className="hover-reveal size-5 group-hover:-translate-y-0.5" aria-hidden /></span>
       </Link>
 
@@ -82,7 +82,7 @@ export default async function ShelfPage() {
           <ol className="mt-5 flex flex-col">
             {top.map((a, i) => (
               <li key={a.name} className="flex items-center gap-3 border-t border-rule py-2.5">
-                <span className="display w-6 text-2xl text-muted-text">{i + 1}</span>
+                <span className="nums w-6 text-lg font-bold text-muted-text">{i + 1}</span>
                 <Cover url={a.imageUrl} size={40} alt={a.name} />
                 <Link href={artistHref(a.name)} className="min-w-0 flex-1 truncate font-semibold hover:underline">
                   {a.name}

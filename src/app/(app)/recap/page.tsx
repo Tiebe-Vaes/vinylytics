@@ -91,7 +91,7 @@ async function Highlights({year,albumPage,streakPage}:{year:number;albumPage:num
     <Panel title="Most skipped" subtitle="Songs and artists you skipped most, out of those with at least ten plays." className="md:col-span-2">
       <div className="grid gap-4 sm:grid-cols-2">{([["Song",skips.tracks[0]],["Artist",skips.artists[0]]] as const).map(([kind,item])=>
         <div key={kind} className="border-l-2 border-ink-cobalt pl-4"><p className="text-xs text-muted-text">{kind}</p>
-          {item ? <><p className="display break-words text-3xl">{item.name}</p><p className="text-sm">{Math.round(item.skipRate*100)}% skipped · {number(item.plays)} known plays</p></> : <p className="text-sm">No eligible {kind.toLowerCase()} with a recorded skip.</p>}</div>)}</div>
+          {item ? <><p className="break-words text-2xl font-bold tracking-tight">{item.name}</p><p className="text-sm">{Math.round(item.skipRate*100)}% skipped · {number(item.plays)} known plays</p></> : <p className="text-sm">No eligible {kind.toLowerCase()} with a recorded skip.</p>}</div>)}</div>
     </Panel>
     <div id="albums"><Panel title="Album completion" subtitle={`Different tracks played for 30s or more in ${year}, out of the album’s track count.`}>
       {albumCompletion.length === 0 ? <Empty>{albumPage > 1 ? "No more albums on this page." : `No album has three or more of its tracks played in ${year} yet. Album track counts arrive with artwork.`}</Empty> : <ol>{albumCompletion.slice(0,10).map(a=>
@@ -110,7 +110,7 @@ async function Memories({today}:{today:string}) {
   const days = await listeningDays("2008-01-01",`${Number(today.slice(0,4))-1}-12-31`,today.slice(5));
   return <Panel title="On this day" subtitle="Today’s date in earlier years, across your library." className="mt-10">
     {days.length ? <ul>{days.map(d=><li key={d.day}><Link href={`/history?day=${d.day}`} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-rule py-3 hover:underline">
-      <strong className="display text-2xl">{d.day.slice(0,4)}</strong><span>{d.topTrack || "Listening day"}</span>{d.topArtist && <small>Top artist · {d.topArtist}</small>}<small className="text-muted-text">{number(d.minutes)} min</small>
+      <strong className="nums text-xl font-bold">{d.day.slice(0,4)}</strong><span>{d.topTrack || "Listening day"}</span>{d.topArtist && <small>Top artist · {d.topArtist}</small>}<small className="text-muted-text">{number(d.minutes)} min</small>
     </Link></li>)}</ul> : <Empty>No earlier plays recorded on this date.</Empty>}
   </Panel>;
 }

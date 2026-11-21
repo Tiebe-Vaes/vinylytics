@@ -28,16 +28,22 @@ async function DateJump({ selected, today }: { selected?: string; today: string 
 
 export const dynamic = "force-dynamic";
 
+/** "Wed 18 Nov": one line in the timeline; the month strip above already says the year. */
+const dayShort = (key: string, today: string) => key === today ? "Today"
+  : new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+
 const dayTitle = (key: string, today: string) => {
   if (key === today) return "Today";
   return new Date(`${key}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 };
 
-function DayFacts({ day }: { day: ListeningDay }) {
+function DayFacts({ day, compact }: { day: ListeningDay; compact?: boolean }) {
   return (
     <>
       <p className="nums text-sm font-semibold">{humanDuration(Math.round(day.minutes))} · {day.plays} {day.plays === 1 ? "play" : "plays"}</p>
-      {(day.topTrack || day.topArtist) && (
+      {compact ? (day.topTrack || day.topArtist) && (
+        <p className="mt-0.5 truncate text-sm text-muted-text">{[day.topTrack, day.topArtist].filter(Boolean).join(" · ")}</p>
+      ) : (day.topTrack || day.topArtist) && (
         <dl className="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
           {day.topTrack && <div><dt className="text-xs text-muted-text">Favourite song</dt><dd className="break-words font-semibold">{day.topTrack}</dd></div>}
           {day.topArtist && <div><dt className="text-xs text-muted-text">Favourite artist</dt><dd className="break-words font-semibold">{day.topArtist}</dd></div>}
@@ -61,15 +67,15 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
         <PageHeader title="History" description="Your listening, one day at a time." actions={<>{jump.picker}<Link className="p-2 text-sm font-semibold underline" href="/history?view=plays">All plays</Link></>} />
         {jump.strip}
         {days.length === 0 && <Empty>{roastEmpty("history")}</Empty>}
-        <ol className="grid gap-x-10 sm:grid-cols-2">
+        {/* A timeline: the date on a left rail, the day's facts beside it. */}
+        <ol className="border-l border-rule">
           {days.map((day) => (
-            <li key={day.day} className="border-t border-rule">
-              <Link href={`/history?day=${day.day}`} className="group block px-2 py-5 transition-colors duration-200 hover:bg-raised">
-                <h2 className="display mb-3 flex items-start justify-between gap-3 text-3xl">
-                  {dayTitle(day.day, today)}
-                  <ArrowUpRight className="hover-reveal size-5 shrink-0 text-muted-text group-hover:-translate-y-0.5" aria-hidden />
-                </h2>
-                <DayFacts day={day} />
+            <li key={day.day} className="relative border-b border-rule last:border-b-0">
+              <span aria-hidden className="absolute top-5 -left-[5px] size-2.5 rounded-full bg-text" />
+              <Link href={`/history?day=${day.day}`} className="group grid grid-cols-[5.5rem_1fr_auto] items-baseline gap-3 py-4 pr-2 pl-5 transition-colors duration-200 hover:bg-raised sm:grid-cols-[8rem_1fr_auto]">
+                <h2 className="nums font-bold">{dayShort(day.day, today)}</h2>
+                <div className="min-w-0"><DayFacts day={day} compact /></div>
+                <ArrowUpRight className="hover-reveal size-4 shrink-0 self-center text-muted-text group-hover:-translate-y-0.5" aria-hidden />
               </Link>
             </li>
           ))}
@@ -102,7 +108,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
       <div className="flex flex-col gap-8">
         {[...days].map(([day, list]) => (
           <section key={day} aria-label={dayTitle(day, today)}>
-            <h2 className="display mb-2 text-2xl">{selected ? "Play log" : dayTitle(day, today)}</h2>
+            <h2 className="mb-2 text-xl font-bold tracking-tight">{selected ? "Play log" : dayTitle(day, today)}</h2>
             <ol>
               {list.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 border-t border-rule py-2 text-sm">

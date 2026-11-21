@@ -20,7 +20,7 @@ function TopList({ title, items }: { title: string; items: ChartItem[] }) {
         <ol>
           {items.map((item, i) => (
             <li key={item.key} className="flex items-center gap-3 border-t border-rule py-2.5 first:border-t-0">
-              <span className="display w-7 text-2xl text-muted-text">{i + 1}</span>
+              <span className="nums w-7 text-lg font-bold text-muted-text">{i + 1}</span>
               <Cover url={item.cover} size={40} alt={item.name} />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{item.name}</div>

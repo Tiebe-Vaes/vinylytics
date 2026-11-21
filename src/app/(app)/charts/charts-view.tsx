@@ -55,7 +55,7 @@ export function ChartsView({query, items, patterns}: {query: URLSearchParams; it
     {!valid && <p role="alert" className="py-4 text-sm">Choose a valid start and end date through today. The end date must follow or match the start. <Link href={href("range","4w")} className="font-semibold underline">Reset to the last 4 weeks</Link></p>}
     <section className="mt-7">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="display text-3xl">{title}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         <div className="flex flex-wrap items-center gap-2">
           <RangeSelect label="Layout" options={views} value={view} href={v=>href("view",v)}/>
           {items.length > 0 && <ShareButton href={`/api/card/top?${filter}&view=${view}`} filename={`vinylytics-${kind}-${range}.png`} title={title} scope={sentence}
@@ -65,16 +65,18 @@ export function ChartsView({query, items, patterns}: {query: URLSearchParams; it
       {valid && !items.length && <Empty>No {title.toLowerCase().replace("top ","")} in this period.{kind === "album" ? " Albums appear as Spotify metadata arrives." : " Try a wider date range."}</Empty>}
       <ol aria-label={title} className={view === "grid" ? "grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-5" : ""}>
         {items.map((item,i)=>{
-          const bg = inkHex(hashInk(item.key));
+          // Coloured by artist, so one artist's songs group visually instead of reading as duplicates.
+          const artist = item.subtitle || item.name;
+          const bg = inkHex(hashInk(artist));
           const metric = sort === "time" ? `${Math.round(item.minutes).toLocaleString("en-GB")} min` : `${item.streams.toLocaleString("en-GB")} ${item.streams === 1 ? "play" : "plays"}`;
           // Same name before and after a sort change, so the row glides to its new rank.
           return <li key={item.key} className="min-w-0"><ViewTransition name={`rank-${item.key.replace(/[^a-zA-Z0-9_-]/g, "_")}`}><Link href={item.href} className={`group ${view === "grid" ? "block h-full" : "flex items-center gap-3 border-t border-rule py-2 hover:bg-muted"}`}>
             {view === "grid" ? <Tilt><div className="relative grid aspect-square place-items-center overflow-hidden" style={{background:bg,color:inkText(bg)}}>
-              {item.cover ? <Cover url={item.cover} alt="" size={160} className="size-full! ring-0"/> : <span aria-hidden className="display text-7xl sm:text-8xl">{String(i+1).padStart(2,"0")}</span>}
-              {item.cover && <span className="absolute bottom-0 left-0 bg-ground px-2 py-1 text-xs font-bold text-text">#{i+1}</span>}
-            </div></Tilt> : <><span className="display w-8 shrink-0 text-2xl">{i+1}</span><Cover url={item.cover} alt="" size={42}/></>}
+              {item.cover ? <Cover url={item.cover} alt="" size={160} className="size-full! ring-0"/> : <Cover url={null} alt="" seed={artist} size={160} className="size-full! ring-0"/>}
+              <span className="nums absolute top-0 left-0 bg-ground px-2 py-1 text-sm font-bold text-text">#{i+1}</span>
+            </div></Tilt> : <><span className="nums w-8 shrink-0 text-lg font-bold text-muted-text">{i+1}</span><Cover url={item.cover} alt="" size={42} seed={artist}/></>}
             <div className={view === "grid" ? "mt-2" : "min-w-0 flex-1"}>
-              <div className="flex items-start justify-between gap-1"><strong className="link-underline break-words leading-snug">{item.name}</strong><ArrowUpRight className="hover-reveal size-4 shrink-0 text-muted-text" aria-hidden /></div>
+              <div className="flex items-start justify-between gap-1"><strong className="link-underline break-words leading-snug">{item.name}</strong><ArrowUpRight className="hover-reveal mt-1 size-4 shrink-0 text-muted-text" aria-hidden /></div>
               {item.subtitle && <small className="block break-words text-muted-text">{item.subtitle}</small>}
               <small className="nums block text-muted-text">{metric}</small>
             </div>
